@@ -6,7 +6,7 @@
 
 -->
 <template>
-  <div id="query-graph-panel">    
+  <div id="query-graph-panel">
     <canvas id="canvas-askomics-graph" :width="width" :height="height"> </canvas>
   </div>
 </template>
@@ -21,121 +21,196 @@ export default {
     // taille en pixel du composant
     width_fix: { type: Number },
     height_fix: { type: Number },
-    
   },
   data () {
     return {
       graph: {
         nodes: [
-            {"id": "Alice", "name" : "Alice"},
-            {"id": "Bob", "name" : "Bob"},
-            {"id": "Carol", "name" : "Carol"}
+            {
+              label: "Alice",
+              id: "Alice", 
+              name : "Alice",
+              suggested: false, 
+              selected: false,
+              uri : "http://something/what/else"
+              },
+            {"label": "Bob","id": "Bob", "name" : "Bob", suggested: true, selected: false},
+            {"label": "Carol","id": "Carol", "name" : "Carol", suggested: true, selected: true }
         ],
         links:
         [
           {
-            "source":"Alice",
-            "target":"Bob",
-            "count":206,
+            source:"Alice",
+            target:"Bob",
+            label:"A->B",
             suggested: true,
             selected: true,
             directed: true
           }, {
-            "source":"Alice",
-            "target":"Carol",
-            "count":710,
+            source:"Alice",
+            target:"Carol",
+            label:"A->C",
             suggested: false,
             selected: false,
             directed: true
           }
         ]
       },
-      canvas: "",
-      ctx: "",
+      ctrlKey: false,
+      canvas: null,
+      ctx: null,
       width:650,
       height:400,
-      r: 20,
-      color: "",
+      color: d3.scaleOrdinal(["#6b486b", "#a05d56", "#d0743c", "#ff8c00"]),
       zoom : 5,
       zoomTime : 1000,
+      trans : d3.zoomIdentity,
       colorGrey : '#808080',
       colorDarkGrey : '#404040',
       colorFirebrick : '#cc0000',
-      colorGreen : '#005500FF',
-      lineWidth : 0.5,
-      nodeSize : 3,
+      lineWidth : 2.5,
+      nodeSize : 20,
       blankNodeSize : 1,
-      arrowLength : 7
-
+      arrowLength : 20,
+      forceCollide: 40,
+      strengthForce: 0.9,
+      strengthForceManBody: -2000
     }
   },
   mounted() {
-    console.log("App loaded");
-    this.fetchData();
-  },
-  methods: {
-    fetchData() {
-      this.canvas = d3.select("#canvas-askomics-graph")
-       
-      this.ctx = this.canvas.node().getContext("2d");
-      this.color = d3.scaleOrdinal(["#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+    /*****
+     * 
+     * Manage Key
+     * 
+     */
+    /*
+    this._keyListener = function(e) {
+          console.log(e.ctrlKey);
+        //  if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+          if ( e.ctrlKey ) {
+              e.preventDefault(); // present "Save Page" from getting triggered.
+              console.log(e.key);
+              this.ctrlKey = true ;
+              //this.saveNote();
+          } else {
+            this.ctrlKey = false ;
+          }
+    };
 
+    document.addEventListener('keydown', this._keyListener.bind(this));*/
+
+    this.setUpCanvas();
+  },
+  
+  beforeDestroy() {
+      //  document.removeEventListener('keydown', this._keyListener);
+  },
+
+  methods: {
+    setUpCanvas() {
+      
+
+        /**
+         * Managing CANVAS
+         */
+      
+      this.canvas = d3.select("#canvas-askomics-graph")
+      this.ctx = this.canvas.node().getContext("2d");
 
       this.simulation = d3
           .forceSimulation()
-          .force("x",d3.forceX(300))
-          .force("y",d3.forceY(300))
-          .force("collide",d3.forceCollide(this.r+10))
-          .force("charge", d3.forceManyBody()
-          .strength(-20))
-           .force("link", d3.forceLink()
-                  .id(function (d) { return d.name; })
-              );
-          
-
+          .force("x",d3.forceX(this.width/2).strength(this.strengthForce) )
+          .force("y",d3.forceY(this.height/2).strength(this.strengthForce) )
+          .force("collide",d3.forceCollide(this.nodeSize+this.forceCollide))
+          .force("charge", d3.forceManyBody().strength(this.strengthForceManBody))
+         ;
 
       this.simulation.nodes(this.graph.nodes);
+      
       this.simulation
-          .force("link")
-            .links(this.graph.links);
+          .force("link", d3.forceLink()
+                  .id(function (d) { return d.id; })
+          )
+          .force("link").links(this.graph.links);
+            
+      
       this.simulation.on("tick", this.update);
 
       this.canvas
+        .on("click", this.canvasClick)
         .call(d3.drag()
             .container(this.canvas.node())
             .subject(this.dragsubject)
-            .on("start", this.started)
-            .on("end", this.ended)
+            .on("start", this.dragstarted)
+            .on("drag", this.dragged)
+            .on("end", this.dragended)
+          )
+        .call(
+          d3.zoom(this.zoom,this.zoomTime)
+            .on("zoom", this.zoomed)
           );
     },
         
     update() {
-          console.log("update..............");
-          this.ctx.clearRect(0,0,this.width, this.height);
-          this.ctx.beginPath();
-          this.ctx.globalAlpha = 0.1;
-          this.ctx.strokeStyle = "#aaa";
-          this.graph.links.forEach(this.drawLink);
-          this.ctx.stroke();
 
-          this.ctx.globalAlpha = 1.0;
-          this.graph.nodes.forEach(this.drawNode);
+      this.ctx.clearRect(0,0,this.width, this.height);
+      this.ctx.fillStyle = "Gainsboro";
+      this.ctx.fillRect(0,0,this.width,this.height);
+
+      this.ctx.beginPath();
+      this.ctx.globalAlpha = 0.1;
+      this.ctx.strokeStyle = "#aaa";
+      this.graph.links.forEach(this.drawLink);
+      this.ctx.stroke();
+
+      this.ctx.globalAlpha = 1.0;
+      this.graph.nodes.forEach(this.drawNode);
+
+      this.ctx.translate(this.trans.x, this.trans.y); //<-- this always applies a transform
+      this.ctx.scale(this.trans.k, this.trans.k);
+
+    },
+
+    zoomed(event) {
+      this.trans = event.transform;
+      //this.ctx.translate(this.trans.x, this.trans.y); //<-- this always applies a transform
+      //this.ctx.scale(this.trans.k, this.trans.k);
     },
     
     dragsubject(event) {
-      console.log("dragsubject..............");
         return this.simulation.find(event.x, event.y);
     },
+
+    canvasClick(event) {      
+      // if ctrl released 
+      if ( ! event.ctrlKey ) {
+          // release  
+          this.graph.nodes.map( n => { n.selected = false } ) ;
+      }
+     
+
+      let rect = this.canvas.node().getBoundingClientRect();
+      let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      if (n) {
+        n.selected = !n.selected ;
+      } else {
+
+      }
+      this.update();
+    },
     
-    started(event) {
+    dragstarted(event) {
       //console.log("started..............");
       if (!event.active) this.simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
       console.log(event.subject);
     },
-
-    ended(event) {
+    dragged(event) {
+      event.subject.fx = event.x;
+      event.subject.fy = event.y;
+    },
+    dragended(event) {
     //  console.log("ended..............");
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
@@ -197,14 +272,44 @@ export default {
         return newStr
     },
 
-    drawNode(d) {
-      //console.log("drawNode..............");
-      //console.log(d);
+     stringToHexColor (str) {
+      // first, hash the string into an int
+      let hash = 0
+      for (var i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash)
+      }
+      // Then convert this int into a rgb color code
+      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase()
+      let hex = '#' + '00000'.substring(0, 6 - c.length) + c
+      return hex
+    },
+
+    drawNode(node) {
+      let unselectedColor = this.colorGrey
+      let unselectedColorText = this.colorDarkGrey
+      
+      this.ctx.fillStyle = node.uri ? this.stringToHexColor(node.uri) : "#faaafff" ;
+      
+      this.ctx.lineWidth = this.lineWidth ;
+      this.ctx.strokeStyle = node.selected ? this.colorFirebrick : unselectedColor ;
+      this.ctx.globalAlpha = node.suggested ? 0.5 : 1 ;
+      node.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+
+      // draw node
       this.ctx.beginPath();
-      this.ctx.fillStyle = this.color(d.party);
-      this.ctx.moveTo(d.x, d.y);
-      this.ctx.arc(d.x, d.y, this.r, 0, Math.PI*2);
+      this.ctx.arc(node.x, node.y, this.nodeSize, 0, 2 * Math.PI, false);
+      this.ctx.stroke();
       this.ctx.fill();
+      this.ctx.closePath();
+      // draw text
+      this.ctx.beginPath();
+      this.ctx.fillStyle = unselectedColorText;
+      this.ctx.font = this.nodeSize + 'px Sans-Serif';
+      this.ctx.textAlign = 'middle';
+      this.ctx.textBaseline = 'middle';
+      let label = node.humanId ? node.label + " " + this.subNums(node.humanId) : node.label;
+      this.ctx.fillText(label, node.x + this.nodeSize, node.y + this.nodeSize);
+      this.ctx.closePath();
     },
 
     drawLink(link) {
@@ -218,7 +323,6 @@ export default {
       this.ctx.globalAlpha = link.suggested ? 0.3 : 1
       this.ctx.lineWidth = this.lineWidth
 
-      //console.log("drawLink..............");
       this.ctx.beginPath();
       let c = this.IntersectionCoordinate(link.source.x, link.source.y, link.target.x, link.target.y, this.nodeSize)
       this.ctx.moveTo(c.x, c.y);
@@ -252,20 +356,6 @@ export default {
   }
 }
 
-/*
-d3.select("#graph_query").layout.force()
-    .nodes(nodes)
-    .links(links)
-    .size([w, h])
-    .linkStrength(0.1)
-    .friction(0.9)
-    .linkDistance(20)
-    .charge(-30)
-    .gravity(0.1)
-    .theta(0.8)
-    .alpha(0.1)
-    .start();
-*/
 </script>
 
 <style lang="scss">
