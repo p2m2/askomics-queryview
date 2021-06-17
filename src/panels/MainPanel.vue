@@ -18,7 +18,7 @@
         <br />
         <BRow>
             <BCol xs="7">
-             <QueryGraphPanel v-bind:width="500" v-bind:height="400" /> 
+             <QueryGraphPanel v-bind:request="request" v-bind:width="500" v-bind:height="400" /> 
           </BCol>
           <BCol xs="5">
             <div class="attributes-list">
@@ -44,9 +44,11 @@
 </template>
 
 <script>
+
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import { BContainer,BRow, BCol } from 'bootstrap-vue'
+import RequestManager from '../js/RequestManager.js'
 
 export default {
   name: 'MainPanel',
@@ -56,7 +58,7 @@ export default {
       },
   data () {
     return {
-      something: [ ],
+      request: null,
        config: {
                     user: {
                         admin : true
@@ -90,6 +92,18 @@ export default {
                     linked: false,
                 }]
     }
+  },
+  mounted() {
+    this.request = new RequestManager();
+    this.request.startWithConfiguration(
+      `
+          {
+          "sources" : [{
+          "id"  : "metabolights",
+          "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+           }]}
+          `
+    );
   }
 }
 </script>

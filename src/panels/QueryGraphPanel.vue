@@ -13,14 +13,14 @@
 
 <script>
 import * as d3 from 'd3';
+import Utils from '../js/utils.js'
+import RequestManager from '../js/RequestManager.js'
 
 export default {
   name: 'QueryGraphPanel',
   components : {  },
   props: {
-    // taille en pixel du composant
-    width_fix: { type: Number },
-    height_fix: { type: Number },
+    request : RequestManager
   },
   data () {
     return {
@@ -29,13 +29,14 @@ export default {
             {
               label: "Alice",
               id: "Alice", 
+              uri : "http://bidon/1",
               name : "Alice",
               suggested: false, 
               selected: false,
               uri : "http://something/what/else"
               },
-            {"label": "Bob","id": "Bob", "name" : "Bob", suggested: true, selected: false},
-            {"label": "Carol","id": "Carol", "name" : "Carol", suggested: true, selected: true }
+            {"label": "Bob","id": "Bob", "name" : "Bob",uri : "http://bidon/2", suggested: true, selected: false},
+            {"label": "Carol","id": "Carol", "name" : "Carol", uri : "http://bidon/3", suggested: true, selected: true }
         ],
         links:
         [
@@ -78,32 +79,10 @@ export default {
     }
   },
   mounted() {
-    /*****
-     * 
-     * Manage Key
-     * 
-     */
-    /*
-    this._keyListener = function(e) {
-          console.log(e.ctrlKey);
-        //  if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
-          if ( e.ctrlKey ) {
-              e.preventDefault(); // present "Save Page" from getting triggered.
-              console.log(e.key);
-              this.ctrlKey = true ;
-              //this.saveNote();
-          } else {
-            this.ctrlKey = false ;
-          }
-    };
-
-    document.addEventListener('keydown', this._keyListener.bind(this));*/
-
     this.setUpCanvas();
   },
   
   beforeDestroy() {
-      //  document.removeEventListener('keydown', this._keyListener);
   },
 
   methods: {
@@ -145,10 +124,13 @@ export default {
             .on("drag", this.dragged)
             .on("end", this.dragended)
           )
-        .call(
-          d3.zoom(this.zoom,this.zoomTime)
-            .on("zoom", this.zoomed)
-          );
+        /*.call(
+          d3.zoom()
+              .extent([[0, 0], [this.width, this.height]])
+              .scaleExtent([1, 8])
+              .on("zoom", this.zoomed)
+          )*/
+          ;
     },
         
     update() {
@@ -165,16 +147,11 @@ export default {
 
       this.ctx.globalAlpha = 1.0;
       this.graph.nodes.forEach(this.drawNode);
-
-      this.ctx.translate(this.trans.x, this.trans.y); //<-- this always applies a transform
-      this.ctx.scale(this.trans.k, this.trans.k);
-
     },
 
     zoomed(event) {
-      this.trans = event.transform;
-      //this.ctx.translate(this.trans.x, this.trans.y); //<-- this always applies a transform
-      //this.ctx.scale(this.trans.k, this.trans.k);
+      this.ctx.translate(event.transform.x, event.transform.y); 
+      this.ctx.scale(event.transform.k, event.transform.k);
     },
     
     dragsubject(event) {
@@ -187,7 +164,10 @@ export default {
           // release  
           this.graph.nodes.map( n => { n.selected = false } ) ;
       }
-     
+
+      this.request.forwardEntities("uri test....").then(r => {console.log(r)});
+      this.request.setDataDrivenStrategy();
+      this.request.forwardEntities("uri test....").then(r => {console.log(r)});
 
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
@@ -272,23 +252,11 @@ export default {
         return newStr
     },
 
-     stringToHexColor (str) {
-      // first, hash the string into an int
-      let hash = 0
-      for (var i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash)
-      }
-      // Then convert this int into a rgb color code
-      let c = (hash & 0x00FFFFFF).toString(16).toUpperCase()
-      let hex = '#' + '00000'.substring(0, 6 - c.length) + c
-      return hex
-    },
-
     drawNode(node) {
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       
-      this.ctx.fillStyle = node.uri ? this.stringToHexColor(node.uri) : "#faaafff" ;
+      this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
       
       this.ctx.lineWidth = this.lineWidth ;
       this.ctx.strokeStyle = node.selected ? this.colorFirebrick : unselectedColor ;
