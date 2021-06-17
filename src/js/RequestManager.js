@@ -41,22 +41,42 @@ export default class RequestManager {
                 this.strategy
                     .forwardEntities(this.discovery,uri)
                     .console()
-                    .select("forwardProperty","forwardEntity")
+                    .select("forwardProperty","forwardEntity","labelForwardEntity","labelForwardProperty")
                     .commit()
                     .raw()
                     .then(
                         response => {
                             let mR = new Map()
                             for (let i=0;i<response.results.bindings.length;i++) {
-                                let forwardProperty=response.results.bindings[i]["forwardProperty"].value;
                                 let forwardEntity=response.results.bindings[i]["forwardEntity"].value;
-                                if (!mR[forwardProperty]) {
-                                    mR[forwardProperty] = new Map() ;
+                                let forwardProperty=response.results.bindings[i]["forwardProperty"].value;
+                                
+                                if (!mR[forwardEntity]) {
+                                    let labelForwardEntity="<none>";
+                                    try {
+                                        labelForwardEntity=response.results.datatypes["labelForwardEntity"][forwardEntity][0].value; 
+                                    } catch (error) {
+                                        
+                                    }     
+                                    mR[forwardEntity] = { 
+                                        properties : new Map(),
+                                        label : labelForwardEntity
+                                    } ;
                                 }
-                                if(! mR[forwardProperty][forwardEntity]) {
-                                    mR[forwardProperty][forwardEntity] = { label : "Ok" } ;
+                                if(! mR[forwardEntity]["properties"][forwardProperty]) {
+                                    let labelForwardProperty="<none>";
+                                    try {
+                                        labelForwardProperty = response.results.datatypes["labelForwardProperty"][forwardProperty][0].value; 
+                                    } catch (error) {
+                                        
+                                    }     
+
+                                    mR[forwardEntity].merge({ 
+                                        link : {
+                                            label : labelForwardProperty
+                                        } 
+                                    });
                                 }
-                            // let label=response.results.datatypes["label"][study][0].value; 
                             }
                             successCallback(mR);
                         }
