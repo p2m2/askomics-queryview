@@ -46,6 +46,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
+import "bootstrap/dist/css/bootstrap.min.css"
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import RequestManager  from '../../ts/RequestManager'
