@@ -165,8 +165,8 @@ import RequestManager from '../../ts/RequestManager'
       }
 
       this.request.forwardEntities("uri test....").then(r => {console.log(r)});
-      this.request.setDataDrivenStrategy();
-      this.request.forwardEntities("uri test....").then(r => {console.log(r)});
+      //this.request.setDataDrivenStrategy();
+      //this.request.forwardEntities("uri test....").then(r => {console.log(r)});
 
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
