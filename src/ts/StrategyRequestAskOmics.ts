@@ -1,6 +1,5 @@
 
-const disovery_module = require('@p2m2/discovery')
-const { SWDiscovery, URI } = disovery_module; 
+import { SWDiscovery,URI} from '@p2m2/discovery'
 
 import StrategyRequestAbstract from './StrategyRequestAbstract'
 
@@ -13,12 +12,12 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestAskOmics ============ ") ;
     }
 
-    forwardEntities(discovery : typeof SWDiscovery,uri : string) : typeof SWDiscovery {
+    forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery {
         console.log("AskOmics -> forwardEntities");
-
-        return discovery
-            .isSubjectOf(URI("rdf:type"),"typeOfFocus")
-              .isObjectOf(URI("rdf:domain"),"forwardProperty")
-                .isSubjectOf(URI("rdf:range"),"typeOfFocusentityForward") ;
+        console.log("---------");
+        return discovery.something("h1")
+            .isSubjectOf(new URI("rdf:type"),"typeOfFocus")
+              .isObjectOf(new URI("rdf:domain"),"forwardProperty")
+                .isSubjectOf(new URI("rdf:range"),"typeOfFocusentityForward") ;
     }
 }

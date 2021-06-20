@@ -1,5 +1,4 @@
-const disovery_module = require('@p2m2/discovery')
-const { SWDiscovery } = disovery_module; 
+import {SWDiscovery} from '@p2m2/discovery'
 
 /* 
  - Structure Node 
@@ -43,7 +42,7 @@ export default abstract class StrategyRequestAbstract {
     * @return List(Object(node : Node, links : List(Link)))
     */
 
-    abstract forwardEntities(discovery : typeof SWDiscovery,uri : string) : typeof SWDiscovery ;
+    abstract forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery ;
 
 }
 

@@ -1,5 +1,4 @@
-const disovery_module = require('@p2m2/discovery')
-const { SWDiscovery,URI,QueryVariable,Literal } = disovery_module; 
+import {SWDiscovery,URI,QueryVariable,Literal} from '@p2m2/discovery'
 
 import StrategyRequestAbstract from './StrategyRequestAbstract'
 
@@ -12,18 +11,18 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
-    forwardEntities(discovery : typeof SWDiscovery,uri : string) : typeof SWDiscovery {
+    forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery {
         return discovery
-          .isObjectOf(URI("rdf:type"))
-           .isSubjectOf(QueryVariable("forwardProperty"))
-            .isSubjectOf(URI("rdf:type"),"forwardEntity")
-             .filter.not.strStarts(Literal("http://www.openlinksw.com/"))
-            .datatype(URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelForwardEntity")       
+          .isObjectOf(new URI("rdf:type"))
+           .isSubjectOf(new QueryVariable("forwardProperty"))
+            .isSubjectOf(new URI("rdf:type"),"forwardEntity")
+             .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
+            .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelForwardEntity")       
      .focus("forwardProperty")
-       .filter.notEqual(URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
-       .filter.notEqual(URI("http://www.w3.org/2000/01/rdf-schema#domain"))
-       .filter.notEqual(URI("http://www.w3.org/2000/01/rdf-schema#range"))
-       .filter.not.strStarts(Literal("http://www.openlinksw.com/"))
-            .datatype(URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelForwardProperty");
+       .filter.notEqual(new URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
+       .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#domain"))
+       .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#range"))
+       .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
+            .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelForwardProperty");
     }
 }
