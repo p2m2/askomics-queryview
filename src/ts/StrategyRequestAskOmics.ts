@@ -17,7 +17,8 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         console.log("---------");
 
         // get current class uri
-
+        
+        //
         return discovery
                 .isSubjectOf(new URI("rdf:type"),"typeOfFocus")
                 .isObjectOf(new URI("rdf:domain"),"forwardProperty")

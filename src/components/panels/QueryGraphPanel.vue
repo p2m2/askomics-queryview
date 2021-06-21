@@ -16,7 +16,7 @@ import { Options, Vue } from 'vue-class-component';
 import * as d3 from 'd3';
 import Utils from '../../ts/utils'
 import RequestManager from '../../ts/RequestManager'
-import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
+import { NodeState, AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : {  },
@@ -26,15 +26,11 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
       type: Object,
       default: {
         nodes: [ {
-          id    : "start",
           uri   : "blank",
           label : "Something",
           name : "Something",
-          flags : {
-            suggested : false, 
-            selected  : false,
-            something : true
-          }
+          class: 'node',
+          state : NodeState.SELECTED
         }
         ],
         links : []
@@ -43,39 +39,6 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
   },
   data () {
     return {
-      /*
-      graph: {
-        nodes: [
-            {
-              label: "Alice",
-              id: "Alice", 
-              uri : "http://bidon/1",
-              name : "Alice",
-              suggested: false, 
-              selected: false
-              },
-            {"label": "Bob","id": "Bob", "name" : "Bob",uri : "http://bidon/2", suggested: true, selected: false},
-            {"label": "Carol","id": "Carol", "name" : "Carol", uri : "http://bidon/3", suggested: true, selected: true }
-        ],
-        links:
-        [
-          {
-            source:"Alice",
-            target:"Bob",
-            label:"A->B",
-            suggested: true,
-            selected: true,
-            directed: true
-          }, {
-            source:"Alice",
-            target:"Carol",
-            label:"A->C",
-            suggested: false,
-            selected: false,
-            directed: true
-          }
-        ]
-      },*/
       ctrlKey: false,
       canvas: null,
       ctx: null,
@@ -122,16 +85,7 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
           .force("collide",d3.forceCollide(this.nodeSize+this.forceCollide))
           .force("charge", d3.forceManyBody().strength(this.strengthForceManBody))
          ;
-
-      this.simulation.nodes(this.graph.nodes);
-      
-      this.simulation
-          .force("link", d3.forceLink()
-                  .id(function (d) { return d.id; })
-          )
-          .force("link").links(this.graph.links);
-            
-      
+              
       this.simulation.on("tick", this.update);
 
       this.canvas
@@ -153,7 +107,6 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
     },
         
     update() {
-
       this.ctx.clearRect(0,0,this.width, this.height);
       this.ctx.fillStyle = "Gainsboro";
       this.ctx.fillRect(0,0,this.width,this.height);
@@ -166,6 +119,11 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
 
       this.ctx.globalAlpha = 1.0;
       this.graph.nodes.forEach(this.drawNode);
+
+      this.simulation.nodes(this.graph.nodes);
+      this.simulation
+              .force("link", d3.forceLink().id(function (d) { return d.uri; }))
+              .force("link").links(this.graph.links)
     },
 
     zoomed(event) {
@@ -181,7 +139,12 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
       // if ctrl released 
       if ( ! event.ctrlKey ) {
           // release  
-          this.graph.nodes.map( n => { n.flags.selected = false } ) ;
+          this.graph.nodes = this.graph.nodes.map( n => { 
+            if (n.state == NodeState.SELECTED) {
+              n.state = NodeState.CONCRETE
+              }
+            return n
+            }) ;
       } 
       
       //this.request.setDataDrivenStrategy();
@@ -189,43 +152,94 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
 
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      if (n) {
-        n.flags.selected = !n.flags.selected ;
-          /**
-           *           Suggestions 
-           */
-         this.suggestions(n);
+
+      /**
+       * Nothing is selected with go out and remove selection */ 
+      if (! n ) {
+        this.removeSuggestion() 
+        return ;
+      }
+      
+      /**----------------------------------------------------------------------------
+       * 1) Creation Node/Links if a suggested node is clicked !
+       */
+
+      if (n.state == NodeState.SUGGESTED) {
+        n.state = NodeState.SELECTED 
+        this.graph.links = this.graph.links.map(
+          link => {
+            if ( (link.state == NodeState.SUGGESTED) &&  ( (link.source == n.uri) || (link.target == n.uri) )) {
+              link.state = NodeState.CONCRETE
+            }
+              link.state = NodeState.CONCRETE
+            return link;
+          }
+        )
+      }
+      /**----------------------------------------------------------------------------
+       * 2) Remove Suggestion unused
+       */
+      this.removeSuggestion()
+
+      /**-----------------------------------------------------------------------------
+       *   management with one selected node 
+       * 
+       * */
+      const countSelectedNode = this.graph.nodes.filter( n => n.state == NodeState.SELECTED).length
+
+      if (countSelectedNode == 0 ) {
+        console.log("OK",n.state);
+        // MANAGE ==> if (n.state == NodeState.SOMETHING) {
+          n.state = NodeState.CONCRETE
+          this.suggestions(n);
+        //} else {
+        //  n.state = NodeState.SELECTED
+       // }
+  
+      } 
+      /* several node is selected */
+      else if (countSelectedNode>0) { 
+          console.log("nodes....");
       } else {
         console.log("nothing...");
       }
-      this.update();
     },
     
-    suggestions( n ) {
-      /* remove old suggestions */
+    removeSuggestion() {
+      this.graph.nodes = this.graph.nodes.filter( n => n.state != NodeState.SUGGESTED  )
+      this.graph.links = this.graph.links.filter( l => l.state != NodeState.SUGGESTED )
+      this.update();
+    },
 
+    suggestions( n ) {
+       const component = this ;      
       /* add new suggestions */
       this.request.forwardEntities(n).then( r => {
           r.forEach((value, key) => {
-            console.log(key, value);
+            const v = [Object.assign({},value)] ;
+           // console.log(key, value);
             if (value instanceof AskOmicsViewNode) {
-              console.log("AskOmicsViewNode");
-              this.graph.nodes = this.graph.nodes.concat([value]);
+              console.log("AskOmicsViewNode",key,v);
+              this.graph.nodes = this.graph.nodes.concat(v);
             } else if (value instanceof AskOmicsViewLink) {
-              console.log("AskOmicsViewLink");
-              this.graph.links = this.graph.links.concat([value]);
+              console.log("AskOmicsViewLink --->",v);
+              this.graph.links = this.graph.links.concat(v);
             }
+            //console.log(this.graph);
+            component.update();
           });
         });
+        
     },
 
     dragstarted(event) {
-      //console.log("started..............");
+     
       if (!event.active) this.simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
       console.log(event.subject);
     },
+
     dragged(event) {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
@@ -299,9 +313,9 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
       this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
       
       this.ctx.lineWidth = this.lineWidth ;
-      this.ctx.strokeStyle = node.flags.selected ? this.colorFirebrick : unselectedColor ;
-      this.ctx.globalAlpha = node.flags.suggested ? 0.5 : 1 ;
-      node.flags.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      this.ctx.strokeStyle = node.state == NodeState.SELECTED ? this.colorFirebrick : unselectedColor ;
+      this.ctx.globalAlpha = node.state == NodeState.SUGGESTED ? 0.5 : 1 ;
+      node.state == NodeState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
 
       // draw node
       this.ctx.beginPath();
@@ -318,17 +332,17 @@ import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
       let label = node.humanId ? node.label + " " + this.subNums(node.humanId) : node.label;
       this.ctx.fillText(label, node.x + this.nodeSize, node.y + this.nodeSize);
       this.ctx.closePath();
+
     },
 
     drawLink(link) {
-      link.flags.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      link.state == NodeState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       
-      this.ctx.strokeStyle = link.flags.selected ? this.colorFirebrick : unselectedColor
-
-      this.ctx.fillStyle = link.flags.selected ? this.colorFirebrick : this.colorGrey
-      this.ctx.globalAlpha = link.flags.suggested ? 0.3 : 1
+      this.ctx.strokeStyle = link.state = NodeState.SELECTED ? this.colorFirebrick : unselectedColor
+      this.ctx.fillStyle = link.state = NodeState.SELECTED ? this.colorFirebrick : this.colorGrey
+      this.ctx.globalAlpha = link.state = NodeState.SUGGESTED ? 0.3 : 1
       this.ctx.lineWidth = this.lineWidth
 
       this.ctx.beginPath();

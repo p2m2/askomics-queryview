@@ -14,20 +14,22 @@ export type AttributeSpec = {
       linked: Boolean,
   }
 
+export enum NodeState {
+    SOMETHING=0,
+    SUGGESTED,
+    CONCRETE,
+    SELECTED,
+    
+}
+
 export abstract class AskOmicsGenericNode {
-    id        : string
     uri       : string
     label     : string 
-    flags     : Map<String,Boolean>
+    state     : NodeState
 
     constructor(uri : string , label : string ) {
-        this.id = uri 
         this.uri = uri 
-        this.flags = new Map()
-
-        this.flags.set('selected',false);
-        this.flags.set('suggested',true);
-        this.flags.set('something',false);
+        this.state = NodeState.SUGGESTED    
         
         if ( label.length > 0 )
             this.label = label
@@ -46,10 +48,10 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
     source    : string
     target    : string
 
-    constructor(uri : string, source : string, target : string, label : string ) {
+    constructor(uri : string,  label : string, source : string, target : string) {
         super(uri,label);
        
-        this.source = source 
+        this.source = source
         this.target = target 
     }
 } 

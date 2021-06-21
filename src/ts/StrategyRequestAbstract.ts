@@ -30,11 +30,10 @@ export default abstract class StrategyRequestAbstract {
     /* 
     * Structure Node to return
        {
-            id: Numeric,
-            uri : String,
+            id: Numeric,      /// equiv   uri : String,
             focus: String, 
             label: String,
-            suggested: Boolean (true), 
+                              /// pas besoin  suggested: Boolean (true), 
             selected: Boolean (false),
        }
     * 
