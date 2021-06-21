@@ -31,9 +31,9 @@ export default abstract class StrategyRequestAbstract {
     * Structure Node to return
        {
             id: Numeric,
+            uri : String,
             focus: String, 
             label: String,
-            uri : String,
             suggested: Boolean (true), 
             selected: Boolean (false),
        }
@@ -42,7 +42,7 @@ export default abstract class StrategyRequestAbstract {
     * @return List(Object(node : Node, links : List(Link)))
     */
 
-    abstract forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery ;
+    abstract forwardEntities(discovery : SWDiscovery) : SWDiscovery ;
 
 }
 

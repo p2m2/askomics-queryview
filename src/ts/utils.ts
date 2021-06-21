@@ -14,7 +14,7 @@ export default class Utils {
       }
     }
   
-    static splitUrl(url : string) {
+    static splitUrl(url : string) : string {
       let splitList = url.split('/')
       // take last elem
       let last = splitList[splitList.length - 1]

@@ -11,7 +11,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
-    forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery {
+    forwardEntities(discovery : SWDiscovery) : SWDiscovery {
         return discovery
           .isObjectOf(new URI("rdf:type"))
            .isSubjectOf(new QueryVariable("forwardProperty"))

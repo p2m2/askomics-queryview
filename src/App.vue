@@ -1,7 +1,6 @@
 <template>
   <div id="app">
-    {{ msg }}
-      <MainPanel/>
+      <MainPanel :config="config" />
   </div>
 </template>
 
@@ -15,7 +14,13 @@ import MainPanel from './components/panels/MainPanel.vue'
   },
   data() { 
         return {
-          msg: 'Welcome to Your Vue.js App'
+          config:  `
+          {
+          "sources" : [{
+          "id"  : "metabolights",
+          "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+           }]}
+          `
         }
   }
 })

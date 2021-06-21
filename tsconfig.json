@@ -34,7 +34,7 @@
     "src/**/*.vue",
     "tests/**/*.ts",
     "tests/**/*.tsx"
-  ],
+, "src/ts/RequestManager.js"  ],
   "exclude": [
     "node_modules"
   ]

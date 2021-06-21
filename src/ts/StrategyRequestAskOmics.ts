@@ -11,13 +11,16 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         super();
         console.log(" ============ StrategyRequestAskOmics ============ ") ;
     }
-
-    forwardEntities(discovery : SWDiscovery,uri : string) : SWDiscovery {
+    //"forwardProperty","forwardEntity","labelForwardEntity","labelForwardProperty"
+    forwardEntities(discovery : SWDiscovery) : SWDiscovery {
         console.log("AskOmics -> forwardEntities");
         console.log("---------");
-        return discovery.something("h1")
-            .isSubjectOf(new URI("rdf:type"),"typeOfFocus")
-              .isObjectOf(new URI("rdf:domain"),"forwardProperty")
-                .isSubjectOf(new URI("rdf:range"),"typeOfFocusentityForward") ;
+
+        // get current class uri
+
+        return discovery
+                .isSubjectOf(new URI("rdf:type"),"typeOfFocus")
+                .isObjectOf(new URI("rdf:domain"),"forwardProperty")
+                    .isSubjectOf(new URI("rdf:range"),"typeOfFocusentityForward") ;
     }
 }

@@ -162,9 +162,8 @@ import RequestManager from '../../ts/RequestManager'
       if ( ! event.ctrlKey ) {
           // release  
           this.graph.nodes.map( n => { n.selected = false } ) ;
-      }
-
-      this.request.forwardEntities("uri test....").then(r => {console.log(r)});
+      } 
+      
       //this.request.setDataDrivenStrategy();
       //this.request.forwardEntities("uri test....").then(r => {console.log(r)});
 
@@ -172,6 +171,8 @@ import RequestManager from '../../ts/RequestManager'
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
       if (n) {
         n.selected = !n.selected ;
+        /* */
+         this.request.forwardEntities(n).then(r => {console.log(r)});
       } else {
         console.log("nothing...");
       }

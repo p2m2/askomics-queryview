@@ -55,22 +55,20 @@ import RequestManager  from '../../ts/RequestManager'
   components : {  
       QueryGraphPanel,AttributesPanel  
       },
+  
+  props : {
+    config : String
+  },
+
   data () {
     return {
       request: null
     }
   },
+  
   mounted() {
     this.request = new RequestManager();
-    this.request.startWithConfiguration(
-      `
-          {
-          "sources" : [{
-          "id"  : "metabolights",
-          "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-           }]}
-          `
-    );
+    this.request.startWithConfiguration(this.config);
   }
 })
 
