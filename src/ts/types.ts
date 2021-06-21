@@ -14,18 +14,20 @@ export type AttributeSpec = {
       linked: Boolean,
   }
 
-export abstract class AskOmicsNode {
+export abstract class AskOmicsGenericNode {
     id        : string
     uri       : string
     label     : string 
-    selected  : Boolean
-    suggested : Boolean
+    flags     : Map<String,Boolean>
 
     constructor(uri : string , label : string ) {
         this.id = uri 
         this.uri = uri 
-        this.suggested = true 
-        this.selected = false 
+        this.flags = new Map()
+
+        this.flags.set('selected',false);
+        this.flags.set('suggested',true);
+        this.flags.set('something',false);
         
         if ( label.length > 0 )
             this.label = label
@@ -34,13 +36,13 @@ export abstract class AskOmicsNode {
     }
 }
 
-export class AskOmicsViewNode extends AskOmicsNode {
+export class AskOmicsViewNode extends AskOmicsGenericNode {
     constructor(uri : string, label : string ) {
         super(uri,label);
     }
 } 
 
-export class AskOmicsViewLink extends AskOmicsNode {
+export class AskOmicsViewLink extends AskOmicsGenericNode {
     source    : string
     target    : string
 

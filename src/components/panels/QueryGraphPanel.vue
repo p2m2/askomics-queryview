@@ -16,14 +16,34 @@ import { Options, Vue } from 'vue-class-component';
 import * as d3 from 'd3';
 import Utils from '../../ts/utils'
 import RequestManager from '../../ts/RequestManager'
+import { AskOmicsViewLink, AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : {  },
   props: {
-    request : RequestManager
+    request : RequestManager,
+    graph : {
+      type: Object,
+      default: {
+        nodes: [ {
+          id    : "start",
+          uri   : "blank",
+          label : "Something",
+          name : "Something",
+          flags : {
+            suggested : false, 
+            selected  : false,
+            something : true
+          }
+        }
+        ],
+        links : []
+      }
+    }
   },
   data () {
     return {
+      /*
       graph: {
         nodes: [
             {
@@ -55,7 +75,7 @@ import RequestManager from '../../ts/RequestManager'
             directed: true
           }
         ]
-      },
+      },*/
       ctrlKey: false,
       canvas: null,
       ctx: null,
@@ -161,7 +181,7 @@ import RequestManager from '../../ts/RequestManager'
       // if ctrl released 
       if ( ! event.ctrlKey ) {
           // release  
-          this.graph.nodes.map( n => { n.selected = false } ) ;
+          this.graph.nodes.map( n => { n.flags.selected = false } ) ;
       } 
       
       //this.request.setDataDrivenStrategy();
@@ -170,15 +190,35 @@ import RequestManager from '../../ts/RequestManager'
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
       if (n) {
-        n.selected = !n.selected ;
-        /* */
-         this.request.forwardEntities(n).then(r => {console.log(r)});
+        n.flags.selected = !n.flags.selected ;
+          /**
+           *           Suggestions 
+           */
+         this.suggestions(n);
       } else {
         console.log("nothing...");
       }
       this.update();
     },
     
+    suggestions( n ) {
+      /* remove old suggestions */
+
+      /* add new suggestions */
+      this.request.forwardEntities(n).then( r => {
+          r.forEach((value, key) => {
+            console.log(key, value);
+            if (value instanceof AskOmicsViewNode) {
+              console.log("AskOmicsViewNode");
+              this.graph.nodes = this.graph.nodes.concat([value]);
+            } else if (value instanceof AskOmicsViewLink) {
+              console.log("AskOmicsViewLink");
+              this.graph.links = this.graph.links.concat([value]);
+            }
+          });
+        });
+    },
+
     dragstarted(event) {
       //console.log("started..............");
       if (!event.active) this.simulation.alphaTarget(0.3).restart();
@@ -259,9 +299,9 @@ import RequestManager from '../../ts/RequestManager'
       this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
       
       this.ctx.lineWidth = this.lineWidth ;
-      this.ctx.strokeStyle = node.selected ? this.colorFirebrick : unselectedColor ;
-      this.ctx.globalAlpha = node.suggested ? 0.5 : 1 ;
-      node.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      this.ctx.strokeStyle = node.flags.selected ? this.colorFirebrick : unselectedColor ;
+      this.ctx.globalAlpha = node.flags.suggested ? 0.5 : 1 ;
+      node.flags.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
 
       // draw node
       this.ctx.beginPath();
@@ -281,14 +321,14 @@ import RequestManager from '../../ts/RequestManager'
     },
 
     drawLink(link) {
-      link.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      link.flags.suggested ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       
-      this.ctx.strokeStyle = link.selected ? this.colorFirebrick : unselectedColor
+      this.ctx.strokeStyle = link.flags.selected ? this.colorFirebrick : unselectedColor
 
-      this.ctx.fillStyle = link.selected ? this.colorFirebrick : this.colorGrey
-      this.ctx.globalAlpha = link.suggested ? 0.3 : 1
+      this.ctx.fillStyle = link.flags.selected ? this.colorFirebrick : this.colorGrey
+      this.ctx.globalAlpha = link.flags.suggested ? 0.3 : 1
       this.ctx.lineWidth = this.lineWidth
 
       this.ctx.beginPath();

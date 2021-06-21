@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery} from '@p2m2/discovery'
-import { AskOmicsNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -80,7 +80,7 @@ export default class RequestManager {
     }
 
      // @return List(Object(node : Node, links : List(Link)))
-    forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsNode>> {
+    forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
         return new Promise((successCallback, failureCallback) => {
             console.log(" -----------------------------------    forwardEntities ------------------------------------- ");
 
