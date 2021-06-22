@@ -169,17 +169,12 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
        *   management with one selected node 
        * 
        * */
+     
       const countSelectedNode = this.graph.nodes.filter( n => n.state == NodeState.SELECTED).length
 
       if (countSelectedNode == 0 ) {
-        console.log("OK",n.state);
-        // MANAGE ==> if (n.state == NodeState.SOMETHING) {
           n.state_n = NodeState.CONCRETE
           this.suggestions(n);
-        //} else {
-        //  n.state = NodeState.SELECTED
-       // }
-  
       } 
       /* several node is selected */
       else if (countSelectedNode>0) { 
@@ -206,7 +201,6 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
       if (!event.active) this.simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
-      console.log(event.subject);
     },
 
     dragged(event) {
@@ -214,7 +208,6 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
       event.subject.fy = event.y;
     },
     dragended(event) {
-    //  console.log("ended..............");
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;

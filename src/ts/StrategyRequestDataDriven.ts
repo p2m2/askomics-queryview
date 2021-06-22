@@ -1,4 +1,5 @@
 import {SWDiscovery,URI,QueryVariable,Literal} from '@p2m2/discovery'
+import { AskOmicsViewNode } from './types'
 
 import StrategyRequestAbstract from './StrategyRequestAbstract'
 
@@ -11,7 +12,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
-    forwardEntities(discovery : SWDiscovery) : SWDiscovery {
+    forwardEntities(discovery : SWDiscovery,current: AskOmicsViewNode) : SWDiscovery {
         return discovery
           .isObjectOf(new URI("rdf:type"))
            .isSubjectOf(new QueryVariable("forwardProperty"))

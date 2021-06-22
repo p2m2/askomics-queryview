@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <MainPanel :config="config" />
+      <MainPanel :config="config_local" />
   </div>
 </template>
 
@@ -20,7 +20,13 @@ import MainPanel from './components/panels/MainPanel.vue'
           "id"  : "metabolights",
           "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
            }]}
-          `
+          `,
+          config_local: ` 
+           {
+          "sources" : [{
+          "id"  : "local",
+          "url" : "http://localhost:8890/sparql"
+           }]}`
         }
   }
 })

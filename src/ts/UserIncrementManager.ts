@@ -33,11 +33,9 @@ export default class UserIncrementManager {
                     const links : Object[] = [] ;
                     r.forEach((value, key) => {
                         const v = Object.assign({},value) ;
-                        // console.log(key, value);
                         if (value instanceof AskOmicsViewNode) {
                             nodes.push(v);
                         } else if (value instanceof AskOmicsViewLink) {
-                            console.log("AskOmicsViewLink --->",v);
                             links.push(v);
                         }
                         });
@@ -58,9 +56,7 @@ export default class UserIncrementManager {
         
         graph.links = graph.links.map(
             (l : ViewLink )=> {
-                console.log(l);
                 if ( (l.state_n == NodeState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
-                    console.log("youpi........",l.id);
                     l.state_n = NodeState.CONCRETE
                 }
                 return l 

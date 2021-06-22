@@ -1,5 +1,5 @@
 import {SWDiscovery} from '@p2m2/discovery'
-
+import { AskOmicsViewNode } from './types'
 /* 
  - Structure Node 
        {
@@ -41,7 +41,7 @@ export default abstract class StrategyRequestAbstract {
     * @return List(Object(node : Node, links : List(Link)))
     */
 
-    abstract forwardEntities(discovery : SWDiscovery) : SWDiscovery ;
+    abstract forwardEntities(discovery : SWDiscovery,current: AskOmicsViewNode) : SWDiscovery ;
 
 }
 

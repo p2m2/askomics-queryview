@@ -25,7 +25,7 @@ export default class RequestManager {
     strategy         : StrategyRequestAbstract ;
     static idCounter : number  = 0 ;
 
-    constructor() {
+    constructor(json : string) {
         
         console.log(" ================= CONSTRUCTOR ===============");
         if ( !discovery_map ) {
@@ -35,7 +35,8 @@ export default class RequestManager {
         this.id = RequestManager.idCounter ;
         RequestManager.idCounter++ ;
         this.setDiscovery(new SWDiscovery().something()) ;
-        this.config = ""
+        this.config = json
+        this.setConfig(json)
         // by default
         this.strategy = new StrategyRequestDataDriven() ;
     }
@@ -48,22 +49,27 @@ export default class RequestManager {
         return getDiscovery(this.id)
     }
 
+    setConfig(json : string) {
+        this.config = json 
+        const localConf = SWDiscoveryConfiguration.setConfigString(json)
+        this.setDiscovery(new SWDiscovery(localConf).something());
+    }
+/*
     startWithConfiguration(json : string) {
         console.log(" ================= startWithConfiguration ===============");
         console.log(json);
         this.config = json 
-        const localConf = SWDiscoveryConfiguration.setConfigString(json)
-        this.setDiscovery(new SWDiscovery(localConf).something());
+        
        // this.getDiscovery().isObjectOf("test").console() ;
         
 //        const ssss = new SWDiscovery(config).something().console().getSerializedString;      
 //        console.log(ssss);
 //        new SWDiscovery(config).setSerializedString(ssss);
         console.log(" ================= FIN ========================= startWithConfiguration ===============");
-    }
+    }*/
 
     setAskOmicsStrategy() {
-        this.strategy = new StrategyRequestAskOmics() ;
+        this.strategy = new StrategyRequestAskOmics(this.config) ;
     }
 
     setDataDrivenStrategy() {
@@ -88,7 +94,7 @@ export default class RequestManager {
                 try {
 
                     this.strategy
-                        .forwardEntities(this.getDiscovery())
+                        .forwardEntities(this.getDiscovery(),current)
                         .console()
                         .select("forwardProperty","forwardEntity","labelForwardEntity","labelForwardProperty")
                         //.limit(5)
@@ -134,7 +140,7 @@ export default class RequestManager {
                                         } catch (error) {
                                             console.error(error);
                                         }    
-                                        console.log(forwardEntity,forwardProperty,labelForwardEntity,labelForwardProperty); 
+                                        //console.log(forwardEntity,forwardProperty,labelForwardEntity,labelForwardProperty); 
                                         
                                         const l : AskOmicsViewLink = 
                                             new AskOmicsViewLink(forwardProperty,labelForwardProperty,current.id,n.id)

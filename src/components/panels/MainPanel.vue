@@ -9,10 +9,24 @@
         
           <!-- waiting div -->
           <div class="row">
-                <div class="col col-xs-7">
+                <div class="col col-xs-6">
                   {graphFilters}
                </div>
-                <div class="col col-xs-5">
+               <div class="col col-xs-2">
+                <div class="form-check">
+                    <input v-on:click="request.setAskOmicsStrategy()" name="strategyRequest" class="form-check-input"  type="radio" checked>
+                    <label class="form-check-label" for="exampleRadios1">
+                      AskOmics 
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input v-on:click="request.setDataDrivenStrategy()" name="strategyRequest" class="form-check-input" type="radio">
+                    <label class="form-check-label" for="exampleRadios2">
+                      Data-Driven
+                    </label>
+                  </div>
+                </div>
+                <div class="col col-xs-4">
                   {removeButton}
                 </div>
              </div>
@@ -67,8 +81,7 @@ import RequestManager  from '../../ts/RequestManager'
   },
   
   mounted() {
-    this.request = new RequestManager();
-    this.request.startWithConfiguration(this.config);
+    this.request = new RequestManager(this.config);
   }
 })
 
