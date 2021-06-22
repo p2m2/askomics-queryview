@@ -137,7 +137,7 @@ export default class RequestManager {
                                         console.log(forwardEntity,forwardProperty,labelForwardEntity,labelForwardProperty); 
                                         
                                         const l : AskOmicsViewLink = 
-                                            new AskOmicsViewLink(forwardProperty,labelForwardProperty,current.uri,forwardEntity)
+                                            new AskOmicsViewLink(forwardProperty,labelForwardProperty,current.id,n.id)
                                         
                                         mR.set( forwardProperty, l ) ;
                                     }
