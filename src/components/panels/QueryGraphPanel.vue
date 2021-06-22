@@ -17,7 +17,7 @@ import * as d3 from 'd3';
 import Utils from '../../ts/utils'
 import RequestManager from '../../ts/RequestManager'
 import UserIncrementManager from '../../ts/UserIncrementManager'
-import { NodeState, AskOmicsViewNode } from '@/ts/types';
+import { ObjectState, AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : {  },
@@ -26,7 +26,7 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
     graph : {
       type: Object,
       default: {
-        nodes: [ AskOmicsViewNode.something(NodeState.CONCRETE).getObject() ],
+        nodes: [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
         links : []
       }
     }
@@ -131,22 +131,12 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
 
     canvasClick(event) {      
       // if ctrl released 
-      if ( ! event.ctrlKey ) {
-          // release  
-          this.graph.nodes = this.graph.nodes.map( n => { 
-            if (n.state_n == NodeState.SELECTED) {
-              n.state_n = NodeState.CONCRETE
-            }
-            return n
-            }) ;
-      } 
+      if ( ! event.ctrlKey ) UserIncrementManager.releaseSelectedObject(this.graph)
       
-      //this.request.setDataDrivenStrategy();
-      //this.request.forwardEntities("uri test....").then(r => {console.log(r)});
-
+      /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-
+      console.log(typeof n)
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! n ) {
@@ -170,10 +160,12 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
        * 
        * */
      
-      const countSelectedNode = this.graph.nodes.filter( n => n.state == NodeState.SELECTED).length
+      const countSelectedNode = this.graph.nodes.filter( n => n.state == ObjectState.SELECTED).length
 
       if (countSelectedNode == 0 ) {
-          n.state_n = NodeState.CONCRETE
+          n.state_n = ObjectState.CONCRETE
+          console.log("HOLLLLAAAAA")
+          console.log(this.graph)
           this.suggestions(n);
       } 
       /* several node is selected */
@@ -276,9 +268,9 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
       this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
       
       this.ctx.lineWidth = this.lineWidth ;
-      this.ctx.strokeStyle = node.state_n == NodeState.SELECTED ? this.colorFirebrick : unselectedColor ;
-      this.ctx.globalAlpha = node.state_n == NodeState.SUGGESTED ? 0.5 : 1 ;
-      node.state_n == NodeState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      this.ctx.strokeStyle = node.state_n == ObjectState.SELECTED ? this.colorFirebrick : unselectedColor ;
+      this.ctx.globalAlpha = node.state_n == ObjectState.SUGGESTED ? 0.5 : 1 ;
+      node.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
 
       // draw node
       this.ctx.beginPath();
@@ -299,13 +291,13 @@ import { NodeState, AskOmicsViewNode } from '@/ts/types';
     },
 
     drawLink(link) {
-      link.state_n == NodeState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      link.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       
-      this.ctx.strokeStyle = link.state_n == NodeState.SELECTED ? this.colorFirebrick : unselectedColor
-      this.ctx.fillStyle = link.state_n == NodeState.SELECTED ? this.colorFirebrick : this.colorGrey
-      this.ctx.globalAlpha = link.state_n == NodeState.SUGGESTED ? 0.3 : 1
+      this.ctx.strokeStyle = link.state_n == ObjectState.SELECTED ? this.colorFirebrick : unselectedColor
+      this.ctx.fillStyle = link.state_n == ObjectState.SELECTED ? this.colorFirebrick : this.colorGrey
+      this.ctx.globalAlpha = link.state_n == ObjectState.SUGGESTED ? 0.3 : 1
       this.ctx.lineWidth = this.lineWidth
 
       this.ctx.beginPath();

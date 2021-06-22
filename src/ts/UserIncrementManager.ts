@@ -1,21 +1,21 @@
-import { NodeState , NodeType, LinkType, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { ObjectState , NodeType, LinkType, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import RequestManager from './RequestManager'
 
 export type ViewNode = {
-    id     : String,
-    uri    : String,
-    label  : String,
-    state_n  : NodeState,
+    id     : string,
+    uri    : string,
+    label  : string,
+    state_n  : ObjectState,
     type   : NodeType
 }
 
 export type ViewLink = {
-    id     : String,
-    uri    : String,
-    label  : String,
+    id     : string,
+    uri    : string,
+    label  : string,
     source : ViewNode,
     target : ViewNode,
-    state_n  : NodeState,
+    state_n  : ObjectState,
     type   : LinkType
 }
 
@@ -25,6 +25,11 @@ interface Graph3DJS {
 }
 
 export default class UserIncrementManager {
+
+    static releaseSelectedObject(graph : Graph3DJS) {
+        graph.nodes.filter( n => n.state_n == ObjectState.SELECTED).map( n => { n.state_n = ObjectState.CONCRETE } )
+        graph.links.filter( n => n.state_n == ObjectState.SELECTED).map( n => { n.state_n = ObjectState.CONCRETE } )
+    }
 
     static clickNodeForward( request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
             return new Promise((successCallback, failureCallback) => {
@@ -45,27 +50,33 @@ export default class UserIncrementManager {
     }
 
 
-    static setConcrete( toShape: AskOmicsViewNode , graph : Graph3DJS ) : Graph3DJS {
+    static setConcrete(toShape: AskOmicsViewNode , graph : Graph3DJS ) : Graph3DJS {
         
-        if ( toShape.state_n != NodeState.SUGGESTED ) {
+        /**
+         * Exit if node is not suggested.
+         */
+        if ( toShape.state_n != ObjectState.SUGGESTED ) {
             console.warn("Can not concrete this node ",JSON.stringify(toShape));
             return graph
         }    
 
-        
-        
+        /**
+         * shape link
+         */
         graph.links = graph.links.map(
             (l : ViewLink )=> {
-                if ( (l.state_n == NodeState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
-                    l.state_n = NodeState.CONCRETE
+                if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
+                    l.state_n = ObjectState.CONCRETE
                 }
                 return l 
             })
-
+        /**
+         * shape node
+         */
         graph.nodes = graph.nodes.map(
             (n : ViewNode )=> {
-                if ( n.state_n == NodeState.SELECTED ) n.state_n = NodeState.CONCRETE
-                if ( n.id == toShape.id ) n.state_n = NodeState.SELECTED
+                if ( n.state_n == ObjectState.SELECTED ) n.state_n = ObjectState.CONCRETE
+                if ( n.id == toShape.id ) n.state_n = ObjectState.SELECTED
                 return n
             })
         
@@ -75,8 +86,8 @@ export default class UserIncrementManager {
     }
 
     static removeSuggestion(graph : Graph3DJS) : Graph3DJS {
-        graph.nodes = graph.nodes.filter( n => n.state_n != NodeState.SUGGESTED )
-        graph.links = graph.links.filter( l => l.state_n != NodeState.SUGGESTED )
+        graph.nodes = graph.nodes.filter( n => n.state_n != ObjectState.SUGGESTED )
+        graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
         return graph
     }
 

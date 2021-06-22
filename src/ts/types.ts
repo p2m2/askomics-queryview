@@ -25,7 +25,7 @@ export enum LinkType {
     OBJECT_PROPERTY_PATH,
 }
 
-export enum NodeState {
+export enum ObjectState {
     SUGGESTED=0,
     CONCRETE,
     SELECTED,   
@@ -35,7 +35,7 @@ export abstract class AskOmicsGenericNode {
     id        : string
     uri       : string
     label     : string 
-    state_n     : NodeState
+    state_n     : ObjectState
 
     static idCounter : number  = 0 ;
 
@@ -43,7 +43,7 @@ export abstract class AskOmicsGenericNode {
         this.id = String(AskOmicsGenericNode.idCounter)
         AskOmicsGenericNode.idCounter++
         this.uri = uri 
-        this.state_n = NodeState.SUGGESTED    
+        this.state_n = ObjectState.SUGGESTED    
         
         if ( label.length > 0 )
             this.label = label
@@ -51,17 +51,17 @@ export abstract class AskOmicsGenericNode {
             this.label = Utils.splitUrl(uri)
     }
 
-    isSuggested() : Boolean { return this.state_n == NodeState.SUGGESTED}
+    isSuggested() : Boolean { return this.state_n == ObjectState.SUGGESTED}
 
-    isConcrete() : Boolean { return this.state_n == NodeState.CONCRETE}
+    isConcrete() : Boolean { return this.state_n == ObjectState.CONCRETE}
 
-    isSelected() : Boolean { return this.state_n == NodeState.SELECTED}
+    isSelected() : Boolean { return this.state_n == ObjectState.SELECTED}
 
-    setSuggested() : void { this.state_n = NodeState.SUGGESTED}
+    setSuggested() : void { this.state_n = ObjectState.SUGGESTED}
 
-    setConcrete() : void { this.state_n = NodeState.CONCRETE}
+    setConcrete() : void { this.state_n = ObjectState.CONCRETE}
 
-    setSelected() : void { this.state_n = NodeState.SELECTED}
+    setSelected() : void { this.state_n = ObjectState.SELECTED}
 
     getObject() : object {
         return Object.assign({},this)
@@ -76,7 +76,7 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
         this.type = NodeType.ENTITY
     }
 
-    static something(state : NodeState = NodeState.SUGGESTED) : AskOmicsViewNode {
+    static something(state : ObjectState = ObjectState.SUGGESTED) : AskOmicsViewNode {
         const n = new AskOmicsViewNode("something","Something") ;
         n.type = NodeType.SOMETHING ;
         n.state_n = state
