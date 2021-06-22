@@ -1,28 +1,5 @@
-import { ObjectState , NodeType, LinkType, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import RequestManager from './RequestManager'
-
-export type ViewNode = {
-    id     : string,
-    uri    : string,
-    label  : string,
-    state_n  : ObjectState,
-    type   : NodeType
-}
-
-export type ViewLink = {
-    id     : string,
-    uri    : string,
-    label  : string,
-    source : ViewNode,
-    target : ViewNode,
-    state_n  : ObjectState,
-    type   : LinkType
-}
-
-interface Graph3DJS { 
-    nodes : ViewNode[], 
-    links : ViewLink[] 
-}
 
 export default class UserIncrementManager {
 
@@ -49,8 +26,26 @@ export default class UserIncrementManager {
                 });
     }
 
+    static clickNodeBackward( request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
+        return new Promise((successCallback, failureCallback) => {
+            request.backwardEntities(n).then( r => {
+                const nodes : Object[] = [] ;
+                const links : Object[] = [] ;
+                r.forEach((value, key) => {
+                    const v = Object.assign({},value) ;
+                    if (value instanceof AskOmicsViewNode) {
+                        nodes.push(v);
+                    } else if (value instanceof AskOmicsViewLink) {
+                        links.push(v);
+                    }
+                    });
+                    successCallback([nodes,links])
+                });
+            });
+}
 
-    static setConcrete(toShape: AskOmicsViewNode , graph : Graph3DJS ) : Graph3DJS {
+
+    static setShapeNode(request :RequestManager, toShape: ViewNode , graph : Graph3DJS ) : Graph3DJS {
         
         /**
          * Exit if node is not suggested.
@@ -67,6 +62,11 @@ export default class UserIncrementManager {
             (l : ViewLink )=> {
                 if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
+                    /* ------------ */
+                    /* update model */
+                    /* ------------ */
+                    const focus : string = request.update(toShape,l)
+                    toShape.focus = focus 
                 }
                 return l 
             })

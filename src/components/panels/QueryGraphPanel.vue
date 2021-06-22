@@ -17,7 +17,7 @@ import * as d3 from 'd3';
 import Utils from '../../ts/utils'
 import RequestManager from '../../ts/RequestManager'
 import UserIncrementManager from '../../ts/UserIncrementManager'
-import { ObjectState, AskOmicsViewNode } from '@/ts/types';
+import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : {  },
@@ -46,9 +46,10 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
       colorDarkGrey : '#404040',
       colorFirebrick : '#cc0000',
       lineWidth : 2.5,
-      nodeSize : 20,
+      nodeSize : 17,
+      textSize : 12,
       blankNodeSize : 1,
-      arrowLength : 20,
+      arrowLength : 40,
       forceCollide: 40,
       strengthForce: 0.9,
       strengthForceManBody: -2000
@@ -136,7 +137,7 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
       let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      console.log(typeof n)
+     
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! n ) {
@@ -147,7 +148,7 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
       /**----------------------------------------------------------------------------
        * 1) Creation Node/Links if a suggested node is clicked !
        */
-      UserIncrementManager.setConcrete(n,this.graph)
+      UserIncrementManager.setShapeNode(this.request,n,this.graph)
 
       /**----------------------------------------------------------------------------
        * 2) Remove Suggestion unused
@@ -163,12 +164,8 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
       const countSelectedNode = this.graph.nodes.filter( n => n.state == ObjectState.SELECTED).length
 
       if (countSelectedNode == 0 ) {
-          n.state_n = ObjectState.CONCRETE
-          console.log("HOLLLLAAAAA")
-          console.log(this.graph)
           this.suggestions(n);
       } 
-      /* several node is selected */
       else if (countSelectedNode>0) { 
           console.log("nodes....");
       } else {
@@ -185,7 +182,13 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
             this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
             component.update();
         });
-        
+
+      UserIncrementManager.clickNodeBackward(this.request,n)
+        .then( nodesAndLinks => { 
+            this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);
+            this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
+            component.update();
+        });
     },
     
     dragstarted(event) {
@@ -309,20 +312,19 @@ import { ObjectState, AskOmicsViewNode } from '@/ts/types';
       this.ctx.closePath();
 
        // draw arrow
-      if (link.directed) {
-        this.ctx.beginPath()
-        let triangle = this.triangleCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.arrowLength)
-        this.ctx.moveTo(c.x, c.y)
-        this.ctx.lineTo(triangle.xa, triangle.ya)
-        this.ctx.lineTo(triangle.xb, triangle.yb)
-        this.ctx.fill()
-        this.ctx.closePath()
-      }
-
+       if (link.type == LinkType.FORWARD_PROPERTY || link.type == LinkType.BACKWARD_PROPERTY) {
+          this.ctx.beginPath()
+          let triangle = this.triangleCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.arrowLength)
+          this.ctx.moveTo(c.x, c.y)
+          this.ctx.lineTo(triangle.xa, triangle.ya)
+          this.ctx.lineTo(triangle.xb, triangle.yb)
+          this.ctx.fill()
+          this.ctx.closePath()
+       }
       // draw text
         this.ctx.beginPath()
         this.ctx.fillStyle = unselectedColorText
-        this.ctx.font = this.nodeSize - 0.5 + 'px Sans-Serif'
+        this.ctx.font = this.textSize + 'px Sans-Serif'
         this.ctx.textAlign = 'middle'
         this.ctx.textBaseline = 'middle'
         let m = this.middleCoordinate(link.source.x, link.source.y, link.target.x, link.target.y)

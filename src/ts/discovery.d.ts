@@ -60,6 +60,7 @@ declare module "@p2m2/discovery" {
         constructor(config? : StatementConfiguration)
         focus() : string 
         focus(foc:string) : SWDiscovery
+        root() : SWDiscovery
         something(uri? : string) : SWDiscovery
         isObjectOf(uri : rdfterm ,ref? : string) : SWDiscovery
         isSubjectOf(uri : rdfterm,ref? : string) : SWDiscovery

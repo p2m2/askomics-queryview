@@ -1,5 +1,5 @@
-import { SWDiscoveryConfiguration, SWDiscovery} from '@p2m2/discovery'
-import { AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { SWDiscoveryConfiguration, SWDiscovery, URI} from '@p2m2/discovery'
+import { NodeType, ObjectState, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -54,6 +54,33 @@ export default class RequestManager {
         const localConf = SWDiscoveryConfiguration.setConfigString(json)
         this.setDiscovery(new SWDiscovery(localConf).something());
     }
+
+    update(node : ViewNode, link : ViewLink ) : string {
+
+        const snd_node = link.source.id == node.id ? link.source : link.target
+        const d : SWDiscovery = this.getDiscovery()
+
+        switch(link.type) { 
+            case LinkType.FORWARD_PROPERTY: { 
+                this.setDiscovery(d.isSubjectOf(new URI(link.uri)).isA(new URI(snd_node.uri)))
+               break; 
+            } 
+            case LinkType.BACKWARD_PROPERTY: { 
+                this.setDiscovery(d.isObjectOf(new URI(link.uri)).isA(new URI(snd_node.uri)))
+               break; 
+            } 
+            case LinkType.IS_A: { 
+                this.setDiscovery(d.isA(new URI(snd_node.uri)))
+               break; 
+            } 
+            default: { 
+               console.error("unkown action :"+JSON.stringify(link))
+               break; 
+            } 
+         }
+         
+         return this.getDiscovery().focus() 
+    }
 /*
     startWithConfiguration(json : string) {
         console.log(" ================= startWithConfiguration ===============");
@@ -85,78 +112,110 @@ export default class RequestManager {
         this.setDiscovery(disco);
     }
 
-     // @return List(Object(node : Node, links : List(Link)))
     forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
+        return this.propertyEntities("forward",current)
+    }
+
+    backwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
+        return this.propertyEntities("backward",current)
+    }
+
+    propertyEntities( type: string, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
         return new Promise((successCallback, failureCallback) => {
             console.log(" -----------------------------------    forwardEntities ------------------------------------- ");
 
             if (this.strategy) {
-                try {
+                
+                let disco : SWDiscovery = this.getDiscovery()
+                let typeLink : LinkType
 
-                    this.strategy
-                        .forwardEntities(this.getDiscovery(),current)
+                switch(type) { 
+                    case "forward": { 
+                        disco = this.strategy.forwardEntities(this.getDiscovery(),this.config,current)
+                        typeLink = LinkType.FORWARD_PROPERTY
+                        break; 
+                    } 
+                    case "backward": { 
+                        disco = this.strategy.backwardEntities(this.getDiscovery(),this.config,current)
+                        typeLink = LinkType.BACKWARD_PROPERTY
+                        break; 
+                    } 
+                    default: { 
+                        failureCallback("unkown action :" +type)
+                        return
+                    } 
+                 }
+
+                try {
+                    disco
                         .console()
-                        .select("forwardProperty","forwardEntity","labelForwardEntity","labelForwardProperty")
-                        //.limit(5)
+                        .select("property","entity","labelEntity","labelProperty")
                         .distinct
                         .commit()
                         .raw()
                         .then(
-                            (response) => {
-                                console.log("response discovery...........");
-                                console.log(response);
-                                
+                            (response) => {                                
                                 const mR = new Map()
                                 for (let i=0;i<response.results.bindings.length;i++) {
-                                    const forwardEntity      : string = response.results.bindings[i]["forwardEntity"].value;
-                                    const forwardProperty    : string = response.results.bindings[i]["forwardProperty"].value;
-                                    let labelForwardEntity   : string = ""  ;
-                                    let labelForwardProperty : string = ""  ;
+                                    
+                                    if ( ! response.results.bindings[i]["entity"] ) {
+                                        console.warn(" probleme with entry : "+JSON.stringify(response.results.bindings[i]))
+                                        continue
+                                    }
+                                    
+                                    if ( ! response.results.bindings[i]["property"] ) {
+                                        console.warn(" probleme with property : "+JSON.stringify(response.results.bindings[i]))
+                                        continue
+                                    }
+
+                                    const entity      : string = response.results.bindings[i]["entity"].value;
+                                    const property    : string = response.results.bindings[i]["property"].value;
+                                    let labelEntity   : string = ""  ;
+                                    let labelProperty : string = ""  ;
                                     let n : AskOmicsViewNode ;
-                                    if (!mR.has(forwardEntity)) {
+
+                                    if (!mR.has(entity)) {
                                        
                                         try {
                                             const listLabelEntity = 
-                                                response.results.datatypes["labelForwardEntity"][forwardEntity] ;
+                                                response.results.datatypes["labelEntity"][entity] ;
                                             if ( listLabelEntity )
-                                                labelForwardEntity=listLabelEntity[0].value; 
+                                                labelEntity=listLabelEntity[0].value; 
                                         } catch (error) {
                                             console.error(error);
                                         }     
 
-                                        n = new AskOmicsViewNode(forwardEntity,labelForwardEntity);
+                                        n = new AskOmicsViewNode(entity,labelEntity);
 
-                                        mR.set(forwardEntity, n) ;
+                                        mR.set(entity, n) ;
                                     } else {
-                                        n = mR.get(forwardEntity)
+                                        n = mR.get(entity)
                                     }
-                                    if(! mR.has(forwardProperty)) {
+                                    if(! mR.has(property)) {
                                         
                                         try {
                                             const listLabelEntity = 
-                                                response.results.datatypes["labelForwardProperty"][forwardProperty] ;
+                                                response.results.datatypes["labelProperty"][property] ;
                                             if ( listLabelEntity )
-                                                labelForwardProperty = listLabelEntity[0].value; 
+                                                labelProperty = listLabelEntity[0].value; 
                                         } catch (error) {
                                             console.error(error);
                                         }    
-                                        //console.log(forwardEntity,forwardProperty,labelForwardEntity,labelForwardProperty); 
                                         
-                                        const l : AskOmicsViewLink = 
-                                            new AskOmicsViewLink(forwardProperty,labelForwardProperty,current.id,n.id)
-                                        
-                                        mR.set( forwardProperty, l ) ;
+                                        if (typeLink == LinkType.FORWARD_PROPERTY)
+                                            mR.set( property,new AskOmicsViewLink(property,labelProperty,typeLink,current.id,n.id))
+                                        else 
+                                            mR.set( property,new AskOmicsViewLink(property,labelProperty,typeLink,n.id,current.id))
                                     }
                                 }
                                 successCallback(mR);
                             }
                         ).catch( (e : Error) => { failureCallback(e) });
                     } catch ( e ) {
-                        console.error(" - Probleme with Strategy -- ");
-                        console.error(e);
+                        failureCallback(e)
                     }
             } else {
-                successCallback( new Map() )
+                failureCallback("strategy undefined.")
             }
        })
     }

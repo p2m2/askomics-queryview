@@ -6,14 +6,39 @@ export type UserConfiguration = {
 }
   
 export type AttributeSpec = {
-      id: Number,
-      uri: String,
-      range : String,
-      label: String,
-      visible: Boolean,
-      negative: Boolean,
-      linked: Boolean,
+      id: Number
+      uri: String
+      range : String
+      label: String
+      visible: Boolean
+      negative: Boolean
+      linked: Boolean
 }
+
+export type ViewNode = {
+    id     : string
+    uri    : string
+    focus  : string
+    label  : string
+    state_n  : ObjectState
+    type   : NodeType
+}
+
+export type ViewLink = {
+    id     : string
+    uri    : string
+    label  : string
+    source : ViewNode
+    target : ViewNode
+    state_n  : ObjectState
+    type   : LinkType
+}
+
+export interface Graph3DJS { 
+    nodes : ViewNode[], 
+    links : ViewLink[] 
+}
+
 
 export enum NodeType {
     SOMETHING=0,
@@ -21,8 +46,9 @@ export enum NodeType {
 }
 
 export enum LinkType {
-    OBJECT_PROPERTY=0,
-    OBJECT_PROPERTY_PATH,
+    FORWARD_PROPERTY=0,
+    BACKWARD_PROPERTY,
+    IS_A
 }
 
 export enum ObjectState {
@@ -32,9 +58,9 @@ export enum ObjectState {
 }
 
 export abstract class AskOmicsGenericNode {
-    id        : string
-    uri       : string
-    label     : string 
+    id          : string
+    uri         : string
+    label       : string 
     state_n     : ObjectState
 
     static idCounter : number  = 0 ;
@@ -69,14 +95,16 @@ export abstract class AskOmicsGenericNode {
 }
 
 export class AskOmicsViewNode extends AskOmicsGenericNode {
+    focus : string
     type : NodeType
     
     constructor(uri : string, label : string) {
         super(uri,label);
         this.type = NodeType.ENTITY
+        this.focus=""
     }
 
-    static something(state : ObjectState = ObjectState.SUGGESTED) : AskOmicsViewNode {
+    static something(state : ObjectState, focus : string) : AskOmicsViewNode {
         const n = new AskOmicsViewNode("something","Something") ;
         n.type = NodeType.SOMETHING ;
         n.state_n = state
@@ -90,10 +118,10 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
     source    : string
     target    : string
 
-    constructor(uri : string,  label : string, source : string, target : string) {
+    constructor(uri : string,  label : string, typeLink : LinkType, source : string, target : string) {
         super(uri,label);
        
-        this.type = LinkType.OBJECT_PROPERTY
+        this.type = typeLink
         this.source = source
         this.target = target 
         

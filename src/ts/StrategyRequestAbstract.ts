@@ -41,7 +41,9 @@ export default abstract class StrategyRequestAbstract {
     * @return List(Object(node : Node, links : List(Link)))
     */
 
-    abstract forwardEntities(discovery : SWDiscovery,current: AskOmicsViewNode) : SWDiscovery ;
+    abstract forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery ;
+
+    abstract backwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery ;
 
 }
 
