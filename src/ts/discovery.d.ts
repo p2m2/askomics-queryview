@@ -37,18 +37,18 @@ declare module "@p2m2/discovery" {
     export class FilterIncrementJs {
         
         isLiteral : SWDiscovery
-        isUri : SWDiscovery
+        isUri: SWDiscovery
         isBlank : SWDiscovery
 
         regex(pattern : rdfterm, flags? : any) : SWDiscovery
-        contains(l: rdfterm)
-        strStarts( string : rdfterm )
-        strEnds( string : rdfterm ) 
-        equal( value : rdfterm )
-        inf( value : rdfterm )
-        infEqual( value : rdfterm )
-        sup( value : rdfterm )
-        supEqual( value : rdfterm )
+        contains(l: rdfterm) : SWDiscovery
+        strStarts( string : rdfterm ) : SWDiscovery
+        strEnds( string : rdfterm ) : SWDiscovery
+        equal( value : rdfterm ) : SWDiscovery
+        inf( value : rdfterm ) : SWDiscovery
+        infEqual( value : rdfterm ) : SWDiscovery
+        sup( value : rdfterm ) : SWDiscovery
+        supEqual( value : rdfterm ) : SWDiscovery
 
         not: FilterIncrement
     }

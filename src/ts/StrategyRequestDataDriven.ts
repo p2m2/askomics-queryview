@@ -31,9 +31,11 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
 
     backwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
         const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()
-
+      
         return disco
-           .isObjectOf(new QueryVariable("property"))
+            .filter.isUri
+             .isObjectOf(new QueryVariable("property"))
+            
             .isSubjectOf(new URI("rdf:type"),"entity")
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelEntity")       

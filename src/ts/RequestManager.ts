@@ -154,7 +154,7 @@ export default class RequestManager {
                         .commit()
                         .raw()
                         .then(
-                            (response) => {                                
+                            (response) => {                      
                                 const mR = new Map()
                                 for (let i=0;i<response.results.bindings.length;i++) {
                                     
