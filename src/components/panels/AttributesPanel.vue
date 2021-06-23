@@ -12,9 +12,13 @@
 import { Options, Vue } from 'vue-class-component';
 
 import AttributeBox from '../attribute/AttributeBox.vue'
+import RequestManager from '../../ts/RequestManager'
 
 @Options({
   components : { AttributeBox },
+  props : {
+    request  : RequestManager
+  },
   data () {
     return {
       config: {
@@ -50,6 +54,9 @@ import AttributeBox from '../attribute/AttributeBox.vue'
                     linked: false,
                 }]
     }
+  },
+  mounted() {
+
   }
 })
 

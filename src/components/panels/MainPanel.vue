@@ -37,7 +37,7 @@
                   </div>
                 <div class="col col-xs-5">
                   <div class="attributes-list">
-                    <AttributesPanel />
+                    <AttributesPanel v-bind:request="request"/>
                   </div>
               </div>
         <!--
