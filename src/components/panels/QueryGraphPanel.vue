@@ -22,7 +22,7 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
 @Options({
   components : {  },
   props: {
-    request : RequestManager,
+    request  : RequestManager,
     graph : {
       type: Object,
       default: {

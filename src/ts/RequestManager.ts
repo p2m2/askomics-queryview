@@ -22,7 +22,7 @@ function getDiscovery(id : number) : SWDiscovery {
 export default class RequestManager {
     id               : number ;
     config           : string ;
-    strategy         : StrategyRequestAbstract ;
+    strategy        ?: StrategyRequestAbstract ;
     static idCounter : number  = 0 ;
 
     constructor(json : string) {
@@ -37,8 +37,6 @@ export default class RequestManager {
         this.setDiscovery(new SWDiscovery().something()) ;
         this.config = json
         this.setConfig(json)
-        // by default
-        this.strategy = new StrategyRequestDataDriven() ;
     }
 
     setDiscovery(disco : SWDiscovery) : void  {
@@ -96,10 +94,12 @@ export default class RequestManager {
     }*/
 
     setAskOmicsStrategy() {
+        console.log(" -- setAskOmicsStrategy -- ");
         this.strategy = new StrategyRequestAskOmics(this.config) ;
     }
 
     setDataDrivenStrategy() {
+        console.log(" -- setDataDrivenStrategy -- ");
         this.strategy = new StrategyRequestDataDriven() ;
     }
 

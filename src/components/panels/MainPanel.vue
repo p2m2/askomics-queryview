@@ -12,16 +12,16 @@
                 <div class="col col-xs-6">
                   {graphFilters}
                </div>
-               <div class="col col-xs-2">
-                <div class="form-check">
-                    <input v-on:click="request.setAskOmicsStrategy()" name="strategyRequest" class="form-check-input"  type="radio" checked>
-                    <label class="form-check-label" for="exampleRadios1">
+               <div class="col col-xs-1">
+                <div class="form-check form-check-inline">
+                    <input v-on:click="request.setAskOmicsStrategy()" name="strategyRequest" value="askomics" class="form-check-input" type="radio" checked>
+                    <label class="form-check-label" for="strategyRequest">
                       AskOmics 
                     </label>
                   </div>
-                  <div class="form-check">
-                    <input v-on:click="request.setDataDrivenStrategy()" name="strategyRequest" class="form-check-input" type="radio">
-                    <label class="form-check-label" for="exampleRadios2">
+                  <div class="form-check form-check-inline">
+                    <input v-on:click="request.setDataDrivenStrategy()" name="strategyRequest" value="data-driven" class="form-check-input" type="radio">
+                    <label class="form-check-label" for="strategyRequest">
                       Data-Driven
                     </label>
                   </div>
@@ -76,12 +76,14 @@ import RequestManager  from '../../ts/RequestManager'
 
   data () {
     return {
-      request: null
+      request: null,
+      strategyRequest: ""
     }
   },
   
   mounted() {
-    this.request = new RequestManager(this.config);
+    this.request = new RequestManager(this.config)
+    this.request.setAskOmicsStrategy()
   }
 })
 
