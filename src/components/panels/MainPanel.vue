@@ -36,11 +36,11 @@
               <br />
           <div class="row">
                   <div class="col col-xs-7">
-                  <QueryGraphPanel :updateComponent="update" v-model:request="request" v-bind:width="500" v-bind:height="400" />
+                  <QueryGraphPanel v-model:updateComponent="update" v-model:request="request" @modelUpdated="modelIsUpdated" v-bind:width="500" v-bind:height="400" />
                   </div>
                 <div class="col col-xs-5">
                   <div class="attributes-list">
-                    <AttributesPanel v-model:request="request"/>
+                    <AttributesPanel v-model:updateComponent="update" @modelUpdated="modelIsUpdated" v-model:request="request"/>
                   </div>
               </div>
         <!--
@@ -83,9 +83,9 @@ import RequestManager  from '../../ts/RequestManager'
 
   data () {
     return {
-      update: false,
+      update: "",
       request: null,
-      strategyInt : null
+      strategyInt : this.strategy
     }
   },
 
@@ -98,28 +98,30 @@ import RequestManager  from '../../ts/RequestManager'
   
   mounted() {
     this.request = new RequestManager(this.config)
-    this.strategyInt = this.strategy
     this.updateStrategy(this.strategy)
   },
   
   methods: {
-      updateStrategy(value : string) { 
-          switch (value) {
-            case "askomics" : {
-              this.request.setAskOmicsStrategy()
-              break;
-            }
-            case "data-driven" : {
-              this.request.setDataDrivenStrategy()
-              break;
-            }
-            default : {
-              this.request.setDataDrivenStrategy()
-            }
-          }
-          this.update = !this.update;
-         //this.$emit("update:request",this.request)
-        } 
+    modelIsUpdated(discoveryInstanceSerialized : string) {
+      this.update = discoveryInstanceSerialized
+    },
+
+    updateStrategy(value : string) { 
+      switch (value) {
+        case "askomics" : {
+          this.request.setAskOmicsStrategy()
+          break;
+        }
+        case "data-driven" : {
+          this.request.setDataDrivenStrategy()
+          break;
+        }
+        default : {
+          this.request.setDataDrivenStrategy()
+        }
+      }
+      this.update = value
+    },
   }
   
 })

@@ -17,7 +17,11 @@ import RequestManager from '../../ts/RequestManager'
 @Options({
   components : { AttributeBox },
   props : {
+    updateComponent : String,
     request  : RequestManager
+  },
+  watch : {
+    updateComponent : 'updateAttributeList'
   },
   data () {
     return {
@@ -26,6 +30,7 @@ import RequestManager from '../../ts/RequestManager'
                         admin : true
                     }
                 },
+
       attributeList: [ {
                     id: 5,
                     uri: "rdf:something",
@@ -57,6 +62,11 @@ import RequestManager from '../../ts/RequestManager'
   },
   mounted() {
 
+  },
+  methods: {
+    updateAttributeList() {
+      console.log(" ------------ updateAttributeList -------------------------")
+    }
   }
 })
 

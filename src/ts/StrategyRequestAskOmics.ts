@@ -16,6 +16,10 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         this.config_endp = config_endp
     }
 
+    attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
+        return discovery
+    }
+
     forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
 
         let d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());

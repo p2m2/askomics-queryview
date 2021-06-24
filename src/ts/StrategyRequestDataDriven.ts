@@ -12,6 +12,10 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
+    attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
+        return discovery
+    }
+
     forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
 
         const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()

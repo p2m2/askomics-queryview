@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI} from '@p2m2/discovery'
-import { NodeType, ObjectState, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -112,6 +112,51 @@ export default class RequestManager {
         this.setDiscovery(disco);
     }
 
+    checkVariablePresent(response : any ,index : number ,listVarName : string[] ) : Boolean {
+        for (let i=0;i<listVarName.length;i++) {
+            const varname = listVarName[i]
+            if ( ! response.results.bindings[index][varname] ) {
+                console.warn(" probleme with entry : "+JSON.stringify(response.results.bindings[index]))
+                return false
+            }
+        }
+        
+        return true
+    }
+
+    attributeList(current: AskOmicsViewNode) : Promise<DatatypeLiteral[]> {
+        return new Promise((successCallback, failureCallback) => {
+            if (this.strategy) {
+                this.strategy.attributeList(this.getDiscovery(),this.config,current) 
+                .console()
+                .select("uri","range","label")
+                .distinct
+                .commit()
+                .raw()
+                .then(
+                    (response) => {
+                        const res : DatatypeLiteral[] = []      
+                        for (let i=0;i<response.results.bindings.length;i++) {
+                            if ( ! this.checkVariablePresent(response,i,['uri','range']) ) continue
+                            const uri   : string = response.results.bindings[i]["uri"].value;
+                            const range : string = response.results.bindings[i]["range"].value;
+                            let label   : string = ""  ;
+                            try {
+                                const listLabelEntity = response.results.datatypes["label"][uri] ;
+                                if ( listLabelEntity )
+                                    label=listLabelEntity[0].value; 
+                            } catch (error) {
+                                console.error(error);
+                            }     
+
+                            res.push(new DatatypeLiteral(uri,range,label))
+                        }
+                        successCallback(res)
+                    })       
+            }
+        })
+    }
+
     forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
         return this.propertyEntities("forward",current)
     }
@@ -122,8 +167,6 @@ export default class RequestManager {
 
     propertyEntities( type: string, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
         return new Promise((successCallback, failureCallback) => {
-            console.log(" -----------------------------------    forwardEntities ------------------------------------- ");
-
             if (this.strategy) {
                 
                 let disco : SWDiscovery = this.getDiscovery()
@@ -148,7 +191,7 @@ export default class RequestManager {
 
                 try {
                     disco
-                        .console()
+                        //.console()
                         .select("property","entity","labelEntity","labelProperty")
                         .distinct
                         .commit()
@@ -157,17 +200,8 @@ export default class RequestManager {
                             (response) => {                      
                                 const mR = new Map()
                                 for (let i=0;i<response.results.bindings.length;i++) {
-                                    
-                                    if ( ! response.results.bindings[i]["entity"] ) {
-                                        console.warn(" probleme with entry : "+JSON.stringify(response.results.bindings[i]))
-                                        continue
-                                    }
-                                    
-                                    if ( ! response.results.bindings[i]["property"] ) {
-                                        console.warn(" probleme with property : "+JSON.stringify(response.results.bindings[i]))
-                                        continue
-                                    }
-
+                                    if ( ! this.checkVariablePresent(response,i,['entity','property']) ) continue
+                                  
                                     const entity      : string = response.results.bindings[i]["entity"].value;
                                     const property    : string = response.results.bindings[i]["property"].value;
                                     let labelEntity   : string = ""  ;
