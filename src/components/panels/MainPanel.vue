@@ -34,14 +34,25 @@
                 </div>
              </div>
               <br />
-          <div class="row">
-                  <div class="col col-xs-7">
-                  <QueryGraphPanel v-model:updateComponent="update" v-model:request="request" @modelUpdated="modelIsUpdated" v-bind:width="500" v-bind:height="400" />
-                  </div>
-                <div class="col col-xs-5">
-                  <div class="attributes-list">
-                    <AttributesPanel v-model:updateComponent="update" @modelUpdated="modelIsUpdated" v-model:request="request"/>
-                  </div>
+              <div class="row">
+                <div class="col col-xs-7">
+                  <QueryGraphPanel 
+                    v-model:updateComponent="update" 
+                    v-model:request="request" 
+                    @informationSelectedNode="selectedNodeEvent" 
+                    @queryString="queryStringEvent" 
+                    :width="500" 
+                    :height="400" />
+                </div>
+              <div class="col col-xs-5">
+                <div class="attributes-list">
+                  <AttributesPanel 
+                    v-model:updateComponent="update" 
+                    v-model:request="request"
+                    :selectedNode="selectedNode" 
+                    @attributeBox="attributeBoxEvent" 
+                   />
+                </div>
               </div>
         <!--
         {warningDiskSpace}
@@ -85,7 +96,8 @@ import RequestManager  from '../../ts/RequestManager'
     return {
       update: "",
       request: null,
-      strategyInt : this.strategy
+      strategyInt : this.strategy,
+      selectedNode : null
     }
   },
 
@@ -102,8 +114,17 @@ import RequestManager  from '../../ts/RequestManager'
   },
   
   methods: {
-    modelIsUpdated(discoveryInstanceSerialized : string) {
-      this.update = discoveryInstanceSerialized
+    selectedNodeEvent(e : string) {
+      console.log(" =============== selectedNodeEvent =================================",e)
+      this.selectedNode = e
+    },
+
+    queryStringEvent(e: string) {
+      console.log("query:",e)
+    },
+
+    attributeBoxEvent(e: string) {
+      console.log("attributeBoxEvent:",e)
     },
 
     updateStrategy(value : string) { 

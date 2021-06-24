@@ -1,4 +1,4 @@
-import {SWDiscovery} from '@p2m2/discovery'
+import {QueryVariable, SWDiscovery, SWDiscoveryConfiguration, URI} from '@p2m2/discovery'
 import { AskOmicsViewNode } from './types'
 /* 
  - Structure Node 
@@ -27,6 +27,14 @@ export default abstract class StrategyRequestAbstract {
     constructor() {
     }
 
+    getDatatypes(discovery : SWDiscovery,config_rdf : string,listUriDatatypeProperty: string[] ) : SWDiscovery {
+        const d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
+        listUriDatatypeProperty.forEach((uri,idx) => {
+            d.datatype(new URI(uri),"v"+String(idx));
+        });
+        
+        return d
+    }
 
     abstract attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery
 

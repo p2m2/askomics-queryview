@@ -3,6 +3,7 @@ import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, Ask
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
+import Utils from './utils'
 
 /**
  * Trick . TS inser SWDiscovery inside a Proxy type. Exception occurs whith the first use.
@@ -129,28 +130,53 @@ export default class RequestManager {
             if (this.strategy) {
                 this.strategy.attributeList(this.getDiscovery(),this.config,current) 
                 .console()
-                .select("uri","range","label")
+                .select("property","labelProperty")
                 .distinct
                 .commit()
                 .raw()
                 .then(
                     (response) => {
-                        const res : DatatypeLiteral[] = []      
+                        console.log(response)
+                        const res : DatatypeLiteral[] = []
+                        
+                        const m : Map<string,string> = new Map()
                         for (let i=0;i<response.results.bindings.length;i++) {
-                            if ( ! this.checkVariablePresent(response,i,['uri','range']) ) continue
-                            const uri   : string = response.results.bindings[i]["uri"].value;
-                            const range : string = response.results.bindings[i]["range"].value;
-                            let label   : string = ""  ;
+                            if ( ! this.checkVariablePresent(response,i,['property']) ) continue
+                            const uri   : string = response.results.bindings[i]["property"].value;
+                           // const range : string = response.results.bindings[i]["rangeXsd"].value;
+                            let label   : string = Utils.splitUrl(uri)  ;
                             try {
-                                const listLabelEntity = response.results.datatypes["label"][uri] ;
+                                const listLabelEntity = response.results.datatypes["labelProperty"][uri] ;
                                 if ( listLabelEntity )
                                     label=listLabelEntity[0].value; 
                             } catch (error) {
                                 console.error(error);
                             }     
 
-                            res.push(new DatatypeLiteral(uri,range,label))
+                            m.set(uri,label)
+                            console.log(uri,label)
                         }
+                        console.log(m.size)
+                        if ( this.strategy && m.size>0) {
+                            const lUris : string[] = []
+                            for (const key of m.keys()) {
+                                lUris.push(key)
+                            }
+ 
+                            this.strategy.getDatatypes(this.getDiscovery(), this.config, lUris)
+                            .console()
+                            .select("p1","p2")
+                            .distinct
+                            .commit()
+                            .raw()
+                            .then ( (response2 )=>{
+                                console.log("response22222222")
+                                console.log(response2)
+                            })
+                        }
+                            
+                        
+                        //res.push(new DatatypeLiteral(uri,range,label))
                         successCallback(res)
                     })       
             }

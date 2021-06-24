@@ -11,17 +11,19 @@
 
 import { Options, Vue } from 'vue-class-component';
 
-import AttributeBox from '../attribute/AttributeBox.vue'
-import RequestManager from '../../ts/RequestManager'
+import AttributeBox from '@/components/attribute/AttributeBox.vue'
+import RequestManager from '@/ts/RequestManager'
+import UserIncrementManager from '@/ts/UserIncrementManager';
+import { AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : { AttributeBox },
   props : {
-    updateComponent : String,
+    selectedNode : String,
     request  : RequestManager
   },
   watch : {
-    updateComponent : 'updateAttributeList'
+    selectedNode : 'updateAttributeList'
   },
   data () {
     return {
@@ -64,8 +66,14 @@ import RequestManager from '../../ts/RequestManager'
 
   },
   methods: {
-    updateAttributeList() {
+    updateAttributeList(selectedNode : string) {
       console.log(" ------------ updateAttributeList -------------------------")
+      const node = JSON.parse(selectedNode)
+      UserIncrementManager.attributeList(this.request,node as AskOmicsViewNode).then(
+        (response : Object[]) => {
+          this.attributeList = response;
+        }
+      )
     }
   }
 })

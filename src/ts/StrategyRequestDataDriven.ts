@@ -1,4 +1,4 @@
-import {SWDiscovery,URI,QueryVariable,Literal} from '@p2m2/discovery'
+import {SWDiscovery,URI,QueryVariable,Literal, SWDiscoveryConfiguration} from '@p2m2/discovery'
 import { AskOmicsViewNode } from './types'
 
 import StrategyRequestAbstract from './StrategyRequestAbstract'
@@ -12,8 +12,16 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
         console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
+    
+
     attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-        return discovery
+        const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()
+
+        return disco
+                .isSubjectOf(new QueryVariable("property"))
+                  .filter.isLiteral
+                    .focus("property")
+                    .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty");
     }
 
     forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {

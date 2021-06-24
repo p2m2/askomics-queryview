@@ -1,4 +1,4 @@
-import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType } from './types'
 import RequestManager from './RequestManager'
 
 export default class UserIncrementManager {
@@ -89,6 +89,25 @@ export default class UserIncrementManager {
         graph.nodes = graph.nodes.filter( n => n.state_n != ObjectState.SUGGESTED )
         graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
         return graph
+    }
+
+    static attributeList(request :RequestManager, current: AskOmicsViewNode ) : Promise<Object[]> {
+        console.log("go :",current)
+
+        return new Promise((successCallback, failureCallback) => {
+            if (Object.keys(current).length == 0) {
+                successCallback([])
+            } else {
+              //  console.log(current.type)
+                if(current.type == NodeType.SOMETHING) {
+                    console.log("get everything attributes")
+                } else {
+                    request.attributeList(current).then(
+
+                    )
+                }
+            }
+        })
     }
 
 }

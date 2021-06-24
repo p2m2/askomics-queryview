@@ -14,27 +14,23 @@
 <script>
 import { Options, Vue } from 'vue-class-component';
 import * as d3 from 'd3';
-import Utils from '../../ts/utils'
-import RequestManager from '../../ts/RequestManager'
-import UserIncrementManager from '../../ts/UserIncrementManager'
+import Utils from '@/ts/utils'
+import RequestManager from '@/ts/RequestManager'
+import UserIncrementManager from '@/ts/UserIncrementManager'
 import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
 
 @Options({
   components : {  },
   props: {
     updateComponent : String,
-    request  : RequestManager,
-    graph : {
-      type: Object,
-      default: {
-        nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
-        links : []
-      }
-    }
+    request  : RequestManager
   },
+
   watch : {
     updateComponent : 'updateCanvas'
   },
+
+  emit: [ 'informationSelectedNode' ,'queryString'],
 
   data () {
     return {
@@ -56,8 +52,12 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       blankNodeSize : 1,
       arrowLength : 40,
       forceCollide: 40,
-      strengthForce: 0.9,
+      strengthForce: 1.0,
       strengthForceManBody: -2000,
+      graph :   {
+        nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
+        links : []
+      },
       selectedNode : null
     }
   },
@@ -70,8 +70,6 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
 
   methods: {
     setUpCanvas() {
-      
-
         /**
          * Managing CANVAS
          */
@@ -113,7 +111,7 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       this.ctx.fillRect(0,0,this.width,this.height);
 
       this.ctx.beginPath();
-      this.ctx.globalAlpha = 0.1;
+      this.ctx.globalAlpha = 1.0;
       this.ctx.strokeStyle = "#aaa";
       this.graph.links.forEach(this.drawLink);
       this.ctx.stroke();
@@ -125,6 +123,9 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       this.simulation
               .force("link", d3.forceLink().id(function (d) { return d.id; }))
               .force("link").links(this.graph.links)
+      
+      this.simulation.restart()
+
     },
 
     zoomed(event) {
@@ -139,18 +140,21 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
     /**
      * usefull to update canavs when requestManager change his internal state
      */
-    updateCanvas(w) {
-      console.log("someone:",w);
+    updateCanvas() {
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! this.selectedNode ) {
         UserIncrementManager.removeSuggestion(this.graph) 
-        this.$emit('modelUpdated'," --- ")
+        this.$emit('informationSelectedNode',JSON.stringify({}))
       } else {
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
         UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
+        
+        this.$emit('informationSelectedNode',JSON.stringify(this.selectedNode))
+        this.$emit('queryString',this.request.getDiscovery().getSerializedString)
+
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
          */
@@ -171,7 +175,7 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
         } else {
           console.log("nothing...");
         }
-        this.$emit('modelUpdated',this.request.getDiscovery().getSerializedString)
+      
       }
       
       this.update()
