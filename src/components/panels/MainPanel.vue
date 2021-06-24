@@ -4,28 +4,31 @@
         bandeau
         <br/>
         <h2>Query Builder</h2>
-        
           <hr/>
-        
           <!-- waiting div -->
           <div class="row">
                 <div class="col col-xs-6">
                   {graphFilters}
                </div>
                <div class="col col-xs-1">
+             <!--    <label for="askomics">AskOmics asbtraction</label>
+                 <input type="radio" value="askomics" id="checkBoxStrategy" v-model="strategy" >
+                <label for="data-driven">Data-driven</label>
+                 <input type="radio" value="data-driven" id="checkBoxStrategy" v-model="strategy"> -->
+                 
                 <div class="form-check form-check-inline">
-                    <input v-on:click="request.setAskOmicsStrategy()" name="strategyRequest" value="askomics" class="form-check-input" type="radio" checked>
+                    <input name="strategyRequest" value="askomics" class="form-check-input" type="radio" v-model="strategyInt">
                     <label class="form-check-label" for="strategyRequest">
                       AskOmics 
                     </label>
                   </div>
                   <div class="form-check form-check-inline">
-                    <input v-on:click="request.setDataDrivenStrategy()" name="strategyRequest" value="data-driven" class="form-check-input" type="radio">
+                    <input name="strategyRequest" value="data-driven" class="form-check-input" type="radio" v-model="strategyInt">
                     <label class="form-check-label" for="strategyRequest">
                       Data-Driven
                     </label>
                   </div>
-                </div>
+                </div> 
                 <div class="col col-xs-4">
                   {removeButton}
                 </div>
@@ -33,11 +36,11 @@
               <br />
           <div class="row">
                   <div class="col col-xs-7">
-                  <QueryGraphPanel v-bind:request="request" v-bind:width="500" v-bind:height="400" />
+                  <QueryGraphPanel :updateComponent="update" v-model:request="request" v-bind:width="500" v-bind:height="400" />
                   </div>
                 <div class="col col-xs-5">
                   <div class="attributes-list">
-                    <AttributesPanel v-bind:request="request"/>
+                    <AttributesPanel v-model:request="request"/>
                   </div>
               </div>
         <!--
@@ -71,20 +74,54 @@ import RequestManager  from '../../ts/RequestManager'
       },
   
   props : {
-    config : String
+    config : String,
+    strategy: {
+      type: String,
+      default : "data-driven"
+    }
   },
 
   data () {
     return {
+      update: false,
       request: null,
-      strategyRequest: ""
+      strategyInt : null
     }
+  },
+
+  watch : {
+      strategyInt: {
+       handler : 'updateStrategy',
+       immediate : false
+      }
   },
   
   mounted() {
     this.request = new RequestManager(this.config)
-    this.request.setAskOmicsStrategy()
+    this.strategyInt = this.strategy
+    this.updateStrategy(this.strategy)
+  },
+  
+  methods: {
+      updateStrategy(value : string) { 
+          switch (value) {
+            case "askomics" : {
+              this.request.setAskOmicsStrategy()
+              break;
+            }
+            case "data-driven" : {
+              this.request.setDataDrivenStrategy()
+              break;
+            }
+            default : {
+              this.request.setDataDrivenStrategy()
+            }
+          }
+          this.update = !this.update;
+         //this.$emit("update:request",this.request)
+        } 
   }
+  
 })
 
 export default class MainPanel extends Vue {

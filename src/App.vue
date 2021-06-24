@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <MainPanel :config="config_local" />
+      <MainPanel :config="config" :strategy="strategy" />
   </div>
 </template>
 
@@ -26,7 +26,9 @@ import MainPanel from './components/panels/MainPanel.vue'
           "sources" : [{
           "id"  : "local",
           "url" : "http://localhost:8890/sparql"
-           }]}`
+           }]}`,
+
+          strategy : "data-driven"
         }
   }
 })

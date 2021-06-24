@@ -22,6 +22,10 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
 @Options({
   components : {  },
   props: {
+    updateComponent : {
+      type : Boolean,
+      default : false  
+    },
     request  : RequestManager,
     graph : {
       type: Object,
@@ -30,6 +34,12 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
         links : []
       }
     }
+  },
+  watch : {
+    request : () => {
+      console.log("update request !!!");
+    },
+    updateComponent : 'updateCanvas'
   },
   data () {
     return {
@@ -52,7 +62,8 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       arrowLength : 40,
       forceCollide: 40,
       strengthForce: 0.9,
-      strengthForceManBody: -2000
+      strengthForceManBody: -2000,
+      selectedNode : null
     }
   },
   mounted() {
@@ -130,47 +141,54 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
         return this.simulation.find(event.x, event.y);
     },
 
-    canvasClick(event) {      
-      // if ctrl released 
-      if ( ! event.ctrlKey ) UserIncrementManager.releaseSelectedObject(this.graph)
-      
-      /* Find Selected Object */
-      let rect = this.canvas.node().getBoundingClientRect();
-      let n = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-     
+    /**
+     * usefull to update canavs when requestManager change his internal state
+     */
+    updateCanvas() {
       /**
        * Nothing is selected with go out and remove selection */ 
-      if (! n ) {
+      if (! this.selectedNode ) {
         UserIncrementManager.removeSuggestion(this.graph) 
         return ;
       }
-      
-      /**----------------------------------------------------------------------------
+    
+       /**----------------------------------------------------------------------------
        * 1) Creation Node/Links if a suggested node is clicked !
        */
-      UserIncrementManager.setShapeNode(this.request,n,this.graph)
-
-      /**----------------------------------------------------------------------------
+      UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
+       /**----------------------------------------------------------------------------
        * 2) Remove Suggestion unused
        */
-      UserIncrementManager.removeSuggestion(this.graph)
-      
+      UserIncrementManager.removeSuggestion(this.graph) 
 
-      /**-----------------------------------------------------------------------------
+       /**-----------------------------------------------------------------------------
        *   management with one selected node 
        * 
-       * */
+       **/
      
       const countSelectedNode = this.graph.nodes.filter( n => n.state == ObjectState.SELECTED).length
 
       if (countSelectedNode == 0 ) {
-          this.suggestions(n);
+          this.suggestions(this.selectedNode);
       } 
       else if (countSelectedNode>0) { 
           console.log("nodes....");
       } else {
         console.log("nothing...");
       }
+    },
+
+    canvasClick(event) {
+      console.log("------------------ canvasClick ---------------")      
+      // if ctrl released 
+      if ( ! event.ctrlKey ) UserIncrementManager.releaseSelectedObject(this.graph)
+      
+      /* Find Selected Object */
+      let rect = this.canvas.node().getBoundingClientRect();
+      this.selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+     
+      this.updateCanvas()
+     
     },
 
   suggestions( n ) {
