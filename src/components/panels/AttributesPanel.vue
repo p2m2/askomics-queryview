@@ -71,7 +71,11 @@ import { AskOmicsViewNode } from '@/ts/types';
       const node = JSON.parse(selectedNode)
       UserIncrementManager.attributeList(this.request,node as AskOmicsViewNode).then(
         (response : Object[]) => {
+          
+          console.log(" --------attributeList")
+          console.log(response)
           this.attributeList = response;
+         
         }
       )
     }

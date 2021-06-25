@@ -27,13 +27,50 @@ export default abstract class StrategyRequestAbstract {
     constructor() {
     }
 
-    getDatatypes(discovery : SWDiscovery,config_rdf : string,listUriDatatypeProperty: string[] ) : SWDiscovery {
-        const d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
-        listUriDatatypeProperty.forEach((uri,idx) => {
-            d.datatype(new URI(uri),"v"+String(idx));
-        });
-        
-        return d
+    getDatatypesWithProperty(config_rdf : string,property: string ) : Promise<string[]> {
+
+        return new Promise((successCallback, failureCallback) => {
+            new SWDiscovery(SWDiscoveryConfiguration
+                .setConfigString(config_rdf))
+                .something()
+                    .isSubjectOf(new URI(property),"valueL")
+                    .select("valueL")
+                    .limit(20)
+                    .commit()
+                    .raw()
+                    .then(
+                        (response) => {
+                                try {
+                                    const t = [...new Set(response.results.bindings.map( (id : any) => id["valueL"].datatype))];
+                                    if(t[0]) {
+                                        successCallback([property,t[0] as string])
+                                    } else {
+                                        // if datatype not defined, by default is string
+                                        successCallback([property,"xsd:string"])
+                                    }
+                                } catch(e) {
+                                    failureCallback(e)
+                                }
+                    })
+            })
+    }
+
+    getDatatypes(config_rdf : string,listUriDatatypeProperty: string[] ) : Promise<Map<string,string>> {
+        const listUriDatatypePropertyClean = [...new Set(listUriDatatypeProperty)]
+        const results : Map<string,string> = new Map()
+        return new Promise((successCallback, failureCallback) => {
+            Promise.all(listUriDatatypePropertyClean.map(property => this.getDatatypesWithProperty(config_rdf,property)))
+            .then(
+                allPairPropertyDatatype => {
+                    allPairPropertyDatatype.map(
+                        PropertyDatatype => results.set(PropertyDatatype[0],PropertyDatatype[1])
+                    )
+                    successCallback(results)
+                })
+            .catch(e => { 
+                failureCallback(e) 
+            } )
+        })
     }
 
     abstract attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery

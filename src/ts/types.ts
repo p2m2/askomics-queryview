@@ -138,37 +138,20 @@ export class DatatypeLiteral {
     static idCounter : number  = 0 ;
 
     id       : Number 
-    uri      : String
-    range    : RangeBoxType
-    label    : String
+    uri      : string
+    range    : string
+    label    : string
     
     constructor(uri: string, range : string, label : string= "") {
-        this.id = DatatypeLiteral.idCounter++
-        this.uri = uri
+        this.id    = DatatypeLiteral.idCounter++
+        this.uri   = uri
         this.label = label == "" ? Utils.splitUrl(uri): label 
+        this.range = range.trim().replace("http://www.w3.org/2001/XMLSchema#","xsd:")
+       
+    }
 
-        switch(range.toLowerCase()) {
-            case "xsd.string" :
-            case ""           : {
-                this.range = RangeBoxType.XSD_STRING
-                break
-            }
-            case "xsd:numeric" :
-            case "xsd:integer" :
-            case "xsd:float"   :
-            case "xsd:double"  :
-            case "xsd:decimal" :    {
-                this.range = RangeBoxType.XSD_NUMERIC
-                break
-            }
-            case "xsd:boolean" :    {
-                this.range = RangeBoxType.XSD_BOOLEAN
-                break
-            }
-            default : {
-                this.range = RangeBoxType.XSD_UNKNOWN
-            }
-        }
+    getObject() : Object {
+        return Object.assign({ visible: false, negative: false, linked: false },this)
     }
 }
 

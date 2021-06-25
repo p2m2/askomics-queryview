@@ -3,8 +3,10 @@
   <div id="my-test-box" class="attribute-box">
     <label class="attr-label">{{ attribute.label }}</label>
     <div className="attr-icons">
-        <font-awesome-icon :icon="['fas', 'link']" />
-        <font-awesome-icon :icon="['fas', 'eye']" />
+        <font-awesome-icon :icon="['fas', 'link']" v-if="attribute.linked" />
+        <font-awesome-icon :icon="['fas', 'unlink']" v-else />
+        <font-awesome-icon :icon="['fas', 'eye']" v-if="attribute.visible" />
+        <font-awesome-icon :icon="['fas', 'eye-slash']" v-else />
         <font-awesome-icon :icon="['fas', 'question-circle']" />
     </div>
     <div v-if="attribute.range == 'xsd:string'">
@@ -30,13 +32,13 @@ import { Options, Vue } from 'vue-class-component';
 import { UserConfiguration, AttributeSpec } from 'src/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCircle, faEye, faLink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import XsdString from './XsdString.vue';
 import XsdNumeric from './XsdNumeric.vue';
 
-[ faLink, faCircle, faQuestionCircle, faEye ].map(icon => library.add(icon)) ;
+[ faLink, faUnlink, faCircle, faQuestionCircle, faEye, faEyeSlash ].map(icon => library.add(icon)) ;
 
 
 @Options({

@@ -129,7 +129,6 @@ export default class RequestManager {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 this.strategy.attributeList(this.getDiscovery(),this.config,current) 
-                .console()
                 .select("property","labelProperty")
                 .distinct
                 .commit()
@@ -137,7 +136,7 @@ export default class RequestManager {
                 .then(
                     (response) => {
                         console.log(response)
-                        const res : DatatypeLiteral[] = []
+                        const results : DatatypeLiteral[] = []
                         
                         const m : Map<string,string> = new Map()
                         for (let i=0;i<response.results.bindings.length;i++) {
@@ -156,30 +155,37 @@ export default class RequestManager {
                             m.set(uri,label)
                             console.log(uri,label)
                         }
-                        console.log(m.size)
+                        
                         if ( this.strategy && m.size>0) {
                             const lUris : string[] = []
                             for (const key of m.keys()) {
                                 lUris.push(key)
                             }
  
-                            this.strategy.getDatatypes(this.getDiscovery(), this.config, lUris)
-                            .console()
-                            .select("p1","p2")
-                            .distinct
-                            .commit()
-                            .raw()
-                            .then ( (response2 )=>{
-                                console.log("response22222222")
-                                console.log(response2)
-                            })
-                        }
-                            
-                        
-                        //res.push(new DatatypeLiteral(uri,range,label))
-                        successCallback(res)
-                    })       
-            }
+                            this.strategy.getDatatypes(this.config, lUris)
+                            .then ( (mapPropertyAndRange )=>{
+                                console.log("mapPropertyAndRange")
+                                console.log(mapPropertyAndRange)
+                                lUris.map(
+                                    uriProperty => {
+                                        const label = m.get(uriProperty)
+                                        let range = mapPropertyAndRange.get(uriProperty)
+                                        
+                                        if (!range) range=""
+
+                                        results.push(
+                                            new DatatypeLiteral(uriProperty,range,label)
+                                        )
+                                        console.log("ok")
+                                    })
+                                successCallback(results)
+                                
+                            }).catch(e => {failureCallback(e)} )
+                        } else {
+                            successCallback(results)
+                        }  
+                    })
+                .catch(e => {failureCallback(e)} )}
         })
     }
 

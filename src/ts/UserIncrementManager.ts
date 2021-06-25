@@ -1,4 +1,4 @@
-import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType } from './types'
+import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType, DatatypeLiteral } from './types'
 import RequestManager from './RequestManager'
 
 export default class UserIncrementManager {
@@ -98,13 +98,19 @@ export default class UserIncrementManager {
             if (Object.keys(current).length == 0) {
                 successCallback([])
             } else {
+                console.log("YOUPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
               //  console.log(current.type)
                 if(current.type == NodeType.SOMETHING) {
                     console.log("get everything attributes")
                 } else {
+                    
                     request.attributeList(current).then(
-
-                    )
+                        response => {
+                            console.log("22222222222222222222222222YOUPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
+                            console.log(response)
+                            successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
+                        }
+                    ).catch(e => {failureCallback(e)})
                 }
             }
         })
