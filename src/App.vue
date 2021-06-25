@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-      <MainPanel :config="config" :strategy="strategy" />
+      <MainPanel :config="config_local" :strategy="strategy" />
   </div>
 </template>
 

@@ -32,6 +32,9 @@ declare module "@p2m2/discovery" {
         commit() : SWTransaction
         raw() : Promise<DiscoveryResponse>
 
+        progression(  callBack  : ( percent : Number) => Unit  )
+        requestEvent( callBack  : ( eventName : String) => Unit  )
+
     }
 
     export class FilterIncrementJs {

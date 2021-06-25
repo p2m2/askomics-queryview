@@ -1,5 +1,5 @@
-import { SWDiscoveryConfiguration, SWDiscovery, URI} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink } from './types'
+import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
+import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -129,31 +129,41 @@ export default class RequestManager {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 this.strategy.attributeList(this.getDiscovery(),this.config,current) 
+                //.console()
                 .select("property","labelProperty")
                 .distinct
                 .commit()
                 .raw()
                 .then(
                     (response) => {
-                        console.log(response)
+                        //console.log(response)
                         const results : DatatypeLiteral[] = []
                         
                         const m : Map<string,string> = new Map()
                         for (let i=0;i<response.results.bindings.length;i++) {
                             if ( ! this.checkVariablePresent(response,i,['property']) ) continue
                             const uri   : string = response.results.bindings[i]["property"].value;
-                           // const range : string = response.results.bindings[i]["rangeXsd"].value;
+                          /*
+                            TODO : Discovery => wait for "bind.datatype" feature
+
+                            let range : string 
+                          
+                            if (response.results.bindings[i]["range"]) {
+                                range = response.results.bindings[i]["range"].value;
+                                console.log("RANGE:"+range);
+                            } */
+                                
+
                             let label   : string = Utils.splitUrl(uri)  ;
                             try {
                                 const listLabelEntity = response.results.datatypes["labelProperty"][uri] ;
                                 if ( listLabelEntity )
                                     label=listLabelEntity[0].value; 
                             } catch (error) {
-                                console.error(error);
+                                failureCallback(error);
                             }     
 
                             m.set(uri,label)
-                            console.log(uri,label)
                         }
                         
                         if ( this.strategy && m.size>0) {
@@ -164,8 +174,6 @@ export default class RequestManager {
  
                             this.strategy.getDatatypes(this.config, lUris)
                             .then ( (mapPropertyAndRange )=>{
-                                console.log("mapPropertyAndRange")
-                                console.log(mapPropertyAndRange)
                                 lUris.map(
                                     uriProperty => {
                                         const label = m.get(uriProperty)
@@ -176,7 +184,6 @@ export default class RequestManager {
                                         results.push(
                                             new DatatypeLiteral(uriProperty,range,label)
                                         )
-                                        console.log("ok")
                                     })
                                 successCallback(results)
                                 
@@ -190,14 +197,14 @@ export default class RequestManager {
     }
 
     forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
-        return this.propertyEntities("forward",current)
+        return this.propertyEntities(NodeType.FORWARD_ENTITY,current)
     }
 
     backwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
-        return this.propertyEntities("backward",current)
+        return this.propertyEntities(NodeType.BACKWARD_ENTITY,current)
     }
 
-    propertyEntities( type: string, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
+    propertyEntities( type: NodeType, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 
@@ -205,12 +212,12 @@ export default class RequestManager {
                 let typeLink : LinkType
 
                 switch(type) { 
-                    case "forward": { 
+                    case NodeType.FORWARD_ENTITY : { 
                         disco = this.strategy.forwardEntities(this.getDiscovery(),this.config,current)
                         typeLink = LinkType.FORWARD_PROPERTY
                         break; 
                     } 
-                    case "backward": { 
+                    case NodeType.BACKWARD_ENTITY : { 
                         disco = this.strategy.backwardEntities(this.getDiscovery(),this.config,current)
                         typeLink = LinkType.BACKWARD_PROPERTY
                         break; 
@@ -222,11 +229,18 @@ export default class RequestManager {
                  }
 
                 try {
-                    disco
+                    const transaction : SWTransaction =
+                     disco
                         //.console()
                         .select("property","entity","labelEntity","labelProperty")
                         .distinct
                         .commit()
+/*
+                    transaction.progression( (percent : any) => {
+                        console.log("percent:"+percent)
+                    })
+*/
+                    transaction
                         .raw()
                         .then(
                             (response) => {                      
@@ -248,10 +262,10 @@ export default class RequestManager {
                                             if ( listLabelEntity )
                                                 labelEntity=listLabelEntity[0].value; 
                                         } catch (error) {
-                                            console.error(error);
+                                            console.warn(error);
                                         }     
-
-                                        n = new AskOmicsViewNode(entity,labelEntity);
+                                        
+                                        n = new AskOmicsViewNode(entity,labelEntity,type)
 
                                         mR.set(entity, n) ;
                                     } else {
@@ -265,7 +279,7 @@ export default class RequestManager {
                                             if ( listLabelEntity )
                                                 labelProperty = listLabelEntity[0].value; 
                                         } catch (error) {
-                                            console.error(error);
+                                            console.warn(error);
                                         }    
                                         
                                         if (typeLink == LinkType.FORWARD_PROPERTY)

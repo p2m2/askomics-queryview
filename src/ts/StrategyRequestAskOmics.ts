@@ -17,7 +17,15 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
     }
 
     attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-        return discovery
+        let d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
+
+        if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))
+
+        return d
+               .isObjectOf(new URI("rdfs:domain"),"property")
+                  .isA("owl:DatatypeProperty")
+                  .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty")
+                    .isSubjectOf(new URI("rdfs:range"),"range")
     }
 
     forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {

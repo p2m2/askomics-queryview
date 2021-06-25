@@ -98,7 +98,6 @@ export default class UserIncrementManager {
             if (Object.keys(current).length == 0) {
                 successCallback([])
             } else {
-                console.log("YOUPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
               //  console.log(current.type)
                 if(current.type == NodeType.SOMETHING) {
                     console.log("get everything attributes")
@@ -106,8 +105,6 @@ export default class UserIncrementManager {
                     
                     request.attributeList(current).then(
                         response => {
-                            console.log("22222222222222222222222222YOUPIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
-                            console.log(response)
                             successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
                         }
                     ).catch(e => {failureCallback(e)})

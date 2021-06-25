@@ -42,7 +42,8 @@ export interface Graph3DJS {
 
 export enum NodeType {
     SOMETHING=0,
-    ENTITY,   
+    FORWARD_ENTITY,
+    BACKWARD_ENTITY   
 }
 
 export enum LinkType {
@@ -97,14 +98,14 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
     focus : string
     type : NodeType
     
-    constructor(uri : string, label : string) {
+    constructor(uri : string, label : string, type: NodeType) {
         super(uri,label);
-        this.type = NodeType.ENTITY
-        this.focus=""
+        this.type  = type
+        this.focus = ""
     }
 
     static something(state : ObjectState, focus : string) : AskOmicsViewNode {
-        const n = new AskOmicsViewNode("something","Something") ;
+        const n = new AskOmicsViewNode("something","Something",NodeType.SOMETHING) ;
         n.type = NodeType.SOMETHING ;
         n.state_n = state
         console.log(n);
