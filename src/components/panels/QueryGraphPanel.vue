@@ -23,7 +23,9 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
   components : {  },
   props: {
     updateComponent : String,
-    request  : RequestManager
+    request         : RequestManager,
+    width           : Number,
+    height          : Number,
   },
 
   watch : {
@@ -37,8 +39,6 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       ctrlKey: false,
       canvas: null,
       ctx: null,
-      width:650,
-      height:400,
       color: d3.scaleOrdinal(["#6b486b", "#a05d56", "#d0743c", "#ff8c00"]),
       zoom : 5,
       zoomTime : 1000,

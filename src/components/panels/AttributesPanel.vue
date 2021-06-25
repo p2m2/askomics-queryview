@@ -1,5 +1,5 @@
 <template>
-  <div id="attributes-panel">    
+  <div id="attributes-panel" class="attributesList">    
     <attributeBox
       v-for="item in attributeList" :key="item.id"
       v-bind:config="config"
@@ -19,8 +19,10 @@ import { AskOmicsViewNode } from '@/ts/types';
 @Options({
   components : { AttributeBox },
   props : {
-    selectedNode : String,
-    request  : RequestManager
+    selectedNode    : String,
+    request         : RequestManager,
+    width           : Number,
+    height          : Number,
   },
   watch : {
     selectedNode : 'updateAttributeList'
@@ -63,7 +65,11 @@ import { AskOmicsViewNode } from '@/ts/types';
     }
   },
   mounted() {
-
+    let attributesList = document.querySelector<HTMLElement>('.attributesList')
+    if ( attributesList ) {
+      attributesList.style.height = this.height + "px"
+      attributesList.style.width  = this.width + "px"
+    }
   },
   methods: {
     updateAttributeList(selectedNode : string) {
@@ -88,4 +94,8 @@ export default class AttributesPanel extends Vue {
 </script>
 
 <style>
+.attributesList {
+  display: 'block' ;
+  overflow-y:auto  ;
+}
 </style>

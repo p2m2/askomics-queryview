@@ -10,12 +10,7 @@
                 <div class="col col-xs-6">
                   {graphFilters}
                </div>
-               <div class="col col-xs-1">
-             <!--    <label for="askomics">AskOmics asbtraction</label>
-                 <input type="radio" value="askomics" id="checkBoxStrategy" v-model="strategy" >
-                <label for="data-driven">Data-driven</label>
-                 <input type="radio" value="data-driven" id="checkBoxStrategy" v-model="strategy"> -->
-                 
+               <div class="col col-xs-1">     
                 <div class="form-check form-check-inline">
                     <input name="strategyRequest" value="askomics" class="form-check-input" type="radio" v-model="strategyInt">
                     <label class="form-check-label" for="strategyRequest">
@@ -41,18 +36,18 @@
                     v-model:request="request" 
                     @informationSelectedNode="selectedNodeEvent" 
                     @queryString="queryStringEvent" 
-                    :width="500" 
-                    :height="400" />
+                    :width="750" 
+                    :height="450" />
                 </div>
               <div class="col col-xs-5">
-                <div class="attributes-list">
                   <AttributesPanel 
                     v-model:updateComponent="update" 
                     v-model:request="request"
                     :selectedNode="selectedNode" 
-                    @attributeBox="attributeBoxEvent" 
+                    @attributeBox="attributeBoxEvent"
+                    :width="450" 
+                    :height="450"
                    />
-                </div>
               </div>
         <!--
         {warningDiskSpace}
@@ -154,9 +149,4 @@ export default class MainPanel extends Vue {
 </script>
 
 <style>
-.attributes-list {
-    display: 'block' ;
-    overflow-y: 'auto' ;
-    height: 100px ;
-}
 </style>
