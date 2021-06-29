@@ -1,5 +1,11 @@
 <template>
-  <div id="attributes-panel" class="attributesList">    
+  <div id="attributes-panel" class="attributesList">
+    
+    <URIBox
+          v-bind:config="config"
+    >
+    </URIBox>
+    
     <attributeBox
       v-for="item in attributeList" :key="item.id"
       v-bind:config="config"
@@ -12,12 +18,13 @@
 import { Options, Vue } from 'vue-class-component';
 
 import AttributeBox from '@/components/attribute/AttributeBox.vue'
+import URIBox from '@/components/attribute/URIBox.vue'
 import RequestManager from '@/ts/RequestManager'
-import UserIncrementManager from '@/ts/UserIncrementManager';
-import { AskOmicsViewNode } from '@/ts/types';
+import UserIncrementManager from '@/ts/UserIncrementManager'
+import { AskOmicsViewNode } from '@/ts/types'
 
 @Options({
-  components : { AttributeBox },
+  components : { AttributeBox , URIBox },
   props : {
     selectedNode    : String,
     request         : RequestManager,

@@ -9,6 +9,7 @@
         <font-awesome-icon :icon="['fas', 'eye-slash']" v-else />
         <font-awesome-icon :icon="['fas', 'question-circle']" />
     </div>
+    
     <div v-if="attribute.range == 'xsd:string'">
         <XsdString
           v-bind:config="config"
@@ -29,7 +30,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { UserConfiguration, AttributeSpec } from 'src/ts/types';
+import { UserConfiguration, AttributeSpec, AskOmicsViewNode } from 'src/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -43,7 +44,7 @@ import XsdNumeric from './XsdNumeric.vue';
 
 @Options({
   components : { 
-    library,FontAwesomeIcon, XsdString, XsdNumeric 
+    library,FontAwesomeIcon, XsdString, XsdNumeric
     },
   props: { 
       config : Object as () => UserConfiguration,

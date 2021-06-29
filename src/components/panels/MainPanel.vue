@@ -1,9 +1,6 @@
 <template>
   <div id="main-panel">
       <div class="container"> 
-        bandeau
-        <br/>
-        <h2>Query Builder</h2>
           <hr/>
           <!-- waiting div -->
           <div class="row">
@@ -62,6 +59,11 @@
               </div>
               <ErrorDiv status={this.state.status} error={this.state.error} errorMessage={this.state.errorMessage} customMessages={{"504": "Query time is too long, use Run & Save to get your results", "502": "Query time is too long, use Run & Save to get your results"}} />
         -->
+         </div>
+         <div class="row">
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
          </div>
      </div>
   </div>
