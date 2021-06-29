@@ -1,16 +1,16 @@
 <template>
   <div id="board">
-     <AskOmics v-model:config="config" v-model:strategy="strategy" />
+     <QueryBuilder v-model:config="config" v-model:strategy="strategy" />
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import AskOmics from './askomics/panels/AskOmics.vue'
+import QueryBuilder from './askomics/panels/QueryBuilder.vue'
 
 @Options({
   components: {
-    AskOmics
+    QueryBuilder
   },
   
   props : {

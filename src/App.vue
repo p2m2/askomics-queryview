@@ -1,17 +1,43 @@
 <template>
-  <div id="app">
-    <MainPanel :config="config" :strategy="strategy" />
-  </div>
+  <nav class="navbar navbar-expand-lg navbar-light">
+     <div class="container-fluid">
+      
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          
+          <li class="nav-item">
+            <router-link class="nav-link" aria-current="page" to="/askomics">AskOmics Query Builder </router-link>
+          </li>
+          
+          <li class="nav-item">
+            <router-link class="nav-link" to="/results">Results </router-link>
+          </li>
+
+          <li class="nav-item">
+            <router-link class="nav-link" to="/configuration">Configuration </router-link>
+          </li>
+
+          <li class="nav-item">
+            <router-link class="nav-link" to="/about">About </router-link>
+          </li>
+        </ul>
+        
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      
+      </div>
+    </div>
+  </nav>
+  <router-view/>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import MainPanel from './components/MainPanel.vue'
+
 
 @Options({
-  components: {
-    MainPanel
-  },
   data() { 
         return {
           config:  `
@@ -30,18 +56,12 @@ import MainPanel from './components/MainPanel.vue'
 
           strategy : "data-driven"
         }
+  },
+  methods : {
   }
 })
 export default class App extends Vue {}
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
