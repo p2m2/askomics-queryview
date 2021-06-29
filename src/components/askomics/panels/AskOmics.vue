@@ -1,5 +1,5 @@
 <template>
-  <div id="main-panel">
+  <div id="askomics-panel">
       <div class="container"> 
           <hr/>
           <!-- waiting div -->
@@ -74,7 +74,7 @@ import { Options, Vue } from 'vue-class-component'
 import "bootstrap/dist/css/bootstrap.min.css"
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
-import RequestManager  from '../../ts/RequestManager'
+import RequestManager  from '@/ts/RequestManager'
 
 @Options({
   components : {  
@@ -144,7 +144,7 @@ import RequestManager  from '../../ts/RequestManager'
   
 })
 
-export default class MainPanel extends Vue {
+export default class AskOmics extends Vue {
 
 }
 

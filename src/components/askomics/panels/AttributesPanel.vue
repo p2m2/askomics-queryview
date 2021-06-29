@@ -17,8 +17,8 @@
 
 import { Options, Vue } from 'vue-class-component';
 
-import AttributeBox from '@/components/attribute/AttributeBox.vue'
-import URIBox from '@/components/attribute/URIBox.vue'
+import AttributeBox from '../attribute/AttributeBox.vue'
+import URIBox from '../attribute/URIBox.vue'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
 import { AskOmicsViewNode } from '@/ts/types'

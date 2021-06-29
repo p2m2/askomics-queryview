@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { UserConfiguration, AttributeSpec, AskOmicsViewNode } from 'src/ts/types';
+import { UserConfiguration, AttributeSpec } from '@/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
