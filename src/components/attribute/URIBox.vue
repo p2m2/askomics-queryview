@@ -1,0 +1,76 @@
+<template>
+<div id="askomics-uri-box">
+ <label class="attr-label">URI</label>
+<div className="attr-icons">
+    <font-awesome-icon :icon="['fas', 'link']" v-if="linked" />
+    <font-awesome-icon :icon="['fas', 'unlink']" v-else />
+    <font-awesome-icon :icon="['fas', 'eye']" v-if="visible" />
+    <font-awesome-icon :icon="['fas', 'eye-slash']" v-else />
+</div>
+
+<table>
+<tr>
+    <td>
+        <select v-model="typeSearch">
+            <option v-for="option in optionsTypeSearch" v-bind:key="option.value" v-bind:value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+    </td>
+    <td>
+        <select v-model="typeCompare">
+            <option v-for="option in optionsTypeCompare" v-bind:key="option.value" v-bind:value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+    </td>
+    <td>
+        <input v-model="filterValue" placeholder="edit me">
+    </td>
+</tr>
+</table>
+</div>
+</template>
+
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component';
+import { UserConfiguration } from 'src/ts/types';
+
+@Options({
+    
+    props: {
+        config : Object as () => UserConfiguration
+    },
+
+    methods: {
+    },
+
+    data() { 
+        return {
+            visible : false,
+            linked: false,
+            typeSearch: 'A',
+            optionsTypeSearch: [
+                { text: 'Exact', value: 'A' },
+                { text: 'Regex', value: 'B' }
+            ],
+            typeCompare: 'A',
+            optionsTypeCompare: [
+                { text: '=', value: 'A' },
+                { text: '!=', value: 'B' }
+            ],
+            filterValue: '',
+        }
+    }
+})
+
+export default class UriBox extends Vue {
+  config!: UserConfiguration
+}
+
+
+</script>
+
+<style>
+
+</style>
