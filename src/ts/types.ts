@@ -1,10 +1,6 @@
 import Utils from "./utils"
 
 
-export type UserConfiguration = {
-    admin: Boolean
-}
-  
 export type AttributeSpec = {
       id: Number
       uri: String
@@ -58,6 +54,19 @@ export enum ObjectState {
     SELECTED,   
 }
 
+export class UserConfiguration {
+    endpoint       : string
+    type_endpoint  : string
+    strategy       : string 
+
+    constructor(endpoint: string = "", type_endpoint : string = "", strategy: string = "") {
+        this.endpoint      = endpoint 
+        this.type_endpoint = type_endpoint
+        this.strategy      = strategy 
+    }
+}
+  
+
 export abstract class AskOmicsGenericNode {
     id          : string
     uri         : string
@@ -104,7 +113,7 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
         this.focus = ""
     }
 
-    static something(state : ObjectState, focus : string) : AskOmicsViewNode {
+    static something(state : ObjectState) : AskOmicsViewNode {
         const n = new AskOmicsViewNode("something","Something",NodeType.SOMETHING) ;
         n.type = NodeType.SOMETHING ;
         n.state_n = state

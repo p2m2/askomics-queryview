@@ -19,11 +19,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { UserConfiguration, AttributeSpec } from 'src/ts/types'
+import { AttributeSpec } from 'src/ts/types'
 
 @Options({
     props: { 
-        config : Object as () => UserConfiguration,
         attribute : Object as () => AttributeSpec 
     },
     
@@ -47,7 +46,6 @@ import { UserConfiguration, AttributeSpec } from 'src/ts/types'
 })
 
 export default class XsdNumeric extends Vue {
-  config!: UserConfiguration
   attribute!: AttributeSpec
 }
 

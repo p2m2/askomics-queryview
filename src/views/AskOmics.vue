@@ -1,36 +1,50 @@
 <template>
-  <div id="app">
-    <MainPanel :config="config" :strategy="strategy" />
-  </div>
+{{ userConfig }}
+    <QueryBuilder :userConfig="userConfig" :query="query" @updateQuery="updateQuery" />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import MainPanel from '@/components/MainPanel.vue'
+import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
 
 @Options({
+  name: "AskOmicsView",
   components: {
-    MainPanel
+    QueryBuilder 
   },
-  data() { 
-        return {
-          config:  `
-          {
-          "sources" : [{
-          "id"  : "metabolights",
-          "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-           }]}
-          `,
-          config_local: ` 
-           {
-          "sources" : [{
-          "id"  : "local",
-          "url" : "http://localhost:8890/sparql"
-           }]}`,
+  emits: ["updateQuery"],
+  props : {
+    configuration : {
+      type : String,
+      default : () => "{}"
+    },
+    query : {
+      type : String,
+      default : () => ""
+    }
+  },
 
-          strategy : "data-driven"
-        }
+  data() {
+    return {
+      userConfig : ""
+    }
+  },
+  mounted() {
+    if ( this.configuration && this.configuration.length>0) {
+      this.userConfig = JSON.parse(this.configuration)
+    }
+    //if (this.query && this.query.length>0) {
+        //alert("MOUNTED:"+this.query)
+    //}
+    
+  },
+  methods : {
+    updateQuery(query : string) {
+      this.$emit('updateQuery',query)
+      //alert("SEND:"+query)
+    }
   }
+
 })
 export default class AskOmics extends Vue {}
 </script>
@@ -44,4 +58,5 @@ export default class AskOmics extends Vue {}
   color: #2c3e50;
   margin-top: 60px;
 }
+
 </style>

@@ -1,14 +1,8 @@
 <template>
   <div id="attributes-panel" class="attributesList">
     
-    <URIBox
-          v-bind:config="config"
-    >
-    </URIBox>
-    
     <attributeBox
       v-for="item in attributeList" :key="item.id"
-      v-bind:config="config"
       v-bind:attribute="item"/>
   </div>
 </template>
@@ -18,13 +12,13 @@
 import { Options, Vue } from 'vue-class-component';
 
 import AttributeBox from '../attribute/AttributeBox.vue'
-import URIBox from '../attribute/URIBox.vue'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
 import { AskOmicsViewNode } from '@/ts/types'
 
 @Options({
-  components : { AttributeBox , URIBox },
+  name: "AttributesPanel",
+  components : { AttributeBox },
   props : {
     selectedNode    : String,
     request         : RequestManager,
@@ -36,12 +30,6 @@ import { AskOmicsViewNode } from '@/ts/types'
   },
   data () {
     return {
-      config: {
-                    user: {
-                        admin : true
-                    }
-                },
-
       attributeList: [ {
                     id: 5,
                     uri: "rdf:something",

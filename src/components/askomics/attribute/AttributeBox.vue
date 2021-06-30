@@ -10,15 +10,18 @@
         <font-awesome-icon :icon="['fas', 'question-circle']" />
     </div>
     
+    <div v-if="attribute.range == 'uri'">
+      <URIBox>
+      </URIBox>
+    </div>
+    
     <div v-if="attribute.range == 'xsd:string'">
         <XsdString
-          v-bind:config="config"
           v-bind:attribute="attribute"
         ></XsdString>
     </div>
     <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attribute.range)">
         <XsdNumeric
-          v-bind:config="config"
           v-bind:attribute="attribute"
         ></XsdNumeric>
     </div>
@@ -30,12 +33,13 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { UserConfiguration, AttributeSpec } from '@/ts/types';
+import { AttributeSpec } from '@/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+import URIBox from './URIBox.vue'
 import XsdString from './XsdString.vue';
 import XsdNumeric from './XsdNumeric.vue';
 
@@ -44,10 +48,9 @@ import XsdNumeric from './XsdNumeric.vue';
 
 @Options({
   components : { 
-    library,FontAwesomeIcon, XsdString, XsdNumeric
+    library,FontAwesomeIcon, XsdString, XsdNumeric,URIBox
     },
   props: { 
-      config : Object as () => UserConfiguration,
       attribute : Object as () => AttributeSpec 
   },
   methods: {
@@ -62,7 +65,6 @@ import XsdNumeric from './XsdNumeric.vue';
 })
 
 export default class AttributeBox extends Vue {
-  config!: UserConfiguration
   attribute!: AttributeSpec
 }
 

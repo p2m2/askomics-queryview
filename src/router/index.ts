@@ -2,11 +2,25 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import AskOmics from '../views/AskOmics.vue'
 import Results from '../views/Results.vue'
 import Configuration from '../views/Configuration.vue'
+import AskEndpoint from '../views/AskEndpoint.vue'
+import AskHashQuery from '../views/AskHashQuery.vue'
+import { UserConfiguration } from '@/ts/types'
 
 const routes: Array<RouteRecordRaw> = [
+ /* {
+    path: '/:endpoint',
+    name: 'Ask Endpoint',
+    component: Configuration // change to worklows -> configuration -> askomics view
+  },
   {
-    path: '/askomics',
-    name: 'AskOmics Query Builder',
+    path: '/:hash_query',
+    name: 'Ask Query',
+    component: Configuration // change to worklows -> configuration -> askomics view
+  },*/
+  {
+    path: '/',
+    name: 'askomics',
+    props: true,
     component: AskOmics
   },
   {

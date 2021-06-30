@@ -34,12 +34,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { UserConfiguration } from 'src/ts/types';
 
 @Options({
     
     props: {
-        config : Object as () => UserConfiguration
     },
 
     methods: {
@@ -65,7 +63,7 @@ import { UserConfiguration } from 'src/ts/types';
 })
 
 export default class UriBox extends Vue {
-  config!: UserConfiguration
+
 }
 
 

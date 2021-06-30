@@ -17,19 +17,18 @@ import * as d3 from 'd3';
 import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
-import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
+import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
 
 @Options({
+  name: "QueryGraphPanel",
+  emits: ["updateQuery"],
   components : {  },
   props: {
-    updateComponent : String,
+    graphStart      : Graph3DJS,
     request         : RequestManager,
+    query           : String,
     width           : Number,
     height          : Number,
-  },
-
-  watch : {
-    updateComponent : 'updateCanvas'
   },
 
   emit: [ 'informationSelectedNode' ,'queryString'],
@@ -54,14 +53,16 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
       forceCollide: 40,
       strengthForce: 1.0,
       strengthForceManBody: -2000,
-      graph :   {
-        nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
-        links : []
-      },
+
+      graph :  this.graphStart,
       selectedNode : null
     }
   },
+
   mounted() {
+    console.log("MOUNT QUERY GRAPH PANEL (2)")
+    console.log("------------------------")
+    console.log(this.graph)   
     this.setUpCanvas();
   },
   
@@ -137,6 +138,32 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
         return this.simulation.find(event.x, event.y);
     },
 
+    serialized() {
+      const graph = {
+          nodes : this.graph.nodes.filter(n => n.state_n != ObjectState.SUGGESTED).map( n => { 
+            console.log(n.state_n)
+            return { 
+              id : n.id, 
+              uri : n.uri, 
+              focus: n.focus, 
+              label : n.label , 
+              state_n : ObjectState.CONCRETE, 
+              type: n.type 
+            }}),
+          links : this.graph.links.filter(l => l.state_n != ObjectState.SUGGESTED).map( l => { 
+            return { 
+              id: l.id, 
+              uri : l.uri, 
+              label : l.label, 
+              source : l.source.id, 
+              target : l.target.id, 
+              state_n : ObjectState.CONCRETE, 
+              type: l.type}} )
+        }
+    
+      return JSON.stringify(graph)
+    },
+
     /**
      * usefull to update canavs when requestManager change his internal state
      */
@@ -153,7 +180,7 @@ import { ObjectState, LinkType, AskOmicsViewNode } from '@/ts/types';
         UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
         
         this.$emit('informationSelectedNode',JSON.stringify(this.selectedNode))
-        this.$emit('queryString',this.request.getDiscovery().getSerializedString)
+        this.$emit('queryString',this.serialized())
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused

@@ -1,12 +1,18 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
      <div class="container-fluid">
       
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
           <li class="nav-item">
-            <router-link class="nav-link" aria-current="page" to="/askomics">AskOmics Query Builder </router-link>
+          <!--  <router-link class="nav-link" aria-current="page" 
+            :to="{ path : '/' , props: { configuration : userConfig }}" 
+            >AskOmics Query Builder </router-link> -->
+
+            <router-link class="nav-link" aria-current="page" 
+            :to="{ name : 'askomics' , params: { configuration: userConfig , query: queryString}}" 
+            >AskOmics Query Builder </router-link>
           </li>
           
           <li class="nav-item">
@@ -30,34 +36,42 @@
       </div>
     </div>
   </nav>
-  <router-view/>
+
+  <!-- Extraneous non-emits event listeners  -->
+
+  <router-view 
+      @updateConfigurationEvent="userConfig = $event" 
+      @updateQuery="queryString = $event" 
+  />
+
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-
 @Options({
+  name: "AppView",
   data() { 
         return {
-          config:  `
-          {
-          "sources" : [{
-          "id"  : "metabolights",
-          "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-           }]}
-          `,
-          config_local: ` 
-           {
-          "sources" : [{
-          "id"  : "local",
-          "url" : "http://localhost:8890/sparql"
-           }]}`,
-
-          strategy : "data-driven"
+          userConfig : "",
+          queryString : ""
         }
   },
+  
+  watch : {
+    userConfig: 'updateConfiguration',
+    queryString: 'updateQueryString',
+  },
+
   methods : {
+    updateConfiguration(s: string) {
+      console.log(" UPPPPPPPPPPPP UserConfiguration )))))))))))))))))))))")
+      console.log(s)
+    },
+    updateQueryString(s: string) {
+      console.log(" UPPPPPPPPPPPP QUERY STRING )))))))))))))))))))))")
+      console.log(s)
+    }
   }
 })
 export default class App extends Vue {}

@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType } from './types'
+import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -26,7 +26,7 @@ export default class RequestManager {
     strategy        ?: StrategyRequestAbstract ;
     static idCounter : number  = 0 ;
 
-    constructor(json : string) {
+    constructor(config : UserConfiguration) {
         
         console.log(" ================= CONSTRUCTOR ===============");
         if ( !discovery_map ) {
@@ -36,9 +36,72 @@ export default class RequestManager {
         this.id = RequestManager.idCounter ;
         RequestManager.idCounter++ ;
         this.setDiscovery(new SWDiscovery().something()) ;
-        this.config = json
-        this.setConfig(json)
+        this.config =  `{
+            "sources" : [{
+            "id"  : "metabolights",
+            "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+            }]}`
+        this.setConfig(this.config)
+
+        
+        switch(config.strategy) {
+            case "askomics" : {
+                this.setAskOmicsStrategy()
+                break
+            }
+            case "data-driven" : {
+                this.setDataDrivenStrategy()
+                break
+            }
+            default : {
+                console.warn("strategy unknown : "+config.strategy)
+                this.setDataDrivenStrategy()
+            }
+        }
+        /*
+
+        this.config = `{
+            "sources" : [{
+            "id"  : "`+ "config" +`",
+            "url" : "`+ config.endpoint +`"
+            }]}`
+        console.log(this.config)
+        this.setConfig(this.config)*/
+
     }
+
+    serialized() : string {
+        return this.getDiscovery().getSerializedString()
+    }
+
+    parse( str : string ) {
+
+        console.log("PARSE==========================================================")
+        console.log(str)
+        const str2 = '{"config":{"conf":{"sources":[{"id":"metabolights","url":"https://metabolights.semantic-metabolomics.fr/sparql"}]}},"rootNode":{"$type":"inrae.semantic_web.internal.Root","idRef":"14fbbee0-0e31-4237-a5fb-3d45918e57d5","children":[{"$type":"inrae.semantic_web.internal.Something","idRef":"something0","children":[{"$type":"inrae.semantic_web.internal.ObjectOf","idRef":"subject0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#subClassOf"},"children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"a"},"children":[{"$type":"inrae.semantic_web.internal.Value","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#Class"},"idRef":"9545b000-d636-42f3-ae66-191ecb027303"}]}]}]}]},"fn":["subject0"]}'
+        const str3 = '{"config":{"conf":{"sources":[{"id":"metabolights","url":"https://metabolights.semantic-metabolomics.fr/sparql"}]}},"rootNode":{"$type":"inrae.semantic_web.internal.Root","idRef":"46bd4dc7-e7bb-4102-b75a-21b36b6a9a11","children":[{"$type":"inrae.semantic_web.internal.Something","idRef":"something0","children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#subClassOf"},"children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object2","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"a"},"children":[{"$type":"inrae.semantic_web.internal.Value","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#Class"},"idRef":"4a0b84ca-887e-4bea-9e13-de25cfaa1b13"}]}]}]}]},"fn":["object0"]}'
+        console.log(str2)
+        /****
+         * 
+         * 
+         * TODO : EN ATTENTE DE SERIALIZATION DISCOVERY !!!!!
+         * 
+         * 
+         */
+        
+        //console.log(new SWDiscovery(this.config).something("hello").getSerializedString)
+        
+        //const str4 = new SWDiscovery(this.config).something("hello").getSerializedString()
+
+        //this.setDiscovery(new SWDiscovery(this.config).setSerializedString(str4))
+        //const t : SWDiscovery = new SWDiscovery(this.config).setSerializedString(str4)
+        //t.console()
+        //this.setDiscovery(new SWDiscovery(this.config).setSerializedString(str3));
+        //alert("OK")
+        //alert(this.getDiscovery())
+      
+    }
+
 
     setDiscovery(disco : SWDiscovery) : void  {
         discovery_map.set(this.id,disco) // new discovery ;

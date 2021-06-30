@@ -7,30 +7,18 @@
                 <div class="col col-xs-6">
                   {graphFilters}
                </div>
-               <div class="col col-xs-1">     
-                <div class="form-check form-check-inline">
-                    <input name="strategyRequest" value="askomics" class="form-check-input" type="radio" v-model="strategyInt">
-                    <label class="form-check-label" for="strategyRequest">
-                      AskOmics 
-                    </label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <input name="strategyRequest" value="data-driven" class="form-check-input" type="radio" v-model="strategyInt">
-                    <label class="form-check-label" for="strategyRequest">
-                      Data-Driven
-                    </label>
-                  </div>
-                </div> 
                 <div class="col col-xs-4">
                   {removeButton}
                 </div>
              </div>
               <br />
               <div class="row">
+                
                 <div class="col col-xs-7">
                   <QueryGraphPanel 
-                    v-model:updateComponent="update" 
-                    v-model:request="request" 
+                    :request="request"
+                    :graphStart="graph"
+                    :selectedNodeStart="selectedNodeObject"
                     @informationSelectedNode="selectedNodeEvent" 
                     @queryString="queryStringEvent" 
                     :width="750" 
@@ -38,7 +26,6 @@
                 </div>
               <div class="col col-xs-5">
                   <AttributesPanel 
-                    v-model:updateComponent="update" 
                     v-model:request="request"
                     :selectedNode="selectedNode" 
                     @attributeBox="attributeBoxEvent"
@@ -75,70 +62,81 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import RequestManager  from '@/ts/RequestManager'
+import {AskOmicsViewNode, Graph3DJS, ObjectState, UserConfiguration} from '@/ts/types'
 
 @Options({
+  name: "QueryBuilder",
   components : {  
       QueryGraphPanel,AttributesPanel  
       },
-  
+  emits: ["updateQuery"],
   props : {
-    config : String,
-    strategy: {
-      type: String,
-      default : "data-driven"
+    userConfig : {
+      type    : Object,
+      require : true,
+      default : () => {}
+    }, 
+    query : {
+      type : String,
+      default : (props : any) => { 
+        return new RequestManager(new UserConfiguration(props.userConfig.id,"","")) 
+        }
     }
   },
-
   data () {
     return {
-      update: "",
       request: null,
-      strategyInt : this.strategy,
-      selectedNode : null
+      graph : {
+        nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
+        links : []
+      },
+      selectedNode : null,
     }
   },
-
-  watch : {
-      strategyInt: {
-       handler : 'updateStrategy',
+  
+  watch: {
+    userConfig: {
+       handler : 'updateConfiguration',
        immediate : false
       }
   },
-  
-  mounted() {
-    this.request = new RequestManager(this.config)
-    this.updateStrategy(this.strategy)
+
+  created() {
+    console.log("MOUNT QUERY BUILDER")
+    console.log("------------------------")
+    this.request = new RequestManager(this.userConfig as UserConfiguration)
+
+    if (this.query && this.query.length>0) {
+      const tab = JSON.parse(this.query)
+      //alert("DISCOVERY:"+tab[0])
+      this.request.parse(tab[0])
+      //this.request.getDiscovery().console()
+      //console.log(JSON.stringify(tab[1]))
+      this.graph = tab[1] as Graph3DJS
+    }
+    
+    
   },
   
   methods: {
+    updateConfiguration(userConfig : UserConfiguration) {
+      console.log("************************** USER CONFIG QUERY BUILDER ************************ ")
+      console.log(userConfig)
+    },
     selectedNodeEvent(e : string) {
       console.log(" =============== selectedNodeEvent =================================",e)
       this.selectedNode = e
     },
 
-    queryStringEvent(e: string) {
-      console.log("query:",e)
+    queryStringEvent(value: string) {
+      console.log("queryStringEvent")
+      console.log(this.request.getDiscovery().getSerializedString)
+      //alert("DISCOVERY:"+this.request.getDiscovery().getSerializedString)
+      this.$emit('updateQuery',JSON.stringify([this.request.getDiscovery().getSerializedString,JSON.parse(value)]))
     },
 
     attributeBoxEvent(e: string) {
       console.log("attributeBoxEvent:",e)
-    },
-
-    updateStrategy(value : string) { 
-      switch (value) {
-        case "askomics" : {
-          this.request.setAskOmicsStrategy()
-          break;
-        }
-        case "data-driven" : {
-          this.request.setDataDrivenStrategy()
-          break;
-        }
-        default : {
-          this.request.setDataDrivenStrategy()
-        }
-      }
-      this.update = value
     },
   }
   
