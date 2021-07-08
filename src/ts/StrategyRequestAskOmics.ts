@@ -16,8 +16,8 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         this.config_endp = config_endp
     }
 
-    attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-        let d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
+    attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+        let d : any = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
 
         if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))
 
@@ -28,9 +28,9 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
                     .isSubjectOf(new URI("rdfs:range"),"range")
     }
 
-    forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
+    forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
 
-        let d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
+        let d : any = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
         
         if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))
         
@@ -41,8 +41,8 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
                     .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelEntity")  
     }
 
-    backwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-        let d : SWDiscovery = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
+    backwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+        let d : any = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
         
         if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))
         

@@ -1,6 +1,6 @@
 <template>
 {{ userConfig }}
-    <QueryBuilder :userConfig="userConfig" :query="query" @updateQuery="updateQuery" />
+    <QueryBuilder :query="query" @updateQuery="updateQuery" />
 </template>
 
 <script lang="ts">
@@ -14,14 +14,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
   },
   emits: ["updateQuery"],
   props : {
-    configuration : {
-      type : String,
-      default : () => "{}"
-    },
-    query : {
-      type : String,
-      default : () => ""
-    }
+    query : String
   },
 
   data() {
@@ -29,14 +22,13 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
       userConfig : ""
     }
   },
+   created() {
+     console.log("CREATED..............")
+    console.log(this.query)
+   },
   mounted() {
-    if ( this.configuration && this.configuration.length>0) {
-      this.userConfig = JSON.parse(this.configuration)
-    }
-    //if (this.query && this.query.length>0) {
-        //alert("MOUNTED:"+this.query)
-    //}
-    
+    console.log("MOUNTED..............")
+    console.log(this.query)
   },
   methods : {
     updateQuery(query : string) {

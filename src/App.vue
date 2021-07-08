@@ -11,7 +11,7 @@
             >AskOmics Query Builder </router-link> -->
 
             <router-link class="nav-link" aria-current="page" 
-            :to="{ name : 'askomics' , params: { configuration: userConfig , query: queryString}}" 
+            :to="{ name : 'askomics' , params: { query: requestManagerStringify }}" 
             >AskOmics Query Builder </router-link>
           </li>
           
@@ -40,8 +40,7 @@
   <!-- Extraneous non-emits event listeners  -->
 
   <router-view 
-      @updateConfigurationEvent="userConfig = $event" 
-      @updateQuery="queryString = $event" 
+      @updateRequestManagerStringify="updateRequestManagerStringify" 
   />
 
 </template>
@@ -51,25 +50,27 @@ import { Options, Vue } from 'vue-class-component';
 
 @Options({
   name: "AppView",
+  
   data() { 
         return {
-          userConfig : "",
-          queryString : ""
+          requestManagerStringify : JSON.stringify([
+            `{
+              "sources" : [{
+              "id"  : "metabolights",
+              "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+              }]}`,
+            "data-driven",
+            ""]),
         }
   },
   
   watch : {
-    userConfig: 'updateConfiguration',
-    queryString: 'updateQueryString',
+    requestManagerStringify: 'updateRequestManagerStringify',
   },
 
   methods : {
-    updateConfiguration(s: string) {
-      console.log(" UPPPPPPPPPPPP UserConfiguration )))))))))))))))))))))")
-      console.log(s)
-    },
-    updateQueryString(s: string) {
-      console.log(" UPPPPPPPPPPPP QUERY STRING )))))))))))))))))))))")
+    updateRequestManagerStringify(s: string) {
+      console.log(" UPPPPPPPPPPPP updateRequestManagerStringify )))))))))))))))))))))")
       console.log(s)
     }
   }

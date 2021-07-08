@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component'
 import "bootstrap/dist/css/bootstrap.min.css"
-
+import { UserConfiguration } from '@/ts/types'
 
 @Options({
   name: "ConfigurationPanel",
@@ -40,6 +40,18 @@ import "bootstrap/dist/css/bootstrap.min.css"
       },
   emits: ["updateConfigurationEvent"],
   props : {
+    /*
+      `{
+              "sources" : [{
+              "id"  : "metabolights",
+              "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+              }]}`,
+           `{
+              "sources" : [{
+              "id"  : "local",
+              "url" : "http://localhost:8890/sparql"
+            }]}`
+    */
     configurations_list : {
       type    : Array,
       default : () => []
@@ -53,11 +65,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
   data () {
     return {
     strategyInt: this.strategy,
-      configuration: {
-        strategy : this.strategy,
-        endpoint : "https://metabolights.semantic-metabolomics.fr/sparql",
-        type_endpoint : null
-      }
+    configuration: null 
     }
   },
 
@@ -69,14 +77,17 @@ import "bootstrap/dist/css/bootstrap.min.css"
   },
   
   mounted() {
-    //this.request = new RequestManager(this.config)
-    //this.updateStrategy(this.strategy)
+    this.configuration          = new UserConfiguration("metabolights")
+    this.configuration.strategy = this.strategy
+    this.configuration.url      = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
+    this.configuration.mimetype = "application/sparql-query"
   },
   
   methods: {
+
     updateStrategy(value : string) {
-      this.configuration["strategy"] = value
-      this.$emit('updateConfigurationEvent',JSON.stringify(this.configuration))
+      this.configuration.strategy = value
+      this.$emit('updateConfigurationEvent',this.configuration.jsonConfigurationSWDiscoveryString())
     },
   }
   

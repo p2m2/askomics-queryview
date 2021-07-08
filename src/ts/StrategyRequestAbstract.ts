@@ -39,7 +39,7 @@ export default abstract class StrategyRequestAbstract {
                     .commit()
                     .raw()
                     .then(
-                        (response) => {
+                        (response : any) => {
                                 try {
                                     const t = [...new Set(response.results.bindings.map( (id : any) => id["valueL"].datatype))];
                                     if(t[0]) {
@@ -73,7 +73,7 @@ export default abstract class StrategyRequestAbstract {
         })
     }
 
-    abstract attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery
+    abstract attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any
 
     /* 
     * Structure Node to return
@@ -89,9 +89,9 @@ export default abstract class StrategyRequestAbstract {
     * @return List(Object(node : Node, links : List(Link)))
     */
 
-    abstract forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery
+    abstract forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any
 
-    abstract backwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery
+    abstract backwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any
 
 }
 

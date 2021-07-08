@@ -11,7 +11,7 @@ export type AttributeSpec = {
       linked: Boolean
 }
 
-export type ViewNode = {
+export type ViewNode3DJS = {
     id     : string
     uri    : string
     focus  : string
@@ -20,19 +20,19 @@ export type ViewNode = {
     type   : NodeType
 }
 
-export type ViewLink = {
+export type ViewLink3DJS = {
     id     : string
     uri    : string
     label  : string
-    source : ViewNode
-    target : ViewNode
+    source : ViewNode3DJS
+    target : ViewNode3DJS
     state_n  : ObjectState
     type   : LinkType
 }
 
 export interface Graph3DJS { 
-    nodes : ViewNode[], 
-    links : ViewLink[] 
+    nodes : ViewNode3DJS[], 
+    links : ViewLink3DJS[] 
 }
 
 
@@ -53,16 +53,57 @@ export enum ObjectState {
     CONCRETE,
     SELECTED,   
 }
-
+/**
+ *  "text/turtle",
+      "text/n3",
+      "text/rdf-xml",
+      "application/rdf+xml"
+ */
 export class UserConfiguration {
-    endpoint       : string
-    type_endpoint  : string
-    strategy       : string 
+    id             : string  
+    url            : string = ""
+    file           : string = ""
+    content        : string = ""
+    mimetype       : string = "application/sparql-query"
+    method         : string = "POST"
 
-    constructor(endpoint: string = "", type_endpoint : string = "", strategy: string = "") {
-        this.endpoint      = endpoint 
-        this.type_endpoint = type_endpoint
-        this.strategy      = strategy 
+    strategy       : string = "data-driven"
+    logLevel       : string = "info"
+
+    constructor(id  : string) {
+            this.id = id
+    }
+
+    remoteAccess() : string {
+        if ( this.url.length>0) {
+            return `"url" : "`+this.url+`"`
+        } else if ( this.file.length>0) {
+            return `"file" : "`+this.file+`"`
+        } else if ( this.content.length>0 ) {
+            return `"content" : "`+this.content+`"`
+        }
+        return ""
+    }
+    methodAcess() : string {
+        if ( this.method ) `"method" : "`+this.method+`"`
+        return ""
+    }
+
+    jsonConfigurationSWDiscoveryString() : string {
+        return  `{
+            "sources" : [{
+            "id"  : "__id__",`  +
+            this.remoteAccess() +
+            `"mimetype" : "`+this.mimetype+`"` +
+            this.methodAcess() +
+        `}],
+            "settings" : {
+                "cache" : true,
+                "logLevel" : "`+this.logLevel+`",` +
+                `"sizeBatchProcessing" : 10,
+                "pageSize" : 10
+            }
+        }`
     }
 }
   

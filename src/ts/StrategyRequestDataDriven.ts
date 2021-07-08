@@ -14,49 +14,43 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
 
     
 
-    attributeList(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-      // !!!!!!!!!! Work Only for forward Entity
-      const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()
-
-      return disco
+    attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+    
+      return discovery
               .isSubjectOf(new QueryVariable("property"))
                   .filter.isLiteral
                     .focus("property")
-                    .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty")
+                    .datatype(new URI("rdfs#label"),"labelProperty")
     }
 
-    forwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
+    forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
 
-        const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()
-
-        return disco
+        return discovery
            .isSubjectOf(new QueryVariable("property"))
             .isSubjectOf(new URI("rdf:type"),"entity")
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-            .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelEntity")       
+            .datatype(new URI("rdfs#label"),"labelEntity")       
      .focus("property")
-       .filter.notEqual(new URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
-       .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#domain"))
-       .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#range"))
+       .filter.notEqual(new URI("rdf:type"))
+       .filter.notEqual(new URI("rdfs#domain"))
+       .filter.notEqual(new URI("rdfs#range"))
        .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-            .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty");
+            .datatype(new URI("rdfs:label"),"labelProperty");
     }
 
-    backwardEntities(discovery : SWDiscovery,config_rdf : string,current: AskOmicsViewNode) : SWDiscovery {
-        const disco : SWDiscovery = current.focus ?  discovery.focus(current.focus)  : discovery.root().something()
-      
-        return disco
+    backwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+        return discovery
             .filter.isUri
              .isObjectOf(new QueryVariable("property"))
             
             .isSubjectOf(new URI("rdf:type"),"entity")
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-            .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelEntity")       
+            .datatype(new URI("rdfs:label"),"labelEntity")       
           .focus("property")
-            .filter.notEqual(new URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
-            .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#domain"))
-            .filter.notEqual(new URI("http://www.w3.org/2000/01/rdf-schema#range"))
+            .filter.notEqual(new URI("rdf:type"))
+            .filter.notEqual(new URI("rdfs:domain"))
+            .filter.notEqual(new URI("rdfs:range"))
             .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-                    .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty");
+                    .datatype(new URI("rdfs#label"),"labelProperty");
     }
 }

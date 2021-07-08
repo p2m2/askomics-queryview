@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode, ViewLink, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration } from './types'
+import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -8,9 +8,9 @@ import Utils from './utils'
 /**
  * Trick . TS inser SWDiscovery inside a Proxy type. Exception occurs whith the first use.
  */
-let discovery_map : Map<number,SWDiscovery> ;
+let discovery_map : Map<number,any> ;
 
-function getDiscovery(id : number) : SWDiscovery {
+function getDiscovery(id : number) : any {
     const d = discovery_map.get(id);
     if ( d )
         return d ;
@@ -21,30 +21,45 @@ function getDiscovery(id : number) : SWDiscovery {
  */
 
 export default class RequestManager {
-    id               : number ;
-    config           : string ;
-    strategy        ?: StrategyRequestAbstract ;
-    static idCounter : number  = 0 ;
+    static idCounter : number                  = 0 ;
+    id               : number                  = RequestManager.idCounter++;
+    config           : string                  = "" ;
+    strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
+    discovery        : any                     =  SWDiscovery().something()
 
-    constructor(config : UserConfiguration) {
-        
-        console.log(" ================= CONSTRUCTOR ===============");
+    constructor(requestManagerStringify : string) {
         if ( !discovery_map ) {
-            discovery_map =  new Map<number,SWDiscovery>() ;
+            discovery_map =  new Map<number,any>() ;
+        }
+        
+        this.parse(requestManagerStringify)
+    }
+
+    serialized() : string {
+        return JSON.stringify([ this.config, this.strategy, this.getDiscovery().getSerializedString()])
+    }
+
+    parse( str : string ) {
+        console.log(" ----------- PARSE ----------------")
+        console.log(str)
+        
+        if (! str || str.length<=0) {
+            this.setDiscovery(SWDiscovery().something())
+            return
         }
 
-        this.id = RequestManager.idCounter ;
-        RequestManager.idCounter++ ;
-        this.setDiscovery(new SWDiscovery().something()) ;
-        this.config =  `{
-            "sources" : [{
-            "id"  : "metabolights",
-            "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-            }]}`
-        this.setConfig(this.config)
+        const r = JSON.parse(str)
+        this.config = r[0]
+        const strategy_id = r[1]
+        const serializedDiscovery = r[2]
 
+        let sw = SWDiscovery(this.config)
+        if (serializedDiscovery && serializedDiscovery.length>0)
+            sw = sw.setSerializedString(serializedDiscovery)
         
-        switch(config.strategy) {
+        this.setDiscovery(sw)
+        
+        switch(strategy_id) {
             case "askomics" : {
                 this.setAskOmicsStrategy()
                 break
@@ -54,73 +69,22 @@ export default class RequestManager {
                 break
             }
             default : {
-                console.warn("strategy unknown : "+config.strategy)
+                console.warn("strategy unknown : "+strategy_id)
                 this.setDataDrivenStrategy()
             }
         }
-        /*
-
-        this.config = `{
-            "sources" : [{
-            "id"  : "`+ "config" +`",
-            "url" : "`+ config.endpoint +`"
-            }]}`
-        console.log(this.config)
-        this.setConfig(this.config)*/
 
     }
 
-    serialized() : string {
-        return this.getDiscovery().getSerializedString()
-    }
 
-    parse( str : string ) {
+    setDiscovery(disco : any) : void  { discovery_map.set(this.id,disco) } 
 
-        console.log("PARSE==========================================================")
-        console.log(str)
-        const str2 = '{"config":{"conf":{"sources":[{"id":"metabolights","url":"https://metabolights.semantic-metabolomics.fr/sparql"}]}},"rootNode":{"$type":"inrae.semantic_web.internal.Root","idRef":"14fbbee0-0e31-4237-a5fb-3d45918e57d5","children":[{"$type":"inrae.semantic_web.internal.Something","idRef":"something0","children":[{"$type":"inrae.semantic_web.internal.ObjectOf","idRef":"subject0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#subClassOf"},"children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"a"},"children":[{"$type":"inrae.semantic_web.internal.Value","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#Class"},"idRef":"9545b000-d636-42f3-ae66-191ecb027303"}]}]}]}]},"fn":["subject0"]}'
-        const str3 = '{"config":{"conf":{"sources":[{"id":"metabolights","url":"https://metabolights.semantic-metabolomics.fr/sparql"}]}},"rootNode":{"$type":"inrae.semantic_web.internal.Root","idRef":"46bd4dc7-e7bb-4102-b75a-21b36b6a9a11","children":[{"$type":"inrae.semantic_web.internal.Something","idRef":"something0","children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object0","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#subClassOf"},"children":[{"$type":"inrae.semantic_web.internal.SubjectOf","idRef":"object2","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"a"},"children":[{"$type":"inrae.semantic_web.internal.Value","term":{"$type":"inrae.semantic_web.rdf.URI","localNameUser":"http://www.w3.org/2000/01/rdf-schema#Class"},"idRef":"4a0b84ca-887e-4bea-9e13-de25cfaa1b13"}]}]}]}]},"fn":["object0"]}'
-        console.log(str2)
-        /****
-         * 
-         * 
-         * TODO : EN ATTENTE DE SERIALIZATION DISCOVERY !!!!!
-         * 
-         * 
-         */
-        
-        //console.log(new SWDiscovery(this.config).something("hello").getSerializedString)
-        
-        //const str4 = new SWDiscovery(this.config).something("hello").getSerializedString()
+    getDiscovery() : any { return getDiscovery(this.id) }
 
-        //this.setDiscovery(new SWDiscovery(this.config).setSerializedString(str4))
-        //const t : SWDiscovery = new SWDiscovery(this.config).setSerializedString(str4)
-        //t.console()
-        //this.setDiscovery(new SWDiscovery(this.config).setSerializedString(str3));
-        //alert("OK")
-        //alert(this.getDiscovery())
-      
-    }
-
-
-    setDiscovery(disco : SWDiscovery) : void  {
-        discovery_map.set(this.id,disco) // new discovery ;
-    } 
-
-    getDiscovery() : SWDiscovery {
-        return getDiscovery(this.id)
-    }
-
-    setConfig(json : string) {
-        this.config = json 
-        const localConf = SWDiscoveryConfiguration.setConfigString(json)
-        this.setDiscovery(new SWDiscovery(localConf).something());
-    }
-
-    update(node : ViewNode, link : ViewLink ) : string {
+    update(node : ViewNode3DJS, link : ViewLink3DJS ) : string {
 
         const snd_node = link.source.id == node.id ? link.source : link.target
-        const d : SWDiscovery = this.getDiscovery()
+        const d : any = this.getDiscovery()
 
         switch(link.type) { 
             case LinkType.FORWARD_PROPERTY: { 
@@ -194,11 +158,11 @@ export default class RequestManager {
                 this.strategy.attributeList(this.getDiscovery(),this.config,current) 
                 //.console()
                 .select("property","labelProperty")
-                .distinct
+                .distinct()
                 .commit()
                 .raw()
                 .then(
-                    (response) => {
+                    (response : any) => {
                         //console.log(response)
                         const results : DatatypeLiteral[] = []
                         
@@ -255,7 +219,7 @@ export default class RequestManager {
                             successCallback(results)
                         }  
                     })
-                .catch(e => {failureCallback(e)} )}
+                .catch( (e : any) => {failureCallback(e)} )}
         })
     }
 
@@ -271,7 +235,7 @@ export default class RequestManager {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 
-                let disco : SWDiscovery = this.getDiscovery()
+                let disco : any = this.getDiscovery()
                 let typeLink : LinkType
 
                 switch(type) { 
@@ -292,21 +256,20 @@ export default class RequestManager {
                  }
 
                 try {
-                    const transaction : SWTransaction =
+                    const transaction : any =
                      disco
                         //.console()
                         .select("property","entity","labelEntity","labelProperty")
-                        .distinct
+                        .distinct()
                         .commit()
-/*
-                    transaction.progression( (percent : any) => {
-                        console.log("percent:"+percent)
-                    })
-*/
+                        .progression( (percent : any) => {
+                                console.log("percent:"+percent)
+                        })
+
                     transaction
                         .raw()
                         .then(
-                            (response) => {                      
+                            (response : any) => {                      
                                 const mR = new Map()
                                 for (let i=0;i<response.results.bindings.length;i++) {
                                     if ( ! this.checkVariablePresent(response,i,['entity','property']) ) continue

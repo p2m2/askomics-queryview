@@ -62,77 +62,53 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import RequestManager  from '@/ts/RequestManager'
-import {AskOmicsViewNode, Graph3DJS, ObjectState, UserConfiguration} from '@/ts/types'
+import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "QueryBuilder",
+  
   components : {  
       QueryGraphPanel,AttributesPanel  
       },
+  
   emits: ["updateQuery"],
+  
   props : {
-    userConfig : {
-      type    : Object,
-      require : true,
-      default : () => {}
-    }, 
-    query : {
-      type : String,
-      default : (props : any) => { 
-        return new RequestManager(new UserConfiguration(props.userConfig.id,"","")) 
-        }
-    }
+    query :  String
   },
+  
   data () {
     return {
       request: null,
-      graph : {
-        nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE).getObject() ],
-        links : []
-      },
+      graph : GraphBuilder.defaultGraph(),
       selectedNode : null,
     }
   },
   
-  watch: {
-    userConfig: {
-       handler : 'updateConfiguration',
-       immediate : false
-      }
-  },
-
   created() {
     console.log("MOUNT QUERY BUILDER")
     console.log("------------------------")
-    this.request = new RequestManager(this.userConfig as UserConfiguration)
-
-    if (this.query && this.query.length>0) {
-      const tab = JSON.parse(this.query)
-      //alert("DISCOVERY:"+tab[0])
-      this.request.parse(tab[0])
-      //this.request.getDiscovery().console()
-      //console.log(JSON.stringify(tab[1]))
-      this.graph = tab[1] as Graph3DJS
-    }
-    
-    
+    this.request = new RequestManager(this.query)
+    this.graph = GraphBuilder.build3DJSGraph(this.request)
   },
   
   methods: {
-    updateConfiguration(userConfig : UserConfiguration) {
-      console.log("************************** USER CONFIG QUERY BUILDER ************************ ")
-      console.log(userConfig)
+    
+    update() {
+      this.request = new RequestManager(this.query)
+      this.graph = GraphBuilder.build3DJSGraph(this.request)
+      this.selectedNode = this.request.getDiscovery().focus()
     },
+
     selectedNodeEvent(e : string) {
       console.log(" =============== selectedNodeEvent =================================",e)
       this.selectedNode = e
     },
 
-    queryStringEvent(value: string) {
+    queryStringEvent(requestManagerStringify: string) {
       console.log("queryStringEvent")
-      console.log(this.request.getDiscovery().getSerializedString)
-      //alert("DISCOVERY:"+this.request.getDiscovery().getSerializedString)
-      this.$emit('updateQuery',JSON.stringify([this.request.getDiscovery().getSerializedString,JSON.parse(value)]))
+      this.update()
+      this.$emit('updateQuery',requestManagerStringify)
     },
 
     attributeBoxEvent(e: string) {

@@ -14,25 +14,13 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
   emits: ["updateConfigurationEvent"],
   data() { 
         return {
-          config_list: [ 
-            `{
-              "sources" : [{
-              "id"  : "metabolights",
-              "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-              }]}`,
-           `{
-              "sources" : [{
-              "id"  : "local",
-              "url" : "http://localhost:8890/sparql"
-            }]}`],
-
+          config_list: [ ],
           strategy : "data-driven"
         }
   },
   
   methods : {
     updateConfiguration(configuration : string) {
-      console.log("1....UPDATE CONFIG.................")
       this.$emit('updateConfigurationEvent',configuration)
     }
   }

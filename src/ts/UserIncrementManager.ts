@@ -1,4 +1,4 @@
-import { ObjectState , ViewNode, ViewLink, Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType, DatatypeLiteral } from './types'
+import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType, DatatypeLiteral, ViewLink3DJS, ViewNode3DJS } from './types'
 import RequestManager from './RequestManager'
 
 export default class UserIncrementManager {
@@ -45,7 +45,7 @@ export default class UserIncrementManager {
 }
 
 
-    static setShapeNode(request :RequestManager, toShape: ViewNode , graph : Graph3DJS ) : Graph3DJS {
+    static setShapeNode(request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
         
         /**
          * Exit if node is not suggested.
@@ -59,7 +59,7 @@ export default class UserIncrementManager {
          * shape link
          */
         graph.links = graph.links.map(
-            (l : ViewLink )=> {
+            (l : ViewLink3DJS )=> {
                 if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
                     /* ------------ */
@@ -74,7 +74,7 @@ export default class UserIncrementManager {
          * shape node
          */
         graph.nodes = graph.nodes.map(
-            (n : ViewNode )=> {
+            (n : ViewNode3DJS )=> {
                 if ( n.state_n == ObjectState.SELECTED ) n.state_n = ObjectState.CONCRETE
                 if ( n.id == toShape.id ) n.state_n = ObjectState.SELECTED
                 return n
