@@ -19,14 +19,13 @@
                     :request="request"
                     :graphStart="graph"
                     :selectedNodeStart="selectedNodeId"
-                    @informationSelectedNode="selectedNodeEvent" 
-                    @queryString="queryStringEvent" 
+                    @selectedNodeId="selectedNodeEvent" 
                     :width="750" 
                     :height="450" />
                 </div>
               <div class="col col-xs-5">
                   <AttributesPanel 
-                    v-model:request="request"
+                    :request="request"
                     :selectedNode="selectedNodeId" 
                     @attributeBox="attributeBoxEvent"
                     :width="450" 
@@ -100,8 +99,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       this.selectedNodeId = this.request.getDiscovery().focus()
     },
 
-    selectedNodeEvent(e : string) {
-      this.selectedNodeId = e
+    selectedNodeEvent(focusId : string) {
+      this.selectedNodeId = focusId
     },
 
     queryStringEvent(requestManagerStringify: string) {

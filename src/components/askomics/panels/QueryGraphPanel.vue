@@ -21,7 +21,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
 
 @Options({
   name: "QueryGraphPanel",
-  emits: ["updateQuery"],
+  emits: ["selectedNodeId"],
   components : {  },
   props: {
     graphStart      : Graph3DJS,
@@ -60,9 +60,6 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
   },
 
   mounted() {
-    console.log("MOUNT QUERY GRAPH PANEL (2)")
-    console.log("------------------------")
-    console.log(this.graph)   
     this.setUpCanvas();
   },
   
@@ -71,6 +68,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
 
   methods: {
     setUpCanvas() {
+
         /**
          * Managing CANVAS
          */
@@ -141,7 +139,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     dragsubject(event) {
         return this.simulation.find(event.x, event.y);
     },
-
+/*
     serialized() {
       const graph = {
           nodes : this.graph.nodes.filter(n => n.state_n != ObjectState.SUGGESTED).map( n => { 
@@ -167,7 +165,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     
       return JSON.stringify(graph)
     },
-
+*/
     /**
      * usefull to update canavs when requestManager change his internal state
      */
@@ -176,15 +174,14 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
        * Nothing is selected with go out and remove selection */ 
       if (! this.selectedNode ) {
         UserIncrementManager.removeSuggestion(this.graph) 
-        this.$emit('informationSelectedNode',JSON.stringify({}))
+        this.$emit('informationSelectedNode',JSON.stringify(""))
       } else {
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
         UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
         
-        this.$emit('informationSelectedNode',JSON.stringify(this.selectedNode))
-        this.$emit('queryString',this.serialized())
+        this.$emit('selectedNodeId',JSON.stringify(this.request.getDiscovery().focus()))
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
