@@ -44,19 +44,30 @@ export default class RequestManager {
         console.log(str)
         
         if (! str || str.length<=0) {
+            console.warn(" -- none query string to parse !! -- ")
             this.setDiscovery(SWDiscovery().something())
             return
         }
 
         const r = JSON.parse(str)
-        this.config = r[0]
+
+        this.config = SWDiscoveryConfiguration.setConfigString(r[0])
         const strategy_id = r[1]
         const serializedDiscovery = r[2]
 
+        console.log("-- config discovery -- ")
+        console.log(this.config)
+        console.log("-- strategy -- ")
+        console.log(strategy_id)
+        console.log("-- serializedDiscovery -- ")
+        console.log(serializedDiscovery)
+
         let sw = SWDiscovery(this.config)
+        
         if (serializedDiscovery && serializedDiscovery.length>0)
             sw = sw.setSerializedString(serializedDiscovery)
         
+        console.log(" -- set discovery -- ")    
         this.setDiscovery(sw)
         
         switch(strategy_id) {

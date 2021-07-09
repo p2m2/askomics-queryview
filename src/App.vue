@@ -22,10 +22,6 @@
           <li class="nav-item">
             <router-link class="nav-link" to="/configuration">Configuration </router-link>
           </li>
-
-          <li class="nav-item">
-            <router-link class="nav-link" to="/about">About </router-link>
-          </li>
         </ul>
         
         <form class="d-flex">
@@ -63,7 +59,15 @@ import { Options, Vue } from 'vue-class-component';
             ""]),
         }
   },
-  
+  created() {
+    console.log(" -- APP created ---")
+    console.log(this.requestManagerStringify)
+  },
+  mounted() {
+    console.log(" -- APP --- ")
+    console.log(this.requestManagerStringify)
+  },
+
   watch : {
     requestManagerStringify: 'updateRequestManagerStringify',
   },

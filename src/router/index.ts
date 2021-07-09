@@ -18,9 +18,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Configuration // change to worklows -> configuration -> askomics view
   },*/
   {
-    path: '/',
+    path: '/askomics:query',
     name: 'askomics',
-    props: true,
     component: AskOmics
   },
   {
@@ -32,16 +31,9 @@ const routes: Array<RouteRecordRaw> = [
     path: '/configuration',
     name: 'Configuration',
     component: Configuration
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   }
 ]
+
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),

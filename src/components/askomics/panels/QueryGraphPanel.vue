@@ -107,26 +107,30 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     },
         
     update() {
-      this.ctx.clearRect(0,0,this.width, this.height);
-      this.ctx.fillStyle = "Gainsboro";
-      this.ctx.fillRect(0,0,this.width,this.height);
+      if ( this.graph && this.graph.nodes && this.graph.links ) {
+        this.ctx.clearRect(0,0,this.width, this.height);
+        this.ctx.fillStyle = "Gainsboro";
+        this.ctx.fillRect(0,0,this.width,this.height);
 
-      this.ctx.beginPath();
-      this.ctx.globalAlpha = 1.0;
-      this.ctx.strokeStyle = "#aaa";
-      this.graph.links.forEach(this.drawLink);
-      this.ctx.stroke();
+        this.ctx.beginPath();
+        this.ctx.globalAlpha = 1.0;
+        this.ctx.strokeStyle = "#aaa";
+        this.graph.links.forEach(this.drawLink);
+        this.ctx.stroke();
 
-      this.ctx.globalAlpha = 1.0;
-      this.graph.nodes.forEach(this.drawNode);
+        this.ctx.globalAlpha = 1.0;
+        this.graph.nodes.forEach(this.drawNode);
 
-      this.simulation.nodes(this.graph.nodes);
-      this.simulation
-              .force("link", d3.forceLink().id(function (d) { return d.id; }))
-              .force("link").links(this.graph.links)
+        this.simulation.nodes(this.graph.nodes);
+        this.simulation
+                .force("link", d3.forceLink().id(function (d) { return d.id; }))
+                .force("link").links(this.graph.links)
+        
+        this.simulation.restart()
+      } else {
+        console.error("graph is not initialized.")
+      }
       
-      this.simulation.restart()
-
     },
 
     zoomed(event) {

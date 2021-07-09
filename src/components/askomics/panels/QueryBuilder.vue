@@ -18,7 +18,7 @@
                   <QueryGraphPanel 
                     :request="request"
                     :graphStart="graph"
-                    :selectedNodeStart="selectedNodeObject"
+                    :selectedNodeStart="selectedNodeId"
                     @informationSelectedNode="selectedNodeEvent" 
                     @queryString="queryStringEvent" 
                     :width="750" 
@@ -27,7 +27,7 @@
               <div class="col col-xs-5">
                   <AttributesPanel 
                     v-model:request="request"
-                    :selectedNode="selectedNode" 
+                    :selectedNode="selectedNodeId" 
                     @attributeBox="attributeBoxEvent"
                     :width="450" 
                     :height="450"
@@ -81,15 +81,15 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     return {
       request: null,
       graph : GraphBuilder.defaultGraph(),
-      selectedNode : null,
+      selectedNodeId : "",
     }
   },
   
-  created() {
-    console.log("MOUNT QUERY BUILDER")
-    console.log("------------------------")
-    this.request = new RequestManager(this.query)
-    this.graph = GraphBuilder.build3DJSGraph(this.request)
+  mounted () {
+    if (this.query) {
+      this.request = new RequestManager(this.query)
+      this.graph = GraphBuilder.build3DJSGraph(this.request)
+    }
   },
   
   methods: {
@@ -97,16 +97,14 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     update() {
       this.request = new RequestManager(this.query)
       this.graph = GraphBuilder.build3DJSGraph(this.request)
-      this.selectedNode = this.request.getDiscovery().focus()
+      this.selectedNodeId = this.request.getDiscovery().focus()
     },
 
     selectedNodeEvent(e : string) {
-      console.log(" =============== selectedNodeEvent =================================",e)
-      this.selectedNode = e
+      this.selectedNodeId = e
     },
 
     queryStringEvent(requestManagerStringify: string) {
-      console.log("queryStringEvent")
       this.update()
       this.$emit('updateQuery',requestManagerStringify)
     },

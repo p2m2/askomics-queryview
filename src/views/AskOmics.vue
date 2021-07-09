@@ -1,5 +1,4 @@
 <template>
-{{ userConfig }}
     <QueryBuilder :query="query" @updateQuery="updateQuery" />
 </template>
 
@@ -13,27 +12,27 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
     QueryBuilder 
   },
   emits: ["updateQuery"],
-  props : {
-    query : String
-  },
-
-  data() {
-    return {
-      userConfig : ""
+ 
+  computed: {
+    query() {
+      return this.$route.params.query
     }
   },
-   created() {
-     console.log("CREATED..............")
-    console.log(this.query)
-   },
+
+  created() {
+    console.log("AskOmicsView CREATED !!!!!!!!!!!!!!!!!!")
+    console.log(JSON.stringify(this.query))
+  },
+  
   mounted() {
-    console.log("MOUNTED..............")
-    console.log(this.query)
+      console.log("AskOmicsView MOUNTED..............")
+      console.log(JSON.stringify(this.query))
+      console.log(this.query)
   },
   methods : {
     updateQuery(query : string) {
       this.$emit('updateQuery',query)
-      //alert("SEND:"+query)
+      alert("SEND:"+query)
     }
   }
 
