@@ -13,24 +13,27 @@ import { Options, Vue } from 'vue-class-component';
 
 import AttributeBox from '../attribute/AttributeBox.vue'
 import RequestManager from '@/ts/RequestManager'
+/*
 import UserIncrementManager from '@/ts/UserIncrementManager'
-import { AskOmicsViewNode } from '@/ts/types'
+import { AskOmicsViewNode } from '@/ts/types'*/
+import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "AttributesPanel",
   components : { AttributeBox },
   props : {
-    selectedNode    : String,
-    request         : RequestManager,
-    width           : Number,
-    height          : Number,
+    selectedNodeId    : String,
+    request           : RequestManager,
+    width             : Number,
+    height            : Number,
   },
   watch : {
-    selectedNode : 'updateAttributeList'
+    selectedNodeId : 'updateAttributeList'
   },
   data () {
     return {
-      attributeList: [ {
+      attributeList: [ 
+        /*{
                     id: 5,
                     uri: "rdf:something",
                     range : "xsd:string",
@@ -56,7 +59,8 @@ import { AskOmicsViewNode } from '@/ts/types'
                     visible: false,
                     negative: false,
                     linked: false,
-                }]
+                }*/
+                ]
     }
   },
   mounted() {
@@ -65,11 +69,25 @@ import { AskOmicsViewNode } from '@/ts/types'
       attributesList.style.height = this.height + "px"
       attributesList.style.width  = this.width + "px"
     }
+    if(this.request)
+      GraphBuilder.buildAttributesBox(this.request,this.selectedNodeId)
   },
+  
   methods: {
-    updateAttributeList(selectedNode : string) {
-      console.log(" ------------ updateAttributeList -------------------------")
-      const node = JSON.parse(selectedNode)
+    updateAttributeList(selectedNodeId : string) {
+      console.log(" ------------*************************************** updateAttributeList -------------------------")
+      console.log(selectedNodeId)
+       GraphBuilder.buildAttributesBox(this.request,this.selectedNodeId).then(
+        (response : Object[]) => {
+          
+          console.log(" --------attributeList")
+          console.log(response)
+          this.attributeList = response;
+         
+        })
+        
+       /*
+      const node = JSON.parse(selectedNodeId)
       UserIncrementManager.attributeList(this.request,node as AskOmicsViewNode).then(
         (response : Object[]) => {
           
@@ -78,7 +96,7 @@ import { AskOmicsViewNode } from '@/ts/types'
           this.attributeList = response;
          
         }
-      )
+      )*/
     }
   }
 })

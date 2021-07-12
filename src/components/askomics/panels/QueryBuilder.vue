@@ -16,7 +16,7 @@
                 
                 <div class="col col-xs-7">
                   <QueryGraphPanel 
-                    :request="request"
+                    v-model:request="request"
                     :graphStart="graph"
                     :selectedNodeStart="selectedNodeId"
                     @selectedNodeId="selectedNodeEvent" 
@@ -25,8 +25,8 @@
                 </div>
               <div class="col col-xs-5">
                   <AttributesPanel 
-                    :request="request"
-                    :selectedNode="selectedNodeId" 
+                    v-model:request="request"
+                    :selectedNodeId="selectedNodeId" 
                     @attributeBox="attributeBoxEvent"
                     :width="450" 
                     :height="450"

@@ -21,8 +21,11 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
 
 @Options({
   name: "QueryGraphPanel",
+  
   emits: ["selectedNodeId"],
+  
   components : {  },
+  
   props: {
     graphStart      : Graph3DJS,
     request         : RequestManager,
@@ -30,8 +33,6 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     width           : Number,
     height          : Number,
   },
-
-  emit: [ 'informationSelectedNode' ,'queryString'],
 
   data () {
     return {
@@ -174,14 +175,14 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
        * Nothing is selected with go out and remove selection */ 
       if (! this.selectedNode ) {
         UserIncrementManager.removeSuggestion(this.graph) 
-        this.$emit('informationSelectedNode',JSON.stringify(""))
+        this.$emit('selectedNodeId',JSON.stringify(""))
       } else {
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
         UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
         
-        this.$emit('selectedNodeId',JSON.stringify(this.request.getDiscovery().focus()))
+        this.$emit('selectedNodeId',this.request.getDiscovery().focus())
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
@@ -226,7 +227,8 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     },
 
   suggestions( n ) {
-      const component = this ;      
+    
+      const component = this ; 
       /* add new suggestions */
       UserIncrementManager.clickNodeForward(this.request,n)
         .then( nodesAndLinks => { 
@@ -234,7 +236,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
             this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
             component.update();
         });
-
+      
       UserIncrementManager.clickNodeBackward(this.request,n)
         .then( nodesAndLinks => { 
             this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);

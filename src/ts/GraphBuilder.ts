@@ -1,4 +1,4 @@
-import {AskOmicsViewNode, AskOmicsViewLink, ObjectState } from '@/ts/types'
+import {AskOmicsViewNode, AskOmicsViewLink, ObjectState, DatatypeLiteral } from '@/ts/types'
 import RequestManager from './RequestManager';
 
 interface GraphBuilderExpr {
@@ -21,7 +21,7 @@ export class GraphBuilder {
     /**
      * build graph from Request Manager (discovery)
      */
-    static build3DJSGraph(rm : RequestManager) : any {
+    static build3DJSGraph(rm : RequestManager) : GraphBuilderExpr {
         
         const graph : GraphBuilderExpr = {
             nodes : [],
@@ -38,6 +38,10 @@ export class GraphBuilder {
                         graph.nodes.push(AskOmicsViewNode.something(ObjectState.CONCRETE))
                         break
                     }
+                    case "inrae.semantic_web.node.Something" : {
+                        
+                        break
+                    }
                     default : {
                         console.error(" devel erro => todo - manage "+node.$type)
                     }
@@ -48,5 +52,27 @@ export class GraphBuilder {
         console.log(graph)
 
         return graph
+    }
+
+     /**
+     * build graph from Request Manager (discovery)
+     */
+      static buildAttributesBox(rm : RequestManager, focus : string) : Promise< Object[]> {
+        const lAttributeBox :  Object[] = [] ;
+        console.log("focus:",focus)
+        return new Promise((successCallback, failureCallback) => {
+            rm.getDiscovery().browse(
+                (node : any, deep : Number) => {
+                    console.log("idRef:",node.idRef)
+                    if ( node.idRef == focus) {
+                        console.log("GO")
+                        rm.attributeList(focus).then(
+                            response => {
+                                successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
+                            }
+                        ).catch(e => {failureCallback(e)})
+                    }
+                }
+            )})
     }
 }

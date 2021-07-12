@@ -23,7 +23,8 @@ function getDiscovery(id : number) : any {
 export default class RequestManager {
     static idCounter : number                  = 0 ;
     id               : number                  = RequestManager.idCounter++;
-    config           : string                  = "" ;
+    config           : any                         ;
+    config_str       : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     =  SWDiscovery().something()
 
@@ -50,8 +51,8 @@ export default class RequestManager {
         }
 
         const r = JSON.parse(str)
-
-        this.config = SWDiscoveryConfiguration.setConfigString(r[0])
+        this.config_str = r[0]
+        this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
         const strategy_id = r[1]
         const serializedDiscovery = r[2]
 
@@ -66,6 +67,9 @@ export default class RequestManager {
         
         if (serializedDiscovery && serializedDiscovery.length>0)
             sw = sw.setSerializedString(serializedDiscovery)
+        else {
+            sw = sw.something()
+        }
         
         console.log(" -- set discovery -- ")    
         this.setDiscovery(sw)
@@ -163,10 +167,10 @@ export default class RequestManager {
         return true
     }
 
-    attributeList(current: AskOmicsViewNode) : Promise<DatatypeLiteral[]> {
+    attributeList(focus: string) : Promise<DatatypeLiteral[]> {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
-                this.strategy.attributeList(this.getDiscovery(),this.config,current) 
+                this.strategy.attributeList(this.getDiscovery(),focus) 
                 //.console()
                 .select("property","labelProperty")
                 .distinct()
@@ -210,7 +214,7 @@ export default class RequestManager {
                                 lUris.push(key)
                             }
  
-                            this.strategy.getDatatypes(this.config, lUris)
+                            this.strategy.getDatatypes(this.config_str, lUris)
                             .then ( (mapPropertyAndRange )=>{
                                 lUris.map(
                                     uriProperty => {
@@ -309,7 +313,6 @@ export default class RequestManager {
                                         n = mR.get(entity)
                                     }
                                     if(! mR.has(property)) {
-                                        
                                         try {
                                             const listLabelEntity = 
                                                 response.results.datatypes["labelProperty"][property] ;

@@ -14,13 +14,17 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
 
     
 
-    attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+    attributeList(discovery : any,focus: string) : any {
     
       return discovery
-              .isSubjectOf(new QueryVariable("property"))
+              .focus(focus)
+              .isLinkTo(new QueryVariable("value"),"property")
+              .root()
+              .something("value")
                   .filter.isLiteral
                     .focus("property")
                     .datatype(new URI("rdfs#label"),"labelProperty")
+                    .console()
     }
 
     forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {

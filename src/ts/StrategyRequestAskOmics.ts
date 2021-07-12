@@ -16,12 +16,15 @@ export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
         this.config_endp = config_endp
     }
 
-    attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
+    attributeList(discovery : any,focus: string) : any {
+        /*
         let d : any = (new SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf)).something());
 
-        if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))
+        if ( current.type != NodeType.SOMETHING ) d = d.set(new URI(current.uri))*/
 
-        return d
+        return discovery
+               .focus(focus)
+               .isSubjectOf(new URI("rdf:type"),"typeFocus")
                .isObjectOf(new URI("rdfs:domain"),"property")
                   .isA("owl:DatatypeProperty")
                   .datatype(new URI("http://www.w3.org/2000/01/rdf-schema#label"),"labelProperty")

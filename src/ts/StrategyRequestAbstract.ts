@@ -27,11 +27,10 @@ export default abstract class StrategyRequestAbstract {
     constructor() {
     }
 
-    getDatatypesWithProperty(config_rdf : string,property: string ) : Promise<string[]> {
-
+    getDatatypesWithProperty(config_rdf : any,property: string ) : Promise<string[]> {
+        console.log(config_rdf,property)
         return new Promise((successCallback, failureCallback) => {
-            new SWDiscovery(SWDiscoveryConfiguration
-                .setConfigString(config_rdf))
+            SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf))
                 .something()
                     .isSubjectOf(new URI(property),"valueL")
                     .select("valueL")
@@ -55,7 +54,7 @@ export default abstract class StrategyRequestAbstract {
             })
     }
 
-    getDatatypes(config_rdf : string,listUriDatatypeProperty: string[] ) : Promise<Map<string,string>> {
+    getDatatypes(config_rdf : any,listUriDatatypeProperty: string[] ) : Promise<Map<string,string>> {
         const listUriDatatypePropertyClean = [...new Set(listUriDatatypeProperty)]
         const results : Map<string,string> = new Map()
         return new Promise((successCallback, failureCallback) => {
@@ -73,7 +72,7 @@ export default abstract class StrategyRequestAbstract {
         })
     }
 
-    abstract attributeList(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any
+    abstract attributeList(discovery : any,focus: string) : any
 
     /* 
     * Structure Node to return

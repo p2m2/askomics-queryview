@@ -90,6 +90,7 @@ export default class UserIncrementManager {
         graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
         return graph
     }
+    /*
 
     static attributeList(request :RequestManager, current: AskOmicsViewNode ) : Promise<Object[]> {
         console.log("go :",current)
@@ -111,6 +112,6 @@ export default class UserIncrementManager {
                 }
             }
         })
-    }
+    } */
 
 }
