@@ -1,5 +1,6 @@
 import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType, DatatypeLiteral, ViewLink3DJS, ViewNode3DJS } from './types'
 import RequestManager from './RequestManager'
+import { Vue } from 'vue-class-component'
 
 export default class UserIncrementManager {
 
@@ -45,13 +46,19 @@ export default class UserIncrementManager {
 }
 
 
-    static setShapeNode(request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
+    static setShapeNode(vue : Vue, request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
         
         /**
          * Exit if node is not suggested.
          */
         if ( toShape.state_n != ObjectState.SUGGESTED ) {
-            console.warn("Can not concrete this node ",JSON.stringify(toShape));
+            
+            if ( toShape.focus && toShape.focus.length>0  ) {
+                toShape.state_n = ObjectState.SELECTED
+                request.setFocus(toShape.focus)
+                vue.$emit('selectedNodeId',request.getDiscovery().focus())
+            }
+           
             return graph
         }    
 
@@ -67,6 +74,7 @@ export default class UserIncrementManager {
                     /* ------------ */
                     const focus : string = request.update(toShape,l)
                     toShape.focus = focus 
+                    vue.$emit('selectedNodeId',focus)
                 }
                 return l 
             })

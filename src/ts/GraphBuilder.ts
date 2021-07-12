@@ -10,9 +10,13 @@ interface GraphBuilderExpr {
 export class GraphBuilder {
     constructor() {}
 
-    static defaultGraph() : any {
+    static defaultGraph(rm : RequestManager) : any {
+        
+        const n = AskOmicsViewNode.something(ObjectState.CONCRETE)
+        n.focus = rm.getFocus()
+
         return {
-            nodes : [ AskOmicsViewNode.something(ObjectState.CONCRETE) ],
+            nodes : [n],
             links : []
         }
     }
@@ -35,7 +39,9 @@ export class GraphBuilder {
                 switch(node.$type) {
                     case "inrae.semantic_web.node.Root" : {
                         console.log("Root -> nothing to do")
-                        graph.nodes.push(AskOmicsViewNode.something(ObjectState.CONCRETE))
+                        const n = AskOmicsViewNode.something(ObjectState.CONCRETE)
+                        n.focus = rm.getFocus()
+                        graph.nodes.push(n)
                         break
                     }
                     case "inrae.semantic_web.node.Something" : {

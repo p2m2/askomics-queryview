@@ -79,12 +79,12 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   data () {
     return {
       request: null,
-      graph : GraphBuilder.defaultGraph(),
+      graph : null,
       selectedNodeId : "",
     }
   },
   
-  mounted () {
+  created () {
     if (this.query) {
       this.request = new RequestManager(this.query)
       this.graph = GraphBuilder.build3DJSGraph(this.request)
@@ -100,6 +100,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     },
 
     selectedNodeEvent(focusId : string) {
+      console.log("Change focus:"+focusId)
       this.selectedNodeId = focusId
     },
 

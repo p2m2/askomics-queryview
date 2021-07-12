@@ -180,9 +180,9 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
-        UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
+        UserIncrementManager.setShapeNode(this,this.request,this.selectedNode,this.graph)
         
-        this.$emit('selectedNodeId',this.request.getDiscovery().focus())
+        
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
@@ -195,6 +195,8 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
          **/
       
         const countSelectedNode = this.graph.nodes.filter( n => n.state == ObjectState.SELECTED).length
+        
+        console.log("COUNT FOCUS===>>"+countSelectedNode)
 
         if (countSelectedNode == 0 ) {
             this.suggestions(this.selectedNode);

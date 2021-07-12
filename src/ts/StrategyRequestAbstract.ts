@@ -28,13 +28,13 @@ export default abstract class StrategyRequestAbstract {
     }
 
     getDatatypesWithProperty(config_rdf : any,property: string ) : Promise<string[]> {
-        console.log(config_rdf,property)
+       
         return new Promise((successCallback, failureCallback) => {
             SWDiscovery(SWDiscoveryConfiguration.setConfigString(config_rdf))
                 .something()
                     .isSubjectOf(new URI(property),"valueL")
                     .select("valueL")
-                    .limit(20)
+                    .limit(5)
                     .commit()
                     .raw()
                     .then(
