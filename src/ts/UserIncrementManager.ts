@@ -54,7 +54,12 @@ export default class UserIncrementManager {
         if ( toShape.state_n != ObjectState.SUGGESTED ) {
             
             if ( toShape.focus && toShape.focus.length>0  ) {
-                toShape.state_n = ObjectState.SELECTED
+                graph.nodes = graph.nodes.map(
+                    (n : ViewNode3DJS )=> {
+                        if ( n.id == toShape.id ) n.state_n = ObjectState.SELECTED
+                        return n
+                    })
+
                 request.setFocus(toShape.focus)
                 vue.$emit('selectedNodeId',request.getDiscovery().focus())
             }

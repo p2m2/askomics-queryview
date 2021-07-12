@@ -180,9 +180,9 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
-        UserIncrementManager.setShapeNode(this,this.request,this.selectedNode,this.graph)
+        this.graph = UserIncrementManager.setShapeNode(this,this.request,this.selectedNode,this.graph)
         
-        
+        console.log(JSON.stringify(this.graph,2,null))
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
