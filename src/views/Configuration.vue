@@ -11,7 +11,7 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
   components: {
     ConfigurationPanel
   },
-  emits: ["updateConfigurationEvent"],
+  emits: ["update"],
   data() { 
         return {
           config_list: [ ],
@@ -21,7 +21,7 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
   
   methods : {
     updateConfiguration(configuration : string) {
-      this.$emit('updateConfigurationEvent',configuration)
+      this.$emit('update',configuration)
     }
   }
 })

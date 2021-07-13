@@ -11,7 +11,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
   components: {
     QueryBuilder 
   },
-  emits: ["updateQuery"],
+  emits: ["update"],
  
   computed: {
     query() {
@@ -19,20 +19,9 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
     }
   },
 
-  created() {
-    console.log("AskOmicsView CREATED !!!!!!!!!!!!!!!!!!")
-    console.log(JSON.stringify(this.query))
-  },
-  
-  mounted() {
-      console.log("AskOmicsView MOUNTED..............")
-      console.log(JSON.stringify(this.query))
-      console.log(this.query)
-  },
   methods : {
-    updateQuery(query : string) {
-      this.$emit('updateQuery',query)
-     // alert("SEND:"+query)
+    updateQuery(config_strategy_query : string) {
+      this.$emit('update',config_strategy_query)
     }
   }
 

@@ -10,7 +10,7 @@
             :to="{ path : '/' , props: { configuration : userConfig }}" 
             >AskOmics Query Builder </router-link> -->
 
-            <router-link class="nav-link" aria-current="page" 
+            <router-link class="nav-link" aria-current="page" @update="test"
             :to="{ name : 'askomics' , params: { query: requestManagerStringify }}" 
             >AskOmics Query Builder </router-link>
           </li>
@@ -36,7 +36,7 @@
   <!-- Extraneous non-emits event listeners  -->
 
   <router-view 
-      @updateRequestManagerStringify="updateRequestManagerStringify" 
+      @update="updateStringify"
   />
 
 </template>
@@ -52,8 +52,8 @@ import { Options, Vue } from 'vue-class-component';
           requestManagerStringify : JSON.stringify([
             `{
               "sources" : [{
-              "id"  : "metabolights",
-              "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
+              "id"  : "test",
+              "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/"
               }]}`,
             "data-driven",
             ""]),
@@ -73,10 +73,9 @@ import { Options, Vue } from 'vue-class-component';
   },
 
   methods : {
-    updateRequestManagerStringify(s: string) {
-      console.log(" UPPPPPPPPPPPP updateRequestManagerStringify )))))))))))))))))))))")
-      console.log(s)
-    }
+    updateStringify(value : string) {
+      this.requestManagerStringify = value
+    },
   }
 })
 export default class App extends Vue {}

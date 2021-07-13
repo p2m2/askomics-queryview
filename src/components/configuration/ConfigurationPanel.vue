@@ -2,12 +2,31 @@
   <div id="configuration-panel">
       <div class="container"> 
           <hr/>
-          <!-- waiting div -->
+          
           <div class="row">
-                <div class="col col-xs-6">
-                sssss
-               </div>
-               <div class="col col-xs-1">     
+            <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">Action</a>
+                      <a class="dropdown-item" href="#">Another action</a>
+                      <a class="dropdown-item" href="#">Something else here</a>
+                      <div role="separator" class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">Separated link</a>
+                    </div>
+                  </div>
+                  <input type="text" class="form-control" aria-label="Text input with dropdown button">
+                </div>
+        
+          </div>
+
+          <hr/>
+          
+          <div class="row" >
+             <div class="col col-xs-4">
+                  <label for="sel1">Strategy:</label>
+              </div>
+               <div class="col col-xs-6">     
                 <div class="form-check form-check-inline">
                     <input name="strategyRequest" value="askomics" class="form-check-input" type="radio" v-model="strategyInt">
                     <label class="form-check-label" for="strategyRequest">
@@ -21,10 +40,8 @@
                     </label>
                   </div>
                 </div> 
-                <div class="col col-xs-4">
-                  ddd
-                </div>
              </div>
+            
      </div>
   </div>
 </template>
@@ -38,23 +55,13 @@ import { UserConfiguration } from '@/ts/types'
   name: "ConfigurationPanel",
   components : {  
       },
-  emits: ["updateConfigurationEvent"],
+  emits: ["update"],
   props : {
-    /*
-      `{
-              "sources" : [{
-              "id"  : "metabolights",
-              "url" : "https://metabolights.semantic-metabolomics.fr/sparql"
-              }]}`,
-           `{
-              "sources" : [{
-              "id"  : "local",
-              "url" : "http://localhost:8890/sparql"
-            }]}`
-    */
     configurations_list : {
       type    : Array,
-      default : () => []
+      default : () => [
+
+      ]
       },
      strategy: {
       type    : String,
@@ -87,7 +94,7 @@ import { UserConfiguration } from '@/ts/types'
 
     updateStrategy(value : string) {
       this.configuration.strategy = value
-      this.$emit('updateConfigurationEvent',this.configuration.jsonConfigurationSWDiscoveryString())
+      this.$emit('update',JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.strategyInt]))
     },
   }
   
