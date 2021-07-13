@@ -24,12 +24,12 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/results',
-    name: 'Results',
+    name: 'results',
     component: Results
   },
   {
-    path: '/configuration',
-    name: 'Configuration',
+    path: '/configuration:strategy',
+    name: 'configuration',
     component: Configuration
   }
 ]

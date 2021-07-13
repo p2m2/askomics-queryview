@@ -55,7 +55,7 @@ import { UserConfiguration } from '@/ts/types'
   name: "ConfigurationPanel",
   components : {  
       },
-  emits: ["update"],
+  emits: ["updateConfigurationFile","updateStrategy"],
   props : {
     configurations_list : {
       type    : Array,
@@ -91,10 +91,10 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   methods: {
-
+//this.configuration.jsonConfigurationSWDiscoveryString()
     updateStrategy(value : string) {
       this.configuration.strategy = value
-      this.$emit('update',JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.strategyInt]))
+      this.$emit('updateStrategy',this.strategyInt)
     },
   }
   

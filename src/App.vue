@@ -10,7 +10,7 @@
             :to="{ path : '/' , props: { configuration : userConfig }}" 
             >AskOmics Query Builder </router-link> -->
 
-            <router-link class="nav-link" aria-current="page" @update="test"
+            <router-link class="nav-link" aria-current="page"
             :to="{ name : 'askomics' , params: { query: requestManagerStringify }}" 
             >AskOmics Query Builder </router-link>
           </li>
@@ -20,7 +20,7 @@
           </li>
 
           <li class="nav-item">
-            <router-link class="nav-link" to="/configuration">Configuration </router-link>
+            <router-link class="nav-link" :to="{ name : 'configuration' , params: { strategy: strategy }}">Configuration </router-link>
           </li>
         </ul>
         
@@ -36,7 +36,9 @@
   <!-- Extraneous non-emits event listeners  -->
 
   <router-view 
-      @update="updateStringify"
+      @updateDiscovery="discovery = $event"
+      @updateConfigurationFile="configurationFile = $event"
+      @updateStrategy="strategy = $event"
   />
 
 </template>
@@ -49,33 +51,33 @@ import { Options, Vue } from 'vue-class-component';
   
   data() { 
         return {
-          requestManagerStringify : JSON.stringify([
-            `{
-              "sources" : [{
-              "id"  : "test",
-              "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/"
-              }]}`,
-            "data-driven",
-            ""]),
+          discovery : "",
+          configurationFile : `{ "sources" : [{ "id"  : "test", "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/" }]}`,
+          strategy : "data-driven",
+          requestManagerStringify : ""
         }
   },
-  created() {
-    console.log(" -- APP created ---")
-    console.log(this.requestManagerStringify)
-  },
-  mounted() {
-    console.log(" -- APP --- ")
-    console.log(this.requestManagerStringify)
-  },
-
-  watch : {
-    requestManagerStringify: 'updateRequestManagerStringify',
-  },
-
-  methods : {
-    updateStringify(value : string) {
-      this.requestManagerStringify = value
+  
+  watch: {
+    
+    strategy : function() {
+      console.log("OK Strategy")
+      console.log(this.discovery)
+      this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
     },
+
+    configurationFile : function() {
+      alert("OK configurationFile")
+      this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
+    }
+
+  },
+
+  created() {
+    this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
+  },
+ 
+  methods : {
   }
 })
 export default class App extends Vue {}

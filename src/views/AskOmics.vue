@@ -11,7 +11,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
   components: {
     QueryBuilder 
   },
-  emits: ["update"],
+  emits: ["updateDiscovery"],
  
   computed: {
     query() {
@@ -21,7 +21,8 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
 
   methods : {
     updateQuery(config_strategy_query : string) {
-      this.$emit('update',config_strategy_query)
+      const r = JSON.parse(config_strategy_query)
+      this.$emit('updateDiscovery',r[2])
     }
   }
 

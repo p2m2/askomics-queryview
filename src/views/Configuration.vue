@@ -14,11 +14,16 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
   emits: ["update"],
   data() { 
         return {
-          config_list: [ ],
-          strategy : "data-driven"
+          config_list: [ ]
         }
   },
   
+  computed: {
+    strategy() {
+      return this.$route.params.strategy
+    }
+  },
+
   methods : {
     updateConfiguration(configuration : string) {
       this.$emit('update',configuration)
