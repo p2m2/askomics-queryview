@@ -17,19 +17,21 @@ import * as d3 from 'd3';
 import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
-import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
+import { ObjectState, LinkType } from '@/ts/types';
+import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "QueryGraphPanel",
   
-  emits: ["selectedNodeId"],
+  emits: ["updateRequestManager"],
   
   components : {  },
   
   props: {
-    graphStart      : Graph3DJS,
-    request         : RequestManager,
-    query           : String,
+    requestString   : {
+                        type: String,
+                        required: true
+                      },
     width           : Number,
     height          : Number,
   },
@@ -55,12 +57,15 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
       strengthForce: 1.0,
       strengthForceManBody: -2000,
 
-      graph :  this.graphStart,
-      selectedNode : null
+      graph       : { nodes : [], links : [] },
+      selectedNode : null,
+      request      : null
     }
   },
 
   mounted() {
+    this.request = new RequestManager(this.requestString)
+    this.graph = GraphBuilder.build3DJSGraph(this.request) 
     this.setUpCanvas();
   },
   
@@ -68,6 +73,7 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
   },
 
   methods: {
+ 
     setUpCanvas() {
 
         /**
@@ -140,54 +146,32 @@ import { Graph3DJS, ObjectState, LinkType } from '@/ts/types';
     dragsubject(event) {
         return this.simulation.find(event.x, event.y);
     },
-/*
-    serialized() {
-      const graph = {
-          nodes : this.graph.nodes.filter(n => n.state_n != ObjectState.SUGGESTED).map( n => { 
-            console.log(n.state_n)
-            return { 
-              id : n.id, 
-              uri : n.uri, 
-              focus: n.focus, 
-              label : n.label , 
-              state_n : ObjectState.CONCRETE, 
-              type: n.type 
-            }}),
-          links : this.graph.links.filter(l => l.state_n != ObjectState.SUGGESTED).map( l => { 
-            return { 
-              id: l.id, 
-              uri : l.uri, 
-              label : l.label, 
-              source : l.source.id, 
-              target : l.target.id, 
-              state_n : ObjectState.CONCRETE, 
-              type: l.type}} )
-        }
-    
-      return JSON.stringify(graph)
-    },
-*/
+
     /**
      * usefull to update canavs when requestManager change his internal state
      */
     updateCanvas() {
+
+      this.graph =  UserIncrementManager.unselect(this.graph)
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! this.selectedNode ) {
-        UserIncrementManager.removeSuggestion(this.graph) 
-        this.$emit('selectedNodeId',JSON.stringify(""))
+        this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
+        this.request.setFocusRoot()
+        this.$emit('updateRequestManager',this.request.serialized())
+
       } else {
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
-        this.graph = UserIncrementManager.setShapeNode(this,this.request,this.selectedNode,this.graph)
-        
-        console.log(JSON.stringify(this.graph,2,null))
+        this.graph = UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
+        this.$emit('updateRequestManager',this.request.serialized())
+
 
         /**----------------------------------------------------------------------------
          * 2) Remove Suggestion unused
          */
-        UserIncrementManager.removeSuggestion(this.graph) 
+        this.graph = UserIncrementManager.removeSuggestion(this.graph) 
 
         /**-----------------------------------------------------------------------------
          *   management with one selected node 

@@ -46,7 +46,7 @@ export default class UserIncrementManager {
 }
 
 
-    static setShapeNode(vue : Vue, request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
+    static setShapeNode(request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
         
         /**
          * Exit if node is not suggested.
@@ -61,7 +61,6 @@ export default class UserIncrementManager {
                     })
 
                 request.setFocus(toShape.focus)
-                vue.$emit('selectedNodeId',request.getDiscovery().focus())
             }
            
             return graph
@@ -79,7 +78,6 @@ export default class UserIncrementManager {
                     /* ------------ */
                     const focus : string = request.update(toShape,l)
                     toShape.focus = focus 
-                    vue.$emit('selectedNodeId',focus)
                 }
                 return l 
             })
@@ -103,6 +101,21 @@ export default class UserIncrementManager {
         graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
         return graph
     }
+
+    static unselect(graph : Graph3DJS) : Graph3DJS {
+        graph.nodes = graph.nodes.map( n => { 
+            if (n.state_n == ObjectState.SELECTED) n.state_n = ObjectState.CONCRETE ;
+            return n
+        })
+        graph.links = graph.links.map( l => { 
+            if (l.state_n == ObjectState.SELECTED) l.state_n = ObjectState.CONCRETE ;
+            return l
+        })
+        return graph
+    }
+
+
+
     /*
 
     static attributeList(request :RequestManager, current: AskOmicsViewNode ) : Promise<Object[]> {

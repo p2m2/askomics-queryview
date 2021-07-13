@@ -20,64 +20,43 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "AttributesPanel",
+  emits: ["updateRequestManager"],
   components : { AttributeBox },
   props : {
-    selectedNodeId    : String,
-    request           : RequestManager,
+    requestString     : {
+                          type: String,
+                          required: true
+                        },
     width             : Number,
     height            : Number,
   },
   watch : {
-    selectedNodeId : 'updateAttributeList'
+    requestString(value) {
+      console.log("HOUPSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",value)
+     this.updateRequestString(value) 
+    }
   },
   data () {
     return {
-      attributeList: [ 
-        /*{
-                    id: 5,
-                    uri: "rdf:something",
-                    range : "xsd:string",
-                    label: "TestLabel",
-                    visible: false,
-                    negative: false,
-                    linked: false,
-                },
-                {
-                    id: 8,
-                    uri: "rdf:something",
-                    range : "xsd:integer",
-                    label: "TestLabelNumeric",
-                    visible: false,
-                    negative: false,
-                    linked: false,
-                },
-                {
-                    id: 888,
-                    uri: "rdf:something",
-                    range : "unkown!!!!",
-                    label: "TestLabelNumeric",
-                    visible: false,
-                    negative: false,
-                    linked: false,
-                }*/
-                ]
+      request : null,
+      attributeList: []
     }
   },
+
   mounted() {
     let attributesList = document.querySelector<HTMLElement>('.attributesList')
     if ( attributesList ) {
       attributesList.style.height = this.height + "px"
       attributesList.style.width  = this.width + "px"
     }
-    if(this.request)
-      GraphBuilder.buildAttributesBox(this.request,this.selectedNodeId)
+    
   },
   
   methods: {
-    updateAttributeList(selectedNodeId : string) {
-      console.log(" ------------*************************************** updateAttributeList -------------------------")
-      console.log(selectedNodeId)
-       GraphBuilder.buildAttributesBox(this.request,this.selectedNodeId).then(
+    updateRequestString(value : string) {
+      console.log(" 2 -- update requestString --- ")
+      this.request = new RequestManager(value)
+      GraphBuilder.buildAttributesBox(this.request).then(
         (response : Object[]) => {
           
           console.log(" --------attributeList")
@@ -85,19 +64,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
           this.attributeList = response;
          
         })
-        
-       /*
-      const node = JSON.parse(selectedNodeId)
-      UserIncrementManager.attributeList(this.request,node as AskOmicsViewNode).then(
-        (response : Object[]) => {
-          
-          console.log(" --------attributeList")
-          console.log(response)
-          this.attributeList = response;
-         
-        }
-      )*/
-    }
+    },
   }
 })
 

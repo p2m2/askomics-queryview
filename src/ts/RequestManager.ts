@@ -25,6 +25,7 @@ export default class RequestManager {
     id               : number                  = RequestManager.idCounter++;
     config           : any                         ;
     config_str       : string                  = "" ;
+    strategy_str     : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     =  SWDiscovery().something()
 
@@ -37,7 +38,7 @@ export default class RequestManager {
     }
 
     serialized() : string {
-        return JSON.stringify([ this.config, this.strategy, this.getDiscovery().getSerializedString()])
+        return JSON.stringify([ this.config_str, this.strategy_str, this.getDiscovery().getSerializedString()])
     }
 
     parse( str : string ) {
@@ -53,13 +54,13 @@ export default class RequestManager {
         const r = JSON.parse(str)
         this.config_str = r[0]
         this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
-        const strategy_id = r[1]
+        this.strategy_str = r[1]
         const serializedDiscovery = r[2]
 
         console.log("-- config discovery -- ")
         console.log(this.config)
         console.log("-- strategy -- ")
-        console.log(strategy_id)
+        console.log(this.strategy_str)
         console.log("-- serializedDiscovery -- ")
         console.log(serializedDiscovery)
 
@@ -74,7 +75,7 @@ export default class RequestManager {
         console.log(" -- set discovery -- ")    
         this.setDiscovery(sw)
         
-        switch(strategy_id) {
+        switch(this.strategy_str) {
             case "askomics" : {
                 this.setAskOmicsStrategy()
                 break
@@ -84,7 +85,7 @@ export default class RequestManager {
                 break
             }
             default : {
-                console.warn("strategy unknown : "+strategy_id)
+                console.warn("strategy unknown : "+this.strategy_str)
                 this.setDataDrivenStrategy()
             }
         }
@@ -148,6 +149,11 @@ export default class RequestManager {
 
     getFocus() : string {
         return this.getDiscovery().focus() ;
+    }
+
+    setFocusRoot() : void {
+        const disco = this.getDiscovery().root() ;
+        this.setDiscovery(disco);
     }
 
     setFocus(idFocus : string) : void {

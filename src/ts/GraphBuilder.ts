@@ -63,16 +63,17 @@ export class GraphBuilder {
      /**
      * build graph from Request Manager (discovery)
      */
-      static buildAttributesBox(rm : RequestManager, focus : string) : Promise< Object[]> {
+      static buildAttributesBox(rm : RequestManager) : Promise< Object[]> {
         const lAttributeBox :  Object[] = [] ;
         console.log("focus:",focus)
         return new Promise((successCallback, failureCallback) => {
             rm.getDiscovery().browse(
                 (node : any, deep : Number) => {
                     console.log("idRef:",node.idRef)
-                    if ( node.idRef == focus) {
+                    if ( node.idRef == rm.getFocus()) {
+                        /* TODO : set box if children is set (filter, bind, value, etc....) */
                         console.log("GO")
-                        rm.attributeList(focus).then(
+                        rm.attributeList(rm.getFocus()).then(
                             response => {
                                 successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
                             }

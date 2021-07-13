@@ -16,18 +16,15 @@
                 
                 <div class="col col-xs-7">
                   <QueryGraphPanel 
-                    v-model:request="request"
-                    :graphStart="graph"
-                    :selectedNodeStart="selectedNodeId"
-                    @selectedNodeId="selectedNodeEvent" 
+                    v-model:requestString="queryUp"
+                    @updateRequestManager="updateQuery"
                     :width="750" 
                     :height="450" />
                 </div>
               <div class="col col-xs-5">
                   <AttributesPanel 
-                    v-model:request="request"
-                    :selectedNodeId="selectedNodeId" 
-                    @attributeBox="attributeBoxEvent"
+                    v-model:requestString="queryUp"
+                    @updateRequestManager="updateQuery"
                     :width="450" 
                     :height="450"
                    />
@@ -60,8 +57,6 @@ import { Options, Vue } from 'vue-class-component'
 import "bootstrap/dist/css/bootstrap.min.css"
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
-import RequestManager  from '@/ts/RequestManager'
-import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "QueryBuilder",
@@ -75,33 +70,25 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   props : {
     query :  String
   },
-  
+ 
   data () {
     return {
-      request: null,
-      graph : null,
-      selectedNodeId : "",
+      queryUp : ""
     }
   },
   
-  created () {
-    if (this.query) {
-      this.request = new RequestManager(this.query)
-      this.graph = GraphBuilder.build3DJSGraph(this.request)
-    }
+  created() {
+    this.queryUp = this.query
+  },
+  
+  mounted() {
+    this.queryUp = this.query
   },
   
   methods: {
-    
-    update() {
-      this.request = new RequestManager(this.query)
-      this.graph = GraphBuilder.build3DJSGraph(this.request)
-      this.selectedNodeId = this.request.getDiscovery().focus()
-    },
-
-    selectedNodeEvent(focusId : string) {
-      console.log("Change focus:"+focusId)
-      this.selectedNodeId = focusId
+    updateQuery(value : string) {
+      this.queryUp = value
+      this.$emit('updateQuery',this.queryUp)
     },
 
     queryStringEvent(requestManagerStringify: string) {

@@ -1,5 +1,5 @@
 <template>
-    <QueryBuilder :query="query" @updateQuery="updateQuery" />
+    <QueryBuilder v-model:query="query" @updateQuery="updateQuery" />
 </template>
 
 <script lang="ts">
@@ -32,7 +32,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
   methods : {
     updateQuery(query : string) {
       this.$emit('updateQuery',query)
-      alert("SEND:"+query)
+     // alert("SEND:"+query)
     }
   }
 
