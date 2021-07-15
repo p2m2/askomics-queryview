@@ -18,7 +18,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Configuration // change to worklows -> configuration -> askomics view
   },*/
   {
-    path: '/askomics:query',
+    path: '/askomics/:query',
     name: 'askomics',
     component: AskOmics
   },
@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Results
   },
   {
-    path: '/configuration:configuration',
+    path: '/configuration/:configuration',
     name: 'configuration',
     component: Configuration
   }
