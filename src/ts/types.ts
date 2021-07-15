@@ -73,6 +73,21 @@ export class UserConfiguration {
     constructor(id  : string) {
             this.id = id
     }
+    
+
+    static build(s : any) : UserConfiguration {
+        const copy     = new UserConfiguration(s.id)
+        
+        copy.url     = s.url 
+        copy.file    = s.file 
+        copy.content = s.content
+        copy.mimetype = s.mimetype 
+        copy.method = s.method 
+        copy.strategy = s.strategy  
+        copy.logLevel = s.logLevel
+
+        return copy  
+    }
 
     remoteAccess() : string {
         if ( this.url.length>0) {
@@ -82,7 +97,9 @@ export class UserConfiguration {
         } else if ( this.content.length>0 ) {
             return `"content" : "`+this.content+`"`
         }
-        return ""
+        
+        throw Error("url|file|content should bed defined.") ;
+
     }
     methodAcess() : string {
         if ( this.method ) `"method" : "`+this.method+`"`
@@ -90,12 +107,19 @@ export class UserConfiguration {
     }
 
     jsonConfigurationSWDiscoveryString() : string {
+
+        let ma : string = this.methodAcess() 
+
+        if (ma.length > 0 ) {
+            ma = ma + ",\n"
+        } 
+
         return  `{
             "sources" : [{
-            "id"  : "__id__",`  +
-            this.remoteAccess() +
-            `"mimetype" : "`+this.mimetype+`"` +
-            this.methodAcess() +
+            "id"  : "__id__",\n`  +
+            this.remoteAccess() + ",\n" +
+            ma +
+            `"mimetype" : "`+this.mimetype+`"` + 
         `}],
             "settings" : {
                 "cache" : true,

@@ -20,7 +20,7 @@
           </li>
 
           <li class="nav-item">
-            <router-link class="nav-link" :to="{ name : 'configuration' , params: { strategy: strategy }}">Configuration </router-link>
+            <router-link class="nav-link" :to="{ name : 'configuration' , params: { configuration: JSON.stringify(configuration) }}">Configuration </router-link>
           </li>
         </ul>
         
@@ -37,47 +37,42 @@
 
   <router-view 
       @updateDiscovery="discovery = $event"
-      @updateConfigurationFile="configurationFile = $event"
-      @updateStrategy="strategy = $event"
+      @updateConfiguration ="updateConfiguration"
   />
+    <!--  -->
 
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { UserConfiguration } from '@/ts/types'
 
 @Options({
   name: "AppView",
   
   data() { 
         return {
-          discovery : "",
-          configurationFile : `{ "sources" : [{ "id"  : "test", "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/" }]}`,
-          strategy : "data-driven",
+          discovery               : "",
+          configuration           : new UserConfiguration("test") ,//`{ "sources" : [{ "id"  : "test", "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/" }]}`,
           requestManagerStringify : ""
         }
   },
   
   watch: {
-    
-    strategy : function() {
-      console.log("OK Strategy")
-      console.log(this.discovery)
-      this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
-    },
-
-    configurationFile : function() {
-      alert("OK configurationFile")
-      this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
-    }
-
   },
-
+  
   created() {
-    this.requestManagerStringify = JSON.stringify([this.configurationFile,this.strategy,this.discovery])
+    this.configuration  = new UserConfiguration("test")
+    this.configuration.type = "url"
+    this.configuration.url  = "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/"
+    this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
   },
  
   methods : {
+    updateConfiguration(configuration : string) {
+      this.configuration = UserConfiguration.build(JSON.parse(configuration))
+      this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+    }
   }
 })
 export default class App extends Vue {}

@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Results
   },
   {
-    path: '/configuration:strategy',
+    path: '/configuration:configuration',
     name: 'configuration',
     component: Configuration
   }

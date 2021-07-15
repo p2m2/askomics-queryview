@@ -1,10 +1,11 @@
 <template>
-  <ConfigurationPanel :configurations_list="config_list" :strategy="strategy" @updateConfigurationEvent="updateConfiguration" />
+  <ConfigurationPanel :configurations_list="config_list" v-model:configuration="configuration" @updateConfigurationEvent="updateConfiguration" />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vue'
+import { UserConfiguration } from '@/ts/types'
 
 @Options({
   name: "ConfigurationView",
@@ -19,8 +20,8 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
   },
   
   computed: {
-    strategy() {
-      return this.$route.params.strategy
+    configuration() {
+      return UserConfiguration.build(JSON.parse(this.$route.params.configuration))
     }
   },
 
