@@ -18,6 +18,7 @@ import UserIncrementManager from '@/ts/UserIncrementManager'
 import { AskOmicsViewNode } from '@/ts/types'*/
 import { GraphBuilder } from '@/ts/GraphBuilder'
 
+
 @Options({
   name: "AttributesPanel",
   emits: ["updateRequestManager"],

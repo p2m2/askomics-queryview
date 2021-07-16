@@ -23,7 +23,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 @Options({
   name: "QueryGraphPanel",
   
-  emits: ["updateRequestManager"],
+  emits: ["updateRequestManager","requestManagerBusy","requestManagerBusyEvent","requestManagerBusyPercent"],
   
   components : {  },
   
@@ -196,6 +196,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       }
       
       this.update()
+      this.request.getDiscovery().console()
     },
 
     canvasClick(event) {
@@ -218,14 +219,14 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     
       const component = this ; 
       /* add new suggestions */
-      UserIncrementManager.clickNodeForward(this.request,n)
+      UserIncrementManager.clickNodeForward(this,this.request,n)
         .then( nodesAndLinks => { 
             this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);
             this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
             component.update();
         });
       
-      UserIncrementManager.clickNodeBackward(this.request,n)
+      UserIncrementManager.clickNodeBackward(this,this.request,n)
         .then( nodesAndLinks => { 
             this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);
             this.graph.links = this.graph.links.concat(nodesAndLinks[1]);

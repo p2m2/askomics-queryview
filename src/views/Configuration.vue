@@ -1,5 +1,5 @@
 <template>
-  <ConfigurationPanel :configurations_list="config_list" v-model:configuration="configuration" @updateConfigurationEvent="updateConfiguration" />
+  <ConfigurationPanel :configurations_list="config_list" v-model:configuration="configuration" />
 </template>
 
 <script lang="ts">
@@ -12,7 +12,7 @@ import { UserConfiguration } from '@/ts/types'
   components: {
     ConfigurationPanel
   },
-  emits: ["update"],
+
   data() { 
         return {
           config_list: [ ]
@@ -26,9 +26,6 @@ import { UserConfiguration } from '@/ts/types'
   },
 
   methods : {
-    updateConfiguration(configuration : string) {
-      this.$emit('update',configuration)
-    }
   }
 })
 export default class Configuration extends Vue {}

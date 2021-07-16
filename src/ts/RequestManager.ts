@@ -4,6 +4,7 @@ import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
 import Utils from './utils'
+import { Vue } from 'vue-class-component'
 
 /**
  * Trick . TS inser SWDiscovery inside a Proxy type. Exception occurs whith the first use.
@@ -244,15 +245,15 @@ export default class RequestManager {
         })
     }
 
-    forwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
-        return this.propertyEntities(NodeType.FORWARD_ENTITY,current)
+    forwardEntities(vue : Vue, current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
+        return this.propertyEntities(vue, NodeType.FORWARD_ENTITY,current)
     }
 
-    backwardEntities(current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
-        return this.propertyEntities(NodeType.BACKWARD_ENTITY,current)
+    backwardEntities(vue : Vue, current: AskOmicsViewNode) : Promise<Map<String,AskOmicsGenericNode>> {
+        return this.propertyEntities(vue, NodeType.BACKWARD_ENTITY,current)
     }
 
-    propertyEntities( type: NodeType, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
+    propertyEntities( vue : Vue, type: NodeType, current: AskOmicsViewNode ) : Promise<Map<String,AskOmicsGenericNode>> {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 
@@ -261,12 +262,12 @@ export default class RequestManager {
 
                 switch(type) { 
                     case NodeType.FORWARD_ENTITY : { 
-                        disco = this.strategy.forwardEntities(this.getDiscovery(),this.config,current)
+                        disco = this.strategy.forwardEntities(this.getDiscovery(),this.config_str,current)
                         typeLink = LinkType.FORWARD_PROPERTY
                         break; 
                     } 
                     case NodeType.BACKWARD_ENTITY : { 
-                        disco = this.strategy.backwardEntities(this.getDiscovery(),this.config,current)
+                        disco = this.strategy.backwardEntities(this.getDiscovery(),this.config_str,current)
                         typeLink = LinkType.BACKWARD_PROPERTY
                         break; 
                     } 
@@ -283,8 +284,12 @@ export default class RequestManager {
                         .select("property","entity","labelEntity","labelProperty")
                         .distinct()
                         .commit()
-                        .progression( (percent : any) => {
-                                console.log("percent:"+percent)
+                        .progression( (percent : Number) => {
+                            vue.$emit('requestManagerBusyPercent',JSON.stringify(percent))
+
+                        })
+                        .requestEvent( (event : string ) => {
+                            vue.$emit('requestManagerBusyEvent',JSON.stringify(event))
                         })
 
                     transaction

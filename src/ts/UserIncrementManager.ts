@@ -9,9 +9,12 @@ export default class UserIncrementManager {
         graph.links.filter( n => n.state_n == ObjectState.SELECTED).map( n => { n.state_n = ObjectState.CONCRETE } )
     }
 
-    static clickNodeForward( request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
-            return new Promise((successCallback, failureCallback) => {
-                request.forwardEntities(n).then( r => {
+    static clickNodeForward( vue : Vue, request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
+            
+        vue.$emit('requestManagerBusy',JSON.stringify(true))
+        
+        return new Promise((successCallback, failureCallback) => {
+                request.forwardEntities(vue,n).then( r => {
                     const nodes : Object[] = [] ;
                     const links : Object[] = [] ;
                     r.forEach((value, key) => {
@@ -22,14 +25,22 @@ export default class UserIncrementManager {
                             links.push(v);
                         }
                         });
+                        vue.$emit('requestManagerBusy',JSON.stringify(false))
                         successCallback([nodes,links])
+                    })
+                    .catch(e => {
+                        vue.$emit('requestManagerBusy',JSON.stringify(false))
+                        failureCallback(e)
                     });
                 });
     }
 
-    static clickNodeBackward( request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
+    static clickNodeBackward( vue : Vue, request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
+        
+        vue.$emit('requestManagerBusy',JSON.stringify(true))
+
         return new Promise((successCallback, failureCallback) => {
-            request.backwardEntities(n).then( r => {
+            request.backwardEntities(vue,n).then( r => {
                 const nodes : Object[] = [] ;
                 const links : Object[] = [] ;
                 r.forEach((value, key) => {
@@ -40,7 +51,12 @@ export default class UserIncrementManager {
                         links.push(v);
                     }
                     });
+                    vue.$emit('requestManagerBusy',JSON.stringify(false))
                     successCallback([nodes,links])
+                })
+                .catch(e => {
+                    vue.$emit('requestManagerBusy',JSON.stringify(false))
+                    failureCallback(e)
                 });
             });
 }
