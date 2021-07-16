@@ -64,8 +64,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   },
 
   mounted() {
-    console.log("MOUNTED===========")
-    console.log(this.requestString)
     this.request = new RequestManager(this.requestString)
     this.graph = GraphBuilder.build3DJSGraph(this.request) 
     this.setUpCanvas();

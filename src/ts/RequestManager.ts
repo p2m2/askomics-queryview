@@ -124,19 +124,10 @@ export default class RequestManager {
          
          return this.getDiscovery().focus() 
     }
-/*
-    startWithConfiguration(json : string) {
-        console.log(" ================= startWithConfiguration ===============");
-        console.log(json);
-        this.config = json 
-        
-       // this.getDiscovery().isObjectOf("test").console() ;
-        
-//        const ssss = new SWDiscovery(config).something().console().getSerializedString;      
-//        console.log(ssss);
-//        new SWDiscovery(config).setSerializedString(ssss);
-        console.log(" ================= FIN ========================= startWithConfiguration ===============");
-    }*/
+
+    focusIsSelected() : boolean {
+        return this.getFocus() != this.getDiscovery().root().focus()
+    }
 
     setAskOmicsStrategy() {
         console.log(" -- setAskOmicsStrategy -- ");
@@ -172,6 +163,15 @@ export default class RequestManager {
         }
         
         return true
+    }
+
+    removeNode(vue : Vue) {
+        if ( this.focusIsSelected() ) {
+            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;            
+            vue.$emit('updateRequestManager',this.serialized())
+        } else {
+            console.warn("None node is selected !")
+        }
     }
 
     attributeList(focus: string) : Promise<DatatypeLiteral[]> {

@@ -1,13 +1,5 @@
 <template>
 <div id="askomics-uri-box">
- <label class="attr-label">URI</label>
-<div className="attr-icons">
-    <font-awesome-icon :icon="['fas', 'link']" v-if="linked" />
-    <font-awesome-icon :icon="['fas', 'unlink']" v-else />
-    <font-awesome-icon :icon="['fas', 'eye']" v-if="visible" />
-    <font-awesome-icon :icon="['fas', 'eye-slash']" v-else />
-</div>
-
 <table>
 <tr>
     <td>

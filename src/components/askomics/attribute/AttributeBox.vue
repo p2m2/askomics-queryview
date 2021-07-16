@@ -15,7 +15,7 @@
       </URIBox>
     </div>
     
-    <div v-if="attribute.range == 'xsd:string'">
+    <div v-else-if="attribute.range == 'xsd:string'">
         <XsdString
           v-bind:attribute="attribute"
         ></XsdString>

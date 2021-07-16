@@ -119,6 +119,7 @@ export default class UserIncrementManager {
     }
 
     static unselect(graph : Graph3DJS) : Graph3DJS {
+
         graph.nodes = graph.nodes.map( n => { 
             if (n.state_n == ObjectState.SELECTED) n.state_n = ObjectState.CONCRETE ;
             return n

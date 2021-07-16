@@ -3,15 +3,7 @@
       <div class="container"> 
           <hr/>
           <!-- waiting div -->
-          <div class="row">
-                <div class="d-flex justify-content-start">
-                    <button type="button" class="btn btn-secondary">Remove</button>
-                     <div>
-                     
-                </div>
-            </div>
-                
-             </div>
+          
               <br />
               <div class="row">
                 
@@ -110,13 +102,9 @@ import AttributesPanel from './AttributesPanel.vue'
     },
 
     updateQuery(value : string) {
+      console.log("UPDATE....................................")
       this.queryUp = value
       this.$emit('updateQuery',this.queryUp)
-    },
-
-    queryStringEvent(requestManagerStringify: string) {
-      this.update()
-      this.$emit('updateQuery',requestManagerStringify)
     },
 
     attributeBoxEvent(e: string) {
