@@ -18,7 +18,8 @@
     "typings": "^2.1.1",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",
-    "vue-router": "^4.0.10"
+    "vue-router": "^4.0.10",
+    "vue3-table-lite": "^1.0.6"
   },
   "devDependencies": {
     "@p2m2/discovery": "^0.3.0-alpha.1",

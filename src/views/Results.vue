@@ -1,5 +1,5 @@
 <template>
-  <ResultsPanel :requestmanager="rm" />
+  <ResultsPanel :rm="rm" />
 </template>
 
 <script lang="ts">
@@ -19,6 +19,7 @@ import ResultsPanel from '@/components/results/ResultsPanel'
   
   computed: {
     rm() {
+      console.log(this.$route.params)
       return this.$route.params.rm
     }
   },

@@ -45,9 +45,7 @@ export default class RequestManager {
     parse( str : string ) {
         
         if (! str || str.length<=0) {
-            console.warn(" -- none query string to parse !! -- ")
-            this.setDiscovery(SWDiscovery().something())
-            return
+            throw new Error("Non string to parse !")
         }
 
         const r = JSON.parse(str)
@@ -115,6 +113,18 @@ export default class RequestManager {
          return this.getDiscovery().focus() 
     }
 
+    /** CONFIGURATION */
+    setPageSize(numberOfResults : number) {
+        const re = /("pageSize"\s*:\s*)(\d+)/; 
+        this.config_str = this.config_str.replace(re, "$1"+numberOfResults)
+        console.log(this.config_str)
+        this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
+        const disco = this.getDiscovery()
+        disco.config = this.config
+        this.setDiscovery(disco)
+    }
+
+    /** ------------------------------------ */
     focusIsSelected() : boolean {
         return this.getFocus() != this.getDiscovery().root().focus()
     }
@@ -340,9 +350,54 @@ export default class RequestManager {
             }
        })
     }
+    /**
+     * https://github.com/linmasahiro/vue3-table-lite
+     * @returns 
+     */
+    getColumnsResults() {
+        console.log(" --- getColumnsResults ---")
+        console.log(this.config_str)
+        const rm = this.getDiscovery() ;
+        const r = rm.browse(
+            (node : any, deep : Number) => {
+                console.log(node)
+                if ( [
+                    'inrae.semantic_web.node.Something',
+                    'inrae.semantic_web.node.ObjectOf',
+                    'inrae.semantic_web.node.SubjectOf'
+                ].includes(node.$type) ) {
+                   return {
+                    label: node.idRef,
+                    field: node.idRef,
+                    width: "3%",
+                    sortable: true,
+                    isKey: false
+                   }
+                }
+            })
+            .filter( (value : Object) => value )
 
+        console.log(r)
+        return r 
 
-    getPagesResults() {
-        
     }
+
+    getCountAndLaziesPages(numberOfResults : number = 10) {
+        
+        const variables = this.getColumnsResults().map( (value : any) => value.field )
+        
+        this.setPageSize(numberOfResults)
+        
+        return new Promise((successCallback, failureCallback) => {
+            this.getDiscovery()
+                .selectByPage(...variables)
+                .then( ( args : any ) => {
+                    successCallback(args)
+                }).catch( (error : string) => {
+                    failureCallback(error)
+                });
+            })
+
+    }
+
 }

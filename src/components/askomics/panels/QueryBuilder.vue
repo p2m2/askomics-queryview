@@ -92,10 +92,6 @@ import AttributesPanel from './AttributesPanel.vue'
     this.queryUp = this.query
   },
   
-  mounted() {
-    this.queryUp = this.query
-  },
-
   watch : {
     requestBusy : 'prepareRequestBusy',
     requestBusyPercent : 'prepareRequestBusy'
