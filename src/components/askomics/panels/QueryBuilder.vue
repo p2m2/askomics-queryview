@@ -29,8 +29,15 @@
               
          </div>
          <div class="row">
-           <div class="d-flex justify-content-center">
+
+
+           <div class="d-flex flex-row mb-3">
+             <div class="p-2 bd-highlight">
+              <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>
+             </div>
+            <div class="p-2 bd-highlight">
              <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
+             </div>
           </div>
                 
           <div class="progress" v-if="requestBusy">
@@ -44,8 +51,10 @@
 </template>
 
 <script lang="ts">
+
 import { Options, Vue } from 'vue-class-component'
 import "bootstrap/dist/css/bootstrap.min.css"
+import router from '@/router/index';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -110,6 +119,12 @@ import AttributesPanel from './AttributesPanel.vue'
     attributeBoxEvent(e: string) {
       console.log("attributeBoxEvent:",e)
     },
+
+    /* https://router.vuejs.org/guide/essentials/navigation.html*/
+
+    getResults() {
+      router.push({ name : 'results' , params: { rm: this.queryUp }})
+    }
   }
   
 })

@@ -16,7 +16,7 @@
           </li>
           
           <li class="nav-item">
-            <router-link class="nav-link" to="/results">Results </router-link>
+            <router-link class="nav-link" :to="{ name : 'results' , params: { rm: requestManagerStringify }}">Results </router-link>
           </li>
 
           <li class="nav-item">

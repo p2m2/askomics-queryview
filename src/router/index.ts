@@ -23,7 +23,7 @@ const routes: Array<RouteRecordRaw> = [
     component: AskOmics
   },
   {
-    path: '/results',
+    path: '/results/:rm',
     name: 'results',
     component: Results
   },

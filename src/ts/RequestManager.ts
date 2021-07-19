@@ -43,8 +43,6 @@ export default class RequestManager {
     }
 
     parse( str : string ) {
-        console.log(" ----------- PARSE ----------------")
-        console.log(str)
         
         if (! str || str.length<=0) {
             console.warn(" -- none query string to parse !! -- ")
@@ -58,13 +56,6 @@ export default class RequestManager {
         this.strategy_str = r[1]
         const serializedDiscovery = r[2]
 
-        console.log("-- config discovery -- ")
-        console.log(this.config)
-        console.log("-- strategy -- ")
-        console.log(this.strategy_str)
-        console.log("-- serializedDiscovery -- ")
-        console.log(serializedDiscovery)
-
         let sw = SWDiscovery(this.config)
         
         if (serializedDiscovery && serializedDiscovery.length>0)
@@ -72,8 +63,7 @@ export default class RequestManager {
         else {
             sw = sw.something()
         }
-        
-        console.log(" -- set discovery -- ")    
+         
         this.setDiscovery(sw)
         
         switch(this.strategy_str) {
@@ -349,5 +339,10 @@ export default class RequestManager {
                 failureCallback("strategy undefined.")
             }
        })
+    }
+
+
+    getPagesResults() {
+        
     }
 }

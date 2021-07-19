@@ -207,10 +207,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       let rect = this.canvas.node().getBoundingClientRect();
       this.selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
      
-      this.updateCanvas()
-      console.log("------------------ END canvasClick ---------------")      
-      console.log(JSON.stringify(this.graph))
-     
+      this.updateCanvas()     
     },
 
   suggestions( n ) {

@@ -1,7 +1,34 @@
 <template>
   <div id="attributes-panel" class="attributesList">
-      <div class="d-flex justify-content-start" v-if="displayButtons">
-          <button type="button" class="btn btn-secondary" @click="removeNode" >Remove</button>
+    <div class="d-flex justify-content-end">
+       <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
+         
+          <div>
+            <div id="v-model-select-property" class="form-control" v-if="displayButtons">
+              <select v-model="selected_property_search">
+                <option value="IS_A">IS A</option>
+                <option value="TO">TO</option>
+                <option value="FROM">FROM</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <button type="button" class="form-control btn btn-secondary" @click="removeNode" v-if="displayButtons">Remove</button>
+            <button type="button" class="form-control btn btn-secondary" v-else disabled>Remove</button>
+          </div>
+          
+          <!--
+          <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown
+            </button>
+            <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+              <a class="dropdown-item" href="#">Dropdown link</a>
+              <a class="dropdown-item" href="#">Dropdown link</a>
+            </div>
+          </div>-->
+       </div>
       </div>
                 
     <attributeBox
@@ -43,6 +70,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     return {
       request : null,
       displayButtons : false,
+      selected_property_search : "IS_A",
       attributeList: []
     }
   },

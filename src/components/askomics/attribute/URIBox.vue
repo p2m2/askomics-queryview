@@ -28,6 +28,7 @@
 import { Options, Vue } from 'vue-class-component';
 
 @Options({
+    name: "URIBox",
     
     props: {
     },
