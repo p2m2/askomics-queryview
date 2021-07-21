@@ -72,6 +72,15 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   beforeDestroy() {
   },
 
+  watch: {
+    requestString() {
+      this.request = new RequestManager(this.requestString)
+      this.graph = GraphBuilder.build3DJSGraph(this.request) 
+      this.setUpCanvas();
+    }
+    
+  },
+  
   methods: {
  
     setUpCanvas() {

@@ -162,9 +162,13 @@ export default class RequestManager {
         this.setDiscovery(disco.setConfig(this.config))
     }
 
-    /** ------------------------------------ */
+   
     focusIsSelected() : boolean {
-        return this.getFocus() != this.getDiscovery().root().focus()
+        return ( this.getFocus() != this.getDiscovery().root().focus() ) 
+    }
+
+    isFocusStart() : boolean {
+        return ( this.getFocus() == "start" ) 
     }
 
     setAskOmicsStrategy() {

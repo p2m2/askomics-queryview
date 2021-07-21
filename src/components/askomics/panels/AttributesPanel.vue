@@ -4,7 +4,7 @@
        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
          
           <div>
-            <div id="v-model-select-property" class="form-control" v-if="displayButtons">
+            <div id="v-model-select-property" class="form-control" v-if="displayCommonAttributeButtons">
               <select v-model="selected_property_search">
                 <option value="IS_A">IS A</option>
                 <option value="TO">TO</option>
@@ -14,7 +14,7 @@
           </div>
           
           <div>
-            <button type="button" class="form-control btn btn-secondary" @click="removeNode" v-if="displayButtons">Remove</button>
+            <button type="button" class="form-control btn btn-secondary" @click="removeNode" v-if="displayRemoveButton">Remove</button>
             <button type="button" class="form-control btn btn-secondary" v-else disabled>Remove</button>
           </div>
           
@@ -75,17 +75,26 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   },
 
   computed : {
-    displayButtons() {
-      console.log("------------ DISPLAY BUTTON -----------------")
-      
+    displayCommonAttributeButtons() {
+     
       if (this.request) {
-        console.log(this.request.getDiscovery().focus())
         return this.request.focusIsSelected()
       }
         
       else
         return false
+    },
+
+    displayRemoveButton() {
+      if (this.request) {
+        return this.request.focusIsSelected() && !this.request.isFocusStart()
+      }
+        
+      else
+        return false
     }
+
+
   },
 
   mounted() {
@@ -101,7 +110,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
-      console.log("............................................... update request string....................................................... ")
+     
       this.request = new RequestManager(value)
 
       if (this.request.focusIsSelected()) { 
@@ -115,8 +124,10 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         this.attributeList = [];
       }
     },
+
     removeNode() {
       this.request.removeNode(this)
+      this.$emit('updateRequestManager',this.request.serialized())
     }
   }
 })
