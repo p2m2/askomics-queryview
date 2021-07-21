@@ -9,7 +9,7 @@
                 
               <div class="col col-xs-7">
                   <QueryGraphPanel 
-                    v-model:requestString="queryUp"
+                    v-model:requestString="currentQuery"
                     @updateRequestManager="updateQuery"
                     @requestManagerBusy="requestBusy = JSON.parse($event)"
                     @requestManagerBusyPercent="requestBusyPercent = JSON.stringify(JSON.parse($event)*100)"
@@ -20,7 +20,7 @@
               
               <div class="col col-xs-5">
                   <AttributesPanel 
-                    v-model:requestString="queryUp"
+                    v-model:requestString="currentQuery"
                     @updateRequestManager="updateQuery"
                     :width="450" 
                     :height="450"
@@ -81,17 +81,13 @@ import AttributesPanel from './AttributesPanel.vue'
  
   data () {
     return {
-      queryUp            : "",
+      currentQuery       : this.query,
       requestBusy        : false,
       requestBusyPercent : "0",
       requestBusyEvent   : ""
     }
   },
-  
-  created() {
-    this.queryUp = this.query
-  },
-  
+   
   watch : {
     requestBusy : 'prepareRequestBusy',
     requestBusyPercent : 'prepareRequestBusy'
@@ -107,8 +103,8 @@ import AttributesPanel from './AttributesPanel.vue'
     },
 
     updateQuery(value : string) {
-      this.queryUp = value
-      this.$emit('updateQuery',this.queryUp)
+      this.currentQuery = value
+      this.$emit('updateQuery',value)
     },
 
     attributeBoxEvent(e: string) {
@@ -118,7 +114,7 @@ import AttributesPanel from './AttributesPanel.vue'
     /* https://router.vuejs.org/guide/essentials/navigation.html*/
 
     getResults() {
-      router.push({ name : 'results' , params: { rm: this.queryUp }})
+      router.push({ name : 'results' , params: { rm: this.currentQuery }})
     }
   }
   

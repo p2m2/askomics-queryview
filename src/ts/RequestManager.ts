@@ -106,20 +106,30 @@ export default class RequestManager {
         switch(link.type) { 
             case LinkType.FORWARD_PROPERTY: { 
                 this.setDiscovery(
-                    d
-                    .isSubjectOf(new URI(link.uri))
-                    .decorate("link",AskOmicsViewLink.build(link))
-                    .decorate("node",AskOmicsViewNode.build(node))
+                    d.isSubjectOf(new URI(link.uri))
                     .isA(new URI(snd_node.uri)))
-               break; 
+                
+                node.focus = this.getDiscovery().focus()
+                
+                this.setDiscovery(
+                    this.getDiscovery()
+                    .decorate("link",AskOmicsViewLink.build(link))
+                    .decorate("node",AskOmicsViewNode.build(node)))
+
+                break; 
             } 
             case LinkType.BACKWARD_PROPERTY: { 
                 this.setDiscovery(
                     d
                     .isObjectOf(new URI(link.uri))
-                    .decorate("link",AskOmicsViewLink.build(link))
-                    .decorate("node",AskOmicsViewNode.build(node))
                     .isA(new URI(snd_node.uri)))
+                
+                node.focus = this.getDiscovery().focus()
+                
+                this.setDiscovery(
+                        this.getDiscovery()
+                        .decorate("link",AskOmicsViewLink.build(link))
+                        .decorate("node",AskOmicsViewNode.build(node)))
                break; 
             } 
             case LinkType.IS_A: { 
@@ -136,6 +146,8 @@ export default class RequestManager {
                break; 
             } 
          }
+
+
          
          return this.getDiscovery().focus() 
     }

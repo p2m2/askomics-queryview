@@ -71,6 +71,7 @@ export default class UserIncrementManager {
             if ( toShape.focus && toShape.focus.length>0  ) {
                 graph.nodes = graph.nodes.map(
                     (n : ViewNode3DJS )=> {
+                        console.log(n.id,toShape.id)
                         if ( n.id == toShape.id ) {
                             n.state_n = ObjectState.SELECTED
                             request.setFocus(toShape.focus)
@@ -91,22 +92,31 @@ export default class UserIncrementManager {
             (l : ViewLink3DJS )=> {
                 if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
+                    
+                    /**
+                    * shape node
+                    */
+
+                     graph.nodes = graph.nodes.map(
+                        (n : ViewNode3DJS )=> {
+                            if ( n.id == toShape.id ) n.state_n = ObjectState.CONCRETE
+                            return n 
+                        })
                     /* ------------ */
                     /* update model */
                     /* ------------ */
                     const focus : string = request.update(toShape,l)
+
                     /**
-                    * shape node
+                    * focus 
                     */
                     graph.nodes = graph.nodes.map(
                         (n : ViewNode3DJS )=> {
-                            
-                            if ( n.state_n == ObjectState.SELECTED ) n.state_n = ObjectState.CONCRETE
-
                             if ( n.id == toShape.id ) {
                                 n.focus = focus
                                 n.state_n = ObjectState.SELECTED
                             }
+                         
                             return n 
                         })
                         

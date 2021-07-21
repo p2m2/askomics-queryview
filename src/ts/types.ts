@@ -192,7 +192,8 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
             uri : node.uri, 
             label: node.label, 
             type: node.type , 
-            focus: node.focus
+            focus: node.focus,
+            state_n : node.state_n
         })
     }
 } 
@@ -218,6 +219,7 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
             type: link.type, 
             source: link.source.id, 
             target : link.target.id,
+            state_n : link.state_n
      })
     }
    

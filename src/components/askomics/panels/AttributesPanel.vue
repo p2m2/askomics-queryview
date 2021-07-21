@@ -76,8 +76,13 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
   computed : {
     displayButtons() {
-      if (this.request)
+      console.log("------------ DISPLAY BUTTON -----------------")
+      
+      if (this.request) {
+        console.log(this.request.getDiscovery().focus())
         return this.request.focusIsSelected()
+      }
+        
       else
         return false
     }
@@ -96,7 +101,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
-      
+      console.log("............................................... update request string....................................................... ")
       this.request = new RequestManager(value)
 
       if (this.request.focusIsSelected()) { 

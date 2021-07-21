@@ -153,9 +153,11 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     updateCanvas() {
 
       this.graph =  UserIncrementManager.unselect(this.graph)
+      console.log(this.selectedNode)
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! this.selectedNode ) {
+        console.log("OKKKKKKKKKK")
         this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
         this.request.setFocusRoot()
         this.$emit('updateRequestManager',this.request.serialized())
@@ -164,6 +166,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         /**----------------------------------------------------------------------------
          * 1) Creation Node/Links if a suggested node is clicked !
          */
+        console.log("------------------------")
+        console.log(this.graph)
         this.graph = UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
        
         //this.$emit('updateRequestManager',this.request.serialized())
@@ -206,6 +210,9 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
       const selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      
+      this.selectedNode = undefined 
+
       if ( selectedNode ) {
         const listCandidat = this.graph.nodes.filter( n => n.id == selectedNode.id )
         if ( listCandidat.length>0 )
@@ -216,9 +223,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     },
 
   suggestions( n ) {
-      console.log(JSON.stringify(n))
-      this.request.getDiscovery().console()
-
       const component = this ; 
       /* add new suggestions */
       UserIncrementManager.clickNodeForward(this,this.request,n)
