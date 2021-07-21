@@ -178,16 +178,22 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
         this.focus = ""
     }
 
-    static something(state : ObjectState) : AskOmicsViewNode {
+    static something(state : ObjectState,focus:string) : AskOmicsViewNode {
         const n = new AskOmicsViewNode("something","Something",NodeType.SOMETHING) ;
         n.type = NodeType.SOMETHING ;
         n.state_n = state
-        console.log(n);
+        n.focus = focus
         return n
     }
 
     static build( node : ViewNode3DJS ) : string {
-        return JSON.stringify({ id: node.id, uri : node.uri, label: node.label, type: node.type })
+        return JSON.stringify({ 
+            id: node.id, 
+            uri : node.uri, 
+            label: node.label, 
+            type: node.type , 
+            focus: node.focus
+        })
     }
 } 
 
@@ -205,7 +211,14 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
     }
 
     static build( link : ViewLink3DJS ) : string {
-        return JSON.stringify({ id: link.id , uri : link.uri, label : link.label, type: link.type, source: link.source.id, target : link.target.id })
+        return JSON.stringify({ 
+            id: link.id , 
+            uri : link.uri, 
+            label : link.label, 
+            type: link.type, 
+            source: link.source.id, 
+            target : link.target.id,
+     })
     }
    
 } 

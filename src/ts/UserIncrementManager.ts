@@ -68,15 +68,17 @@ export default class UserIncrementManager {
          * Exit if node is not suggested.
          */
         if ( toShape.state_n != ObjectState.SUGGESTED ) {
-            
             if ( toShape.focus && toShape.focus.length>0  ) {
                 graph.nodes = graph.nodes.map(
                     (n : ViewNode3DJS )=> {
-                        if ( n.id == toShape.id ) n.state_n = ObjectState.SELECTED
+                        if ( n.id == toShape.id ) {
+                            n.state_n = ObjectState.SELECTED
+                            request.setFocus(toShape.focus)
+                        }
                         return n
                     })
 
-                request.setFocus(toShape.focus)
+                
             }
            
             return graph
@@ -92,23 +94,26 @@ export default class UserIncrementManager {
                     /* ------------ */
                     /* update model */
                     /* ------------ */
-                    console.log("------------------- AVANT UPDATE ---------------------------------")
-                    console.log(graph)
                     const focus : string = request.update(toShape,l)
+                    /**
+                    * shape node
+                    */
+                    graph.nodes = graph.nodes.map(
+                        (n : ViewNode3DJS )=> {
+                            
+                            if ( n.state_n == ObjectState.SELECTED ) n.state_n = ObjectState.CONCRETE
+
+                            if ( n.id == toShape.id ) {
+                                n.focus = focus
+                                n.state_n = ObjectState.SELECTED
+                            }
+                            return n 
+                        })
+                        
                     toShape.focus = focus 
                 }
                 return l 
-            })
-        /**
-         * shape node
-         */
-        graph.nodes = graph.nodes.map(
-            (n : ViewNode3DJS )=> {
-                if ( n.state_n == ObjectState.SELECTED ) n.state_n = ObjectState.CONCRETE
-                if ( n.id == toShape.id ) n.state_n = ObjectState.SELECTED
-                return n
-            })
-        
+            }) 
         
         return graph 
 

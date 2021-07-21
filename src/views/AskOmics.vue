@@ -8,9 +8,11 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
 
 @Options({
   name: "AskOmicsView",
+  
   components: {
     QueryBuilder 
   },
+
   emits: ["updateDiscovery"],
  
   computed: {

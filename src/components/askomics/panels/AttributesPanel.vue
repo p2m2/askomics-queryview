@@ -69,9 +69,17 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   data () {
     return {
       request : null,
-      displayButtons : false,
       selected_property_search : "IS_A",
       attributeList: []
+    }
+  },
+
+  computed : {
+    displayButtons() {
+      if (this.request)
+        return this.request.focusIsSelected()
+      else
+        return false
     }
   },
 
@@ -90,8 +98,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     updateRequestString(value : string) {
       
       this.request = new RequestManager(value)
-      
-      this.displayButtons = this.request.focusIsSelected()
 
       if (this.request.focusIsSelected()) { 
         GraphBuilder.buildAttributesBox(this.request).then(
@@ -105,7 +111,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       }
     },
     removeNode() {
-      alert("Remove !!!")
       this.request.removeNode(this)
     }
   }

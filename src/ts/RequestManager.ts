@@ -29,9 +29,12 @@ export default class RequestManager {
     strategy_str     : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     = null ;
-    defaultGraph     : any                     = {
-        nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE)],
-        links : []
+    
+    defaultGraph(focus: string)  : any {
+        return {
+            nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE,focus)],
+            links : []
+        }
     }
 
     constructor(requestManagerStringify : string) {
@@ -63,9 +66,12 @@ export default class RequestManager {
         if (serializedDiscovery && serializedDiscovery.length>0)
             sw = sw.setSerializedString(serializedDiscovery)
         else {
+
+            const n = this.defaultGraph("start").nodes[0]
+
             sw = sw
-            .something()
-            .decorate("node",AskOmicsViewNode.build(this.defaultGraph.nodes[0]))
+            .something("start")
+            .decorate("node",AskOmicsViewNode.build(n))
         }
          
         this.setDiscovery(sw)
@@ -93,7 +99,7 @@ export default class RequestManager {
     getDiscovery() : any { return getDiscovery(this.id) }
 
     update(node : ViewNode3DJS, link : ViewLink3DJS ) : string {
-
+        
         const snd_node = link.source.id == node.id ? link.source : link.target
         const d : any = this.getDiscovery()
         

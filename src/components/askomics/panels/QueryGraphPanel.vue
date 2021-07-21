@@ -165,7 +165,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
          * 1) Creation Node/Links if a suggested node is clicked !
          */
         this.graph = UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
-        this.$emit('updateRequestManager',this.request.serialized())
+       
+        //this.$emit('updateRequestManager',this.request.serialized())
 
 
         /**----------------------------------------------------------------------------
@@ -177,22 +178,22 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
          *   management with one selected node 
          * 
          **/
-      
-        const countSelectedNode = this.graph.nodes.filter( n => n.state == ObjectState.SELECTED).length
+        const vue = this 
+        const countSelectedNode = this.graph.nodes.filter( n => vue.selectedNode.id == n.id).length
         
         console.log("COUNT FOCUS===>>"+countSelectedNode)
 
-        if (countSelectedNode == 0 ) {
-            this.suggestions(this.selectedNode);
-        } 
-        else if (countSelectedNode>0) { 
+        if (countSelectedNode==1) { 
+             this.suggestions(this.selectedNode);
+        } else if (countSelectedNode>1) { 
             console.log("nodes....");
         } else {
           console.log("nothing...");
         }
       
       }
-      
+
+      this.$emit('updateRequestManager',this.request.serialized())
       this.update()
     },
 
@@ -204,13 +205,20 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
-      this.selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-     
+      const selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      if ( selectedNode ) {
+        const listCandidat = this.graph.nodes.filter( n => n.id == selectedNode.id )
+        if ( listCandidat.length>0 )
+          this.selectedNode = listCandidat[0]
+      }
+      
       this.updateCanvas()     
     },
 
   suggestions( n ) {
-    
+      console.log(JSON.stringify(n))
+      this.request.getDiscovery().console()
+
       const component = this ; 
       /* add new suggestions */
       UserIncrementManager.clickNodeForward(this,this.request,n)

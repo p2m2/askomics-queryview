@@ -33,10 +33,11 @@ export class GraphBuilder {
                 }
             }
         )
+
         console.log("----------------------------------------------")
         console.log(graph)
         if ( graph.nodes.length <= 0 &&  graph.links.length <= 0 ) {
-            return rm.defaultGraph
+            throw Error("Can not handle empty graph")
         } else {
             return graph
         }
