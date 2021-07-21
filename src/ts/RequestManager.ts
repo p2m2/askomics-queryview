@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration } from './types'
+import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration, ObjectState } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -28,7 +28,11 @@ export default class RequestManager {
     config_str       : string                  = "" ;
     strategy_str     : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
-    discovery        : any                     =  SWDiscovery().something()
+    discovery        : any                     = null ;
+    defaultGraph     : any                     = {
+        nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE)],
+        links : []
+    }
 
     constructor(requestManagerStringify : string) {
         if ( !discovery_map ) {
@@ -59,7 +63,9 @@ export default class RequestManager {
         if (serializedDiscovery && serializedDiscovery.length>0)
             sw = sw.setSerializedString(serializedDiscovery)
         else {
-            sw = sw.something()
+            sw = sw
+            .something()
+            .decorate("node",AskOmicsViewNode.build(this.defaultGraph.nodes[0]))
         }
          
         this.setDiscovery(sw)
@@ -90,18 +96,33 @@ export default class RequestManager {
 
         const snd_node = link.source.id == node.id ? link.source : link.target
         const d : any = this.getDiscovery()
-
+        
         switch(link.type) { 
             case LinkType.FORWARD_PROPERTY: { 
-                this.setDiscovery(d.isSubjectOf(new URI(link.uri)).isA(new URI(snd_node.uri)))
+                this.setDiscovery(
+                    d
+                    .isSubjectOf(new URI(link.uri))
+                    .decorate("link",AskOmicsViewLink.build(link))
+                    .decorate("node",AskOmicsViewNode.build(node))
+                    .isA(new URI(snd_node.uri)))
                break; 
             } 
             case LinkType.BACKWARD_PROPERTY: { 
-                this.setDiscovery(d.isObjectOf(new URI(link.uri)).isA(new URI(snd_node.uri)))
+                this.setDiscovery(
+                    d
+                    .isObjectOf(new URI(link.uri))
+                    .decorate("link",AskOmicsViewLink.build(link))
+                    .decorate("node",AskOmicsViewNode.build(node))
+                    .isA(new URI(snd_node.uri)))
                break; 
             } 
             case LinkType.IS_A: { 
-                this.setDiscovery(d.isA(new URI(snd_node.uri)))
+                this.setDiscovery(
+                    d
+                    .isA(new URI(snd_node.uri))
+                    //TODO
+                    //.decorate("node",JSON.stringify(AskOmicsViewNode.build(node)))
+                    )
                break; 
             } 
             default: { 
@@ -120,8 +141,7 @@ export default class RequestManager {
         console.log(this.config_str)
         this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
         const disco = this.getDiscovery()
-        disco.config = this.config
-        this.setDiscovery(disco)
+        this.setDiscovery(disco.setConfig(this.config))
     }
 
     /** ------------------------------------ */
@@ -360,12 +380,7 @@ export default class RequestManager {
         const rm = this.getDiscovery() ;
         const r = rm.browse(
             (node : any, deep : Number) => {
-                console.log(node)
-                if ( [
-                    'inrae.semantic_web.node.Something',
-                    'inrae.semantic_web.node.ObjectOf',
-                    'inrae.semantic_web.node.SubjectOf'
-                ].includes(node.$type) ) {
+                if( node.decorations && node.decorations.node ) {
                    return {
                     label: node.idRef,
                     field: node.idRef,

@@ -107,7 +107,6 @@ import AttributesPanel from './AttributesPanel.vue'
     },
 
     updateQuery(value : string) {
-      console.log("UPDATE....................................")
       this.queryUp = value
       this.$emit('updateQuery',this.queryUp)
     },

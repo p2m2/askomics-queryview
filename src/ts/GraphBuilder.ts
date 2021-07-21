@@ -10,54 +10,36 @@ interface GraphBuilderExpr {
 export class GraphBuilder {
     constructor() {}
 
-    static defaultGraph(rm : RequestManager) : any {
-        
-        const n = AskOmicsViewNode.something(ObjectState.CONCRETE)
-        n.focus = rm.getFocus()
-
-        return {
-            nodes : [n],
-            links : []
-        }
+    static emptyGraph() : any {
+        return  { nodes : [], links : [] }
     }
-
     
     /**
      * build graph from Request Manager (discovery)
      */
     static build3DJSGraph(rm : RequestManager) : GraphBuilderExpr {
         
-        const graph : GraphBuilderExpr = {
-            nodes : [],
-            links : []
-        }
+        const graph : GraphBuilderExpr = GraphBuilder.emptyGraph()
 
         rm.getDiscovery().browse(
             (node : any, deep : Number) => {
                 console.log("-- browse -- ")
                 console.log(node)
-                switch(node.$type) {
-                    case "inrae.semantic_web.node.Root" : {
-                        console.log("Root -> nothing to do")
-                        const n = AskOmicsViewNode.something(ObjectState.CONCRETE)
-                        n.focus = rm.getFocus()
-                        graph.nodes.push(n)
-                        break
-                    }
-                    case "inrae.semantic_web.node.Something" : {
-                        
-                        break
-                    }
-                    default : {
-                        console.error(" devel erro => todo - manage "+node.$type)
-                    }
+                if( node.decorations ) {
+                    if (node.decorations.node)
+                      graph.nodes.push(JSON.parse(node.decorations.node))
+                    if (node.decorations.link)
+                        graph.links.push(JSON.parse(node.decorations.link))
                 }
             }
         )
         console.log("----------------------------------------------")
         console.log(graph)
-
-        return graph
+        if ( graph.nodes.length <= 0 &&  graph.links.length <= 0 ) {
+            return rm.defaultGraph
+        } else {
+            return graph
+        }
     }
 
      /**
@@ -65,7 +47,7 @@ export class GraphBuilder {
      */
       static buildAttributesBox(rm : RequestManager) : Promise< Object[]> {
         const lAttributeBox :  Object[] = [] ;
-        console.log("focus:",focus)
+        
         return new Promise((successCallback, failureCallback) => {
             rm.getDiscovery().browse(
                 (node : any, deep : Number) => {

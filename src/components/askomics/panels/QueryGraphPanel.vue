@@ -194,7 +194,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       }
       
       this.update()
-      this.request.getDiscovery().console()
     },
 
     canvasClick(event) {

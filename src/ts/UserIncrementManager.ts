@@ -92,6 +92,8 @@ export default class UserIncrementManager {
                     /* ------------ */
                     /* update model */
                     /* ------------ */
+                    console.log("------------------- AVANT UPDATE ---------------------------------")
+                    console.log(graph)
                     const focus : string = request.update(toShape,l)
                     toShape.focus = focus 
                 }

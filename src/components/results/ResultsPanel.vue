@@ -57,50 +57,6 @@ import VueTableLite from 'vue3-table-lite'
 
     data() { 
         return {
-/*
-columns : [
-                {
-                    label: "ID",
-                    field: "id",
-                    width: "3%",
-                    sortable: true,
-                    isKey: true
-                },{
-                    label: "Name",
-                    field: "name",
-                    width: "10%",
-                    sortable: true,
-                    display(row : any) {
-                        return (
-                        '<a href="#" data-id="' + row.user_id + '" class="is-rows-el name-btn">' + row.name + "</button>"
-                        );
-                    }
-                },
-                {
-                    label: "Email",
-                    field: "email",
-                    width: "15%",
-                    sortable: true,
-                },
-                {
-                    label: "",
-                    field: "quick",
-                    width: "10%",
-                    display(row : any) {
-                        return (
-                        '<button type="button" data-id="' + row.user_id + '" class="is-rows-el quick-btn">Button</button>'
-                        );
-                    }
-                }],
-            rows : [
-                 {
-                    id: 1,
-                    name: "TEST1"
-                    },
-                    {
-                    id: 2,
-                    name: "TEST2"
-                    }], */
             laziestPages : [],
             rows : [],
             totalRecordCount : 2 ,
@@ -152,14 +108,12 @@ columns : [
                             this.rows = []
                             
                             for (let i=0;i<response.results.bindings.length;i++) {
-                                this.columns.forEach((col : any) => {
-                                    let row : any = {};
-                                    console.log(col)
-                                    row['id'] = (indexLazyPage*10)+i
+                                let row : any = {};
+                                row['id'] = (indexLazyPage*10)+i
+                                this.columns.forEach((col : any) => {                     
                                     row[col.field] = response.results.bindings[i][col.field].value
-                                    console.log(JSON.stringify(row))
-                                    this.rows.push( row) ;
                                 })
+                                this.rows.push(row) ;
                             } 
                         })
                 }})
@@ -178,11 +132,17 @@ columns : [
             //console.log(offset)
             
             this.resultsPage(Math.floor(offset/10),limit)
+            try {
+                if (order) this.sortable.order = order;
+            } catch (err) {
+                console.warn(err)
+            }
 
-//            if (order)
-//                this.sortable.order = order;
-//            if (sort)
-//                this.sortable.sort = sort;
+            try {
+                if (sort) this.sortable.sort = sort;
+            } catch (err) {
+                console.warn(err)
+            }
         },
 
         tableLoadingFinish() {

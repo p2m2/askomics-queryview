@@ -140,7 +140,7 @@ export abstract class AskOmicsGenericNode {
 
     static idCounter : number  = 0 ;
 
-    constructor(uri : string , label : string ) {
+    constructor( uri : string ,  label : string ) {
         this.id = String(AskOmicsGenericNode.idCounter++)
         this.uri = uri 
         this.state_n = ObjectState.SUGGESTED    
@@ -185,6 +185,10 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
         console.log(n);
         return n
     }
+
+    static build( node : ViewNode3DJS ) : string {
+        return JSON.stringify({ id: node.id, uri : node.uri, label: node.label, type: node.type })
+    }
 } 
 
 export class AskOmicsViewLink extends AskOmicsGenericNode {
@@ -197,9 +201,13 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
        
         this.type = typeLink
         this.source = source
-        this.target = target 
-        
+        this.target = target    
     }
+
+    static build( link : ViewLink3DJS ) : string {
+        return JSON.stringify({ id: link.id , uri : link.uri, label : link.label, type: link.type, source: link.source.id, target : link.target.id })
+    }
+   
 } 
 
 export enum RangeBoxType {

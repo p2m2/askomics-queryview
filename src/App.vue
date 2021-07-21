@@ -59,12 +59,17 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   watch: {
+    discovery(value: string) {
+      //alert(value)
+      this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+      console.log("******************************LOG ==> "+value)
+    }
   },
   
   created() {
     this.configuration  = new UserConfiguration("test")
     this.configuration.type = "url"
-    this.configuration.url  = "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/"
+    this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
     this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
   },
  
