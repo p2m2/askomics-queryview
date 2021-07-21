@@ -32,9 +32,21 @@
 
 
            <div class="d-flex flex-row mb-3">
+              <div class="p-2 bd-highlight">
+              <button type="button" class="form-control btn btn-primary" @click="back">&lt;&lt;</button>
+             </div>
+             <div class="p-2 bd-highlight">
+              <button type="button" class="form-control btn btn-primary" @click="forward">&gt;&gt;</button>
+             </div>
+             
              <div class="p-2 bd-highlight">
               <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>
              </div>
+
+             <div class="p-2 bd-highlight">
+              <button type="button" class="form-control btn btn-primary" @click="forward">URL</button>
+             </div>
+
             <div class="p-2 bd-highlight">
              <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
              </div>
@@ -115,6 +127,14 @@ import AttributesPanel from './AttributesPanel.vue'
 
     getResults() {
       router.push({ name : 'results' , params: { rm: this.currentQuery }})
+    } ,
+
+    back() {
+
+    } ,
+
+    forward() {
+
     }
   }
   
