@@ -34,9 +34,9 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs#label"),"labelEntity")       
      .focus("property")
-       .filter.notEqual(new URI("rdf:type"))
-       .filter.notEqual(new URI("rdfs#domain"))
-       .filter.notEqual(new URI("rdfs#range"))
+       .filter.notEqual("rdf:type")
+       .filter.notEqual("rdfs:domain")
+       .filter.notEqual("rdfs:range")
        .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs:label"),"labelProperty");
     }
@@ -50,9 +50,9 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs:label"),"labelEntity")       
           .focus("property")
-            .filter.notEqual(new URI("rdf:type"))
-            .filter.notEqual(new URI("rdfs:domain"))
-            .filter.notEqual(new URI("rdfs:range"))
+            .filter.notEqual("rdf:type")
+            .filter.notEqual("rdfs:domain")
+            .filter.notEqual("rdfs:range")
             .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
                     .datatype(new URI("rdfs#label"),"labelProperty");
     }
