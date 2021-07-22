@@ -6,8 +6,8 @@
 
 -->
 <template>
-  <div id="query-graph-panel">
-    <canvas id="canvas-askomics-graph" :width="width" :height="height"> </canvas>
+  <div id="query-graph-panel" :class="canvasClass">
+    <canvas id="canvas-askomics-graph" :width="width" :height="height" disabled> </canvas>
   </div>
 </template>
 
@@ -56,9 +56,9 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       forceCollide: 40,
       strengthForce: 1.0,
       strengthForceManBody: -2000,
-
+      alphaTarget : 0,
+      canvasClass : "",
       graph       : { nodes : [], links : [] },
-      selectedNode : null,
       request      : null
     }
   },
@@ -81,6 +81,12 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     
   },
   
+  computed : {
+    selectedNode() {
+      return this.graph.nodes.filter( n => n.state_n == ObjectState.SELECTED ).pop() 
+    }
+  },
+
   methods: {
  
     setUpCanvas() {
@@ -98,6 +104,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
           .force("y",d3.forceY(this.height/2).strength(this.strengthForce) )
           .force("collide",d3.forceCollide(this.nodeSize+this.forceCollide))
           .force("charge", d3.forceManyBody().strength(this.strengthForceManBody))
+       //   .force("center", null)
          ;
               
       this.simulation.on("tick", this.update);
@@ -133,6 +140,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         this.ctx.stroke();
 
         this.ctx.globalAlpha = 1.0;
+       
         this.graph.nodes.forEach(this.drawNode);
 
         this.simulation.nodes(this.graph.nodes);
@@ -159,51 +167,35 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     /**
      * usefull to update canavs when requestManager change his internal state
      */
-    updateCanvas() {
-
-      this.graph =  UserIncrementManager.unselect(this.graph)
-      console.log(this.selectedNode)
+    updateCanvas(selectedNodeCanvas) {   
       /**
        * Nothing is selected with go out and remove selection */ 
-      if (! this.selectedNode ) {
-        console.log("OKKKKKKKKKK")
+      if (! selectedNodeCanvas ) {
+        console.log(" ---  UNSELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
         this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
         this.request.setFocusRoot()
         this.$emit('updateRequestManager',this.request.serialized())
 
       } else {
+         
         /**----------------------------------------------------------------------------
-         * 1) Creation Node/Links if a suggested node is clicked !
+         * Creation Node/Links  
          */
-        console.log("------------------------")
-        console.log(this.graph)
-        this.graph = UserIncrementManager.setShapeNode(this.request,this.selectedNode,this.graph)
-       
-        //this.$emit('updateRequestManager',this.request.serialized())
-
+        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.setShapeNode --- ")
+        this.graph = UserIncrementManager.setShapeNode(this.request,selectedNodeCanvas,this.graph)
 
         /**----------------------------------------------------------------------------
-         * 2) Remove Suggestion unused
+         * Remove Suggestion unused
          */
+        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
         this.graph = UserIncrementManager.removeSuggestion(this.graph) 
 
         /**-----------------------------------------------------------------------------
-         *   management with one selected node 
+         *  suggestions management
          * 
          **/
-        const vue = this 
-        const countSelectedNode = this.graph.nodes.filter( n => vue.selectedNode.id == n.id).length
-        
-        console.log("COUNT FOCUS===>>"+countSelectedNode)
 
-        if (countSelectedNode==1) { 
-             this.suggestions(this.selectedNode);
-        } else if (countSelectedNode>1) { 
-            console.log("nodes....");
-        } else {
-          console.log("nothing...");
-        }
-      
+        this.suggestions();
       }
 
       this.$emit('updateRequestManager',this.request.serialized())
@@ -214,39 +206,45 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       
       console.log("------------------ canvasClick ---------------")      
       // if ctrl released 
-      if ( ! event.ctrlKey ) UserIncrementManager.releaseSelectedObject(this.graph)
-      
+      if ( ! event.ctrlKey ) this.graph = UserIncrementManager.releaseSelectedObject(this.graph)
+     
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
-      const selectedNode = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
       
-      this.selectedNode = undefined 
-
-      if ( selectedNode ) {
-        const listCandidat = this.graph.nodes.filter( n => n.id == selectedNode.id )
-        if ( listCandidat.length>0 )
-          this.selectedNode = listCandidat[0]
-      }
-      
-      this.updateCanvas()     
+      const selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      this.updateCanvas(selectedNodeCanvas)     
     },
 
-  suggestions( n ) {
-      const component = this ; 
+  suggestions( ) {
+    /* proposes suggestion only if defined */
+    if (! this.selectedNode )
+      return 
+
       /* add new suggestions */
-      UserIncrementManager.clickNodeForward(this,this.request,n)
-        .then( nodesAndLinks => { 
-            this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);
-            this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
-            component.update();
-        });
-      
-      UserIncrementManager.clickNodeBackward(this,this.request,n)
-        .then( nodesAndLinks => { 
-            this.graph.nodes = this.graph.nodes.concat(nodesAndLinks[0]);
-            this.graph.links = this.graph.links.concat(nodesAndLinks[1]);
-            component.update();
-        });
+      /* fix bug / trick to update graph with new values */
+      let graph = this.graph
+      let component = this
+      component.canvasClass = "query-graph-panel-disabled",
+      Promise.all([
+        UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+        UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+      ]).then(nodesAndLinksArray =>{
+
+          for ( let nodesAndLinks of nodesAndLinksArray ) {
+            component.graph.nodes = graph.nodes.concat(nodesAndLinks[0]);
+            component.graph.links = graph.links.concat(nodesAndLinks[1]);
+            graph = this.graph
+          }
+          component.graph = graph
+          component.canvasClass = ""
+          
+      }).catch( e => {
+        alert(e)
+      })
+      .finally(function() {
+        component.canvasClass = ""
+        component.update()
+      }) 
     },
     
     dragstarted(event) {
@@ -329,6 +327,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
       
       this.ctx.lineWidth = this.lineWidth ;
+
       this.ctx.strokeStyle = node.state_n == ObjectState.SELECTED ? this.colorFirebrick : unselectedColor ;
       this.ctx.globalAlpha = node.state_n == ObjectState.SUGGESTED ? 0.5 : 1 ;
       node.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
@@ -400,4 +399,9 @@ export default class QueryGraphPanel extends Vue {
 </script>
 
 <style>
+
+.query-graph-panel-disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+}
 </style>

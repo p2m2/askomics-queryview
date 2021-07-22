@@ -50,8 +50,8 @@ export enum LinkType {
 
 export enum ObjectState {
     SUGGESTED=0,
-    CONCRETE,
-    SELECTED,   
+    CONCRETE=1,
+    SELECTED=2,   
 }
 /**
  *  "text/turtle",

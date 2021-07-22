@@ -109,6 +109,7 @@ export default class RequestManager {
                     d.isSubjectOf(new URI(link.uri))
                     .isA(new URI(snd_node.uri)))
                 
+                node.state_n = ObjectState.CONCRETE
                 node.focus = this.getDiscovery().focus()
                 
                 this.setDiscovery(
@@ -124,6 +125,7 @@ export default class RequestManager {
                     .isObjectOf(new URI(link.uri))
                     .isA(new URI(snd_node.uri)))
                 
+                node.state_n = ObjectState.CONCRETE
                 node.focus = this.getDiscovery().focus()
                 
                 this.setDiscovery(

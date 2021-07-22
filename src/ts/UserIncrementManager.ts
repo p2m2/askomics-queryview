@@ -4,10 +4,31 @@ import { Vue } from 'vue-class-component'
 
 export default class UserIncrementManager {
 
-    static releaseSelectedObject(graph : Graph3DJS) {
-        graph.nodes.filter( n => n.state_n == ObjectState.SELECTED).map( n => { n.state_n = ObjectState.CONCRETE } )
-        graph.links.filter( n => n.state_n == ObjectState.SELECTED).map( n => { n.state_n = ObjectState.CONCRETE } )
+    static releaseSelectedObject(graph : Graph3DJS) : Graph3DJS {
+
+        graph.nodes = graph.nodes.map( n => { 
+            if (n.state_n == ObjectState.SELECTED) n.state_n = ObjectState.CONCRETE ;
+            return n
+        })
+        graph.links = graph.links.map( l => { 
+            if (l.state_n == ObjectState.SELECTED) l.state_n = ObjectState.CONCRETE ;
+            return l
+        })
+
+        return graph
     }
+    /*
+
+    static setSelectedNode(graph : Graph3DJS, select : AskOmicsViewNode ) : Graph3DJS {
+        if ( select ) {
+            graph.nodes = graph.nodes.map( n => { 
+                if (n.id == select.id) n.state_n = ObjectState.SELECTED ;
+                return n
+            })
+        }
+
+        return graph
+    }*/
 
     static clickNodeForward( vue : Vue, request : RequestManager ,  n: AskOmicsViewNode ) : Promise<[Object[],Object[]]> {
             
@@ -65,13 +86,21 @@ export default class UserIncrementManager {
     static setShapeNode(request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
         
         /**
-         * Exit if node is not suggested.
+         * nothing todo is node is selected 
          */
-        if ( toShape.state_n != ObjectState.SUGGESTED ) {
+
+         if ( toShape.state_n == ObjectState.SELECTED ) return graph
+
+
+        /**
+         * Select Node if node is concrete and exit .
+         */
+        if ( toShape.state_n == ObjectState.CONCRETE ) {
+            
+
             if ( toShape.focus && toShape.focus.length>0  ) {
                 graph.nodes = graph.nodes.map(
                     (n : ViewNode3DJS )=> {
-                        console.log(n.id,toShape.id)
                         if ( n.id == toShape.id ) {
                             n.state_n = ObjectState.SELECTED
                             request.setFocus(toShape.focus)
@@ -83,46 +112,44 @@ export default class UserIncrementManager {
             }
            
             return graph
-        }    
-
+        }
+        
+        
         /**
-         * shape link
+         * shape link/node if suggested
          */
+        
         graph.links = graph.links.map(
             (l : ViewLink3DJS )=> {
+                
                 if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
                     
-                    /**
-                    * shape node
-                    */
-
-                     graph.nodes = graph.nodes.map(
-                        (n : ViewNode3DJS )=> {
-                            if ( n.id == toShape.id ) n.state_n = ObjectState.CONCRETE
-                            return n 
-                        })
                     /* ------------ */
                     /* update model */
                     /* ------------ */
                     const focus : string = request.update(toShape,l)
 
-                    /**
-                    * focus 
-                    */
+                    /* ------------ */
+                    /* FOCUS        */
+                    /* ------------ */
                     graph.nodes = graph.nodes.map(
                         (n : ViewNode3DJS )=> {
-                            if ( n.id == toShape.id ) {
-                                n.focus = focus
-                                n.state_n = ObjectState.SELECTED
-                            }
-                         
+                            if ( n.id == toShape.id ) n.focus = focus
                             return n 
                         })
-                        
-                    toShape.focus = focus 
                 }
                 return l 
+            })
+        /**
+        * SELECTED 
+        */
+         graph.nodes = graph.nodes.map(
+            (n : ViewNode3DJS )=> {
+                if ( n.id == toShape.id ) {
+                    n.state_n = ObjectState.SELECTED
+                }
+                return n 
             }) 
         
         return graph 
@@ -134,20 +161,6 @@ export default class UserIncrementManager {
         graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
         return graph
     }
-
-    static unselect(graph : Graph3DJS) : Graph3DJS {
-
-        graph.nodes = graph.nodes.map( n => { 
-            if (n.state_n == ObjectState.SELECTED) n.state_n = ObjectState.CONCRETE ;
-            return n
-        })
-        graph.links = graph.links.map( l => { 
-            if (l.state_n == ObjectState.SELECTED) l.state_n = ObjectState.CONCRETE ;
-            return l
-        })
-        return graph
-    }
-
 
 
     /*
