@@ -69,7 +69,8 @@ import { UserConfiguration } from '@/ts/types'
   created() {
     this.configuration  = new UserConfiguration("test")
     this.configuration.type = "url"
-    this.configuration.url  = "https://metabolights.semantic-metabolomics.fr/sparql"
+    this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
+    this.configuration.strategy  = "askomics" 
     this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
   },
  

@@ -195,7 +195,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
          * 
          **/
 
-        this.suggestions();
+        this.lock_suggestions();
       }
 
       this.$emit('updateRequestManager',this.request.serialized())
@@ -215,7 +215,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       this.updateCanvas(selectedNodeCanvas)     
     },
 
-  suggestions( ) {
+  lock_suggestions( ) {
     /* proposes suggestion only if defined */
     if (! this.selectedNode )
       return 
@@ -229,8 +229,10 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
         UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
       ]).then(nodesAndLinksArray =>{
-
+          console.log("----------------------lock_suggestions----------------------------")
           for ( let nodesAndLinks of nodesAndLinksArray ) {
+            console.log(JSON.stringify(nodesAndLinks))
+            console.log("--------------------------------------------------")
             component.graph.nodes = graph.nodes.concat(nodesAndLinks[0]);
             component.graph.links = graph.links.concat(nodesAndLinks[1]);
             graph = this.graph

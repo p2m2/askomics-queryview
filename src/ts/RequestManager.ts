@@ -367,7 +367,7 @@ export default class RequestManager {
                                     } else {
                                         n = mR.get(entity)
                                     }
-                                    if(! mR.has(property)) {
+                                    if(! mR.has(entity+property)) {
                                         try {
                                             const listLabelEntity = 
                                                 response.results.datatypes["labelProperty"][property] ;
@@ -378,9 +378,9 @@ export default class RequestManager {
                                         }    
                                         
                                         if (typeLink == LinkType.FORWARD_PROPERTY)
-                                            mR.set( property,new AskOmicsViewLink(property,labelProperty,typeLink,current.id,n.id))
+                                            mR.set( entity+property,new AskOmicsViewLink(property,labelProperty,typeLink,current.id,n.id))
                                         else 
-                                            mR.set( property,new AskOmicsViewLink(property,labelProperty,typeLink,n.id,current.id))
+                                            mR.set( entity+property,new AskOmicsViewLink(property,labelProperty,typeLink,n.id,current.id))
                                     }
                                 }
                                 successCallback(mR);
