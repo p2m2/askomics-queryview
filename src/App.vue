@@ -70,7 +70,7 @@ import { UserConfiguration } from '@/ts/types'
     this.configuration  = new UserConfiguration("test")
     this.configuration.type = "url"
     this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
-    this.configuration.strategy  = "askomics" 
+    this.configuration.strategy  = "data-driven" 
     this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
   },
  

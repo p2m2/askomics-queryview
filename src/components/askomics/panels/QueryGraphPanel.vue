@@ -17,7 +17,7 @@ import * as d3 from 'd3';
 import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
-import { ObjectState, LinkType } from '@/ts/types';
+import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
 import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
@@ -32,6 +32,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
                         type: String,
                         required: true
                       },
+    filterProperty   : FilterProperty,
     width           : Number,
     height          : Number,
   },
@@ -59,7 +60,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       alphaTarget : 0,
       canvasClass : "",
       graph       : { nodes : [], links : [] },
-      request      : null
+      request      : null,
+      selectedNodeCanvas : null
     }
   },
 
@@ -77,6 +79,10 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       this.request = new RequestManager(this.requestString)
       this.graph = GraphBuilder.build3DJSGraph(this.request) 
       this.setUpCanvas();
+    },
+
+    filterProperty() {
+      this.updateCanvas(this.selectedNodeCanvas)     
     }
     
   },
@@ -211,8 +217,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
       
-      const selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      this.updateCanvas(selectedNodeCanvas)     
+      this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      this.updateCanvas(this.selectedNodeCanvas)     
     },
 
   lock_suggestions( ) {
@@ -224,11 +230,35 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       /* fix bug / trick to update graph with new values */
       let graph = this.graph
       let component = this
-      component.canvasClass = "query-graph-panel-disabled",
-      Promise.all([
-        UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
-        UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
-      ]).then(nodesAndLinksArray =>{
+      component.canvasClass = "query-graph-panel-disabled"
+      let ArrayPromises = []
+      switch (this.filterProperty) {
+        case FilterProperty.ALL : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+            ]
+          break
+        }
+        case FilterProperty.TO : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+            ]
+          break
+        }
+        case FilterProperty.FROM : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+            ]
+          break
+        }
+         case FilterProperty.IS_A : {
+          ArrayPromises = []
+          break
+        }
+      }
+
+      Promise.all(ArrayPromises).then(nodesAndLinksArray =>{
           console.log("----------------------lock_suggestions----------------------------")
           for ( let nodesAndLinks of nodesAndLinksArray ) {
             console.log(JSON.stringify(nodesAndLinks))

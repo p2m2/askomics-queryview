@@ -50,9 +50,17 @@ export enum LinkType {
 
 export enum ObjectState {
     SUGGESTED=0,
-    CONCRETE=1,
-    SELECTED=2,   
+    CONCRETE,
+    SELECTED,   
 }
+
+export enum FilterProperty {
+    TO=0,
+    IS_A,
+    FROM,
+    ALL,   
+}
+
 /**
  *  "text/turtle",
       "text/n3",

@@ -10,6 +10,7 @@
               <div class="col col-xs-7">
                   <QueryGraphPanel 
                     v-model:requestString="currentQuery"
+                    v-model:filterProperty="filterProperty"
                     @updateRequestManager="updateQuery"
                     @requestManagerBusy="requestBusy = JSON.parse($event)"
                     @requestManagerBusyPercent="requestBusyPercent = JSON.stringify(JSON.parse($event)*100)"
@@ -22,6 +23,7 @@
                   <AttributesPanel 
                     v-model:requestString="currentQuery"
                     @updateRequestManager="updateQuery"
+                    @updateFilterProperty="filterProperty = JSON.parse($event)"
                     :width="450" 
                     :height="450"
                    />
@@ -75,6 +77,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
+import { FilterProperty } from '@/ts/types';
 
 [ faSpinner ].map(icon => library.add(icon)) ;
 
@@ -96,7 +99,8 @@ import AttributesPanel from './AttributesPanel.vue'
       currentQuery       : this.query,
       requestBusy        : false,
       requestBusyPercent : "0",
-      requestBusyEvent   : ""
+      requestBusyEvent   : "",
+      filterProperty     : FilterProperty.TO,
     }
   },
    

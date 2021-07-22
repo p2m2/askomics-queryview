@@ -4,11 +4,9 @@
        <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
          
           <div>
-            <div id="v-model-select-property" class="form-control" v-if="displayCommonAttributeButtons">
-              <select v-model="selected_property_search">
-                <option value="IS_A">IS A</option>
-                <option value="TO">TO</option>
-                <option value="FROM">FROM</option>
+            <div id="v-model-select-property" class="form-control" v-if="displayCommonAttributeButtons" >
+              <select v-model="selected_filterProperty">
+                <option :key="propFilter.id" :value="propFilter.id" v-for="propFilter in propertyFilterList">{{ propFilter.label }}</option>
               </select>
             </div>
           </div>
@@ -44,14 +42,14 @@ import { Options, Vue } from 'vue-class-component';
 import AttributeBox from '../attribute/AttributeBox.vue'
 import RequestManager from '@/ts/RequestManager'
 /*
-import UserIncrementManager from '@/ts/UserIncrementManager'
-import { AskOmicsViewNode } from '@/ts/types'*/
+import UserIncrementManager from '@/ts/UserIncrementManager' */
+import { FilterProperty } from '@/ts/types'
 import { GraphBuilder } from '@/ts/GraphBuilder'
 
 
 @Options({
   name: "AttributesPanel",
-  emits: ["updateRequestManager"],
+  emits: ["updateRequestManager","updateFilterProperty"],
   components : { AttributeBox },
   props : {
     requestString     : {
@@ -61,15 +59,38 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     width             : Number,
     height            : Number,
   },
+
   watch : {
     requestString(value) {
      this.updateRequestString(value) 
+    },
+
+    selected_filterProperty(value) {
+      this.$emit('updateFilterProperty',JSON.stringify(value))
     }
   },
   data () {
     return {
+      propertyFilterList : [
+        {
+          id: FilterProperty.TO,
+          label : "TO"
+        },
+        {
+          id: FilterProperty.FROM,
+          label : "FROM"
+        },
+        {
+          id: FilterProperty.IS_A,
+          label : "IS_A"
+        },
+        {
+          id: FilterProperty.ALL,
+          label : "ALL"
+        },
+      ],
       request : null,
-      selected_property_search : "IS_A",
+      selected_filterProperty : FilterProperty.TO,
       attributeList: []
     }
   },
