@@ -77,8 +77,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   watch: {
     requestString() {
       this.request = new RequestManager(this.requestString)
-      this.graph = GraphBuilder.build3DJSGraph(this.request) 
-      this.setUpCanvas();
+      this.graph = GraphBuilder.build3DJSGraph(this.request)
+      this.updateCanvas(this.selectedNodeCanvas)
     },
 
     filterProperty() {

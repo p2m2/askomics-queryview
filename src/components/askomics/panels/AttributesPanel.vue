@@ -60,9 +60,22 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     height            : Number,
   },
 
+  mounted() {
+    
+    this.updateRequestString(this.requestString) 
+
+    let attributesList = document.querySelector<HTMLElement>('.attributesList')
+    if ( attributesList ) {
+      attributesList.style.height = this.height + "px"
+      attributesList.style.width  = this.width + "px"
+    }
+    
+  },
+
   watch : {
     requestString(value) {
-     this.updateRequestString(value) 
+      console.log("receive!!!")
+      this.updateRequestString(value) 
     },
 
     selected_filterProperty(value) {
@@ -97,13 +110,10 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
   computed : {
     displayCommonAttributeButtons() {
-     
       if (this.request) {
         return this.request.focusIsSelected()
       }
-        
-      else
-        return false
+      return false
     },
 
     displayRemoveButton() {
@@ -116,16 +126,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     }
 
 
-  },
-
-  mounted() {
-    
-    let attributesList = document.querySelector<HTMLElement>('.attributesList')
-    if ( attributesList ) {
-      attributesList.style.height = this.height + "px"
-      attributesList.style.width  = this.width + "px"
-    }
-    
   },
   
   methods: {
