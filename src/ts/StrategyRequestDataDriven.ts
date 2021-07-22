@@ -23,7 +23,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
               .something("value")
                   .filter.isLiteral
                     .focus("property")
-                    .datatype(new URI("rdfs#label"),"labelProperty")
+                    .datatype(new URI("rdfs:label"),"labelProperty")
     }
 
     forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
@@ -32,7 +32,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
            .isSubjectOf(new QueryVariable("property"))
             .isSubjectOf(new URI("rdf:type"),"entity")
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-            .datatype(new URI("rdfs#label"),"labelEntity")       
+            .datatype(new URI("rdfs:label"),"labelEntity")       
      .focus("property")
        .filter.notEqual("rdf:type")
        .filter.notEqual("rdfs:domain")
@@ -54,6 +54,6 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
             .filter.notEqual("rdfs:domain")
             .filter.notEqual("rdfs:range")
             .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
-                    .datatype(new URI("rdfs#label"),"labelProperty");
+                    .datatype(new URI("rdfs:label"),"labelProperty");
     }
 }
