@@ -1,5 +1,5 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration, ObjectState } from './types'
+import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration, ObjectState, AttributeSpec } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -216,6 +216,10 @@ export default class RequestManager {
         } else {
             console.warn("None node is selected !")
         }
+    }
+
+    updateAttribute(attribute :AttributeSpec) {
+        alert(JSON.stringify(attribute))
     }
 
     attributeList(focus: string) : Promise<DatatypeLiteral[]> {

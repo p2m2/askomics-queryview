@@ -1,32 +1,32 @@
 <template>
 
-  <div id="my-test-box" class="attribute-box">
-    <label class="attr-label">{{ attribute.label }}</label>
+  <div :id="attributeInt.id" class="attribute-box">
+    <label class="attr-label">{{ attributeInt.label }}</label>
     <div className="attr-icons">
-        <font-awesome-icon :icon="['fas', 'link']" v-if="attribute.linked" />
-        <font-awesome-icon :icon="['fas', 'unlink']" v-else />
-        <font-awesome-icon :icon="['fas', 'eye']" v-if="attribute.visible" />
-        <font-awesome-icon :icon="['fas', 'eye-slash']" v-else />
-        <font-awesome-icon :icon="['fas', 'question-circle']" />
+        <font-awesome-icon @click="closeLink" :icon="['fas', 'link']" v-if="attributeInt.linked" />
+        <font-awesome-icon @click="openLink" :icon="['fas', 'unlink']" v-else />
+        <font-awesome-icon @click="closeEye" :icon="['fas', 'eye']" v-if="attributeInt.visible" />
+        <font-awesome-icon @click="openEye" :icon="['fas', 'eye-slash']" v-else />
+       <!-- <font-awesome-icon :icon="['fas', 'question-circle']" /> -->
     </div>
     
-    <div v-if="attribute.range == 'uri'">
+    <div v-if="attributeInt.range == 'uri'">
       <URIBox>
       </URIBox>
     </div>
     
-    <div v-else-if="attribute.range == 'xsd:string'">
+    <div v-else-if="attributeInt.range == 'xsd:string'">
         <XsdString
-          v-bind:attribute="attribute"
+          v-bind:attribute="attributeInt"
         ></XsdString>
     </div>
-    <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attribute.range)">
+    <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attributeInt.range)">
         <XsdNumeric
-          v-bind:attribute="attribute"
+          v-bind:attribute="attributeInt"
         ></XsdNumeric>
     </div>
     <div v-else>
-        {{ attribute.range }} is not supported !
+        {{ attributeInt.range }} is not supported !
     </div>
 </div>
 </template>
@@ -50,16 +50,44 @@ import XsdNumeric from './XsdNumeric.vue';
   components : { 
     library,FontAwesomeIcon, XsdString, XsdNumeric,URIBox
     },
+  
+  emits: ["updateAttribute"],
+
   props: { 
-      attribute : Object as () => AttributeSpec 
+      attribute : {
+        type : Object as () => AttributeSpec, 
+        required: true
+      }
   },
+
   methods: {
       toggleLinkAttribute: () => { console.log( "click 1 !") },
-      toggleVisibility: () => { console.log( "click 2 !") },
+      
+      openEye(){ 
+        this.attributeInt.visible = true
+        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+      },
+      
+      closeEye() {
+        this.attributeInt.visible = false
+        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+      },
+
+      openLink() {
+        this.attributeInt.linked = true
+        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+      },
+
+      closeLink() {
+        this.attributeInt.linked = false
+        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+      },
+
       toggleOptional: () => { console.log( "click 3 !") }
   },
   data () {
     return {
+      attributeInt : this.attribute
     }
   }
 })

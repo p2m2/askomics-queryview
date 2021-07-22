@@ -31,7 +31,9 @@
                 
     <attributeBox
       v-for="item in attributeList" :key="item.id"
-      v-bind:attribute="item"/>
+      :attribute="item"
+      @updateAttribute="updateAttribute"
+      />
   </div>
 </template>
 
@@ -149,6 +151,10 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     removeNode() {
       this.request.removeNode(this)
       this.$emit('updateRequestManager',this.request.serialized())
+    },
+
+    updateAttribute(event : string) {
+      this.request.updateAttribute(JSON.parse(event))
     }
   }
 })
