@@ -1,19 +1,20 @@
 export default class Utils {
 
-    static isUrl(s) {
+    static isUrl(s : string) {
+      /* eslint-disable */
        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
        return regexp.test(s);
     }
   
-    static truncate(string, n) {
-      if (string.length > n) {
-        return string.substring(0 ,n) + "..."
+    static truncate(_string : string, n: number) {
+      if (_string.length > n) {
+        return _string.substring(0 ,n) + "..."
       } else {
-        return string
+        return _string
       }
     }
   
-    static splitUrl(url) {
+    static splitUrl(url : string) : string {
       let splitList = url.split('/')
       // take last elem
       let last = splitList[splitList.length - 1]
@@ -21,7 +22,7 @@ export default class Utils {
       return decodeURI(splitList2[splitList2.length - 1])
     }
   
-    static humanFileSize (bytes, si) {
+    static humanFileSize (bytes : number, si : boolean) {
       let thresh = si ? 1000 : 1024
       if (Math.abs(bytes) < thresh) {
         return bytes + ' B'
@@ -35,12 +36,12 @@ export default class Utils {
       return bytes.toFixed(1) + ' ' + units[u]
     }
   
-    static humanDate (date) {
+    static humanDate (date : number) {
       let event = new Date(date * 1000)
       return event.toUTCString()
     }
-  
-    static objectHaveKeys(obj, level, ...rest) {
+  /*
+    static objectHaveKeys(obj : Object, level, ...rest) {
       if (obj === undefined) return false
       if (rest.length == 0 && obj.hasOwnProperty(level)) return true
       return this.objectHaveKeys(obj[level], ...rest)
@@ -49,8 +50,8 @@ export default class Utils {
     static isFunction(functionToCheck) {
       return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]'
     }
-  
-    static stringToHexColor (str) {
+  */
+    static stringToHexColor (str : string ) {
       // first, hash the string into an int
       let hash = 0
       for (var i = 0; i < str.length; i++) {
@@ -62,7 +63,7 @@ export default class Utils {
       return hex
     }
   
-    static isDarkColor(hex) {
+    static isDarkColor(hex : string ) {
       let c = hex.substring(1)    // strip #
       let rgb = parseInt(c, 16)   // convert rrggbb to decimal
       let r = (rgb >> 16) & 0xff  // extract red

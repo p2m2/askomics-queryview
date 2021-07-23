@@ -1,5 +1,5 @@
 <template>
-<div id="askomics-text-box">
+<div id="askomics-uri-box">
 <table>
 <tr>
     <td>
@@ -24,29 +24,22 @@
 </div>
 </template>
 
-<script>
-export default {
-    name: 'XsdString',
-    props: { 
-        'config' : {
-            user : {
-                admin : Boolean
-            }
-        },
-        'attribute' : {
-            id: Number,
-            uri: String,
-            range : String,
-            label: String,
-            visible: Boolean,
-            negative: Boolean,
-            linked: Boolean,
-        } 
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component';
+
+@Options({
+    name: "URIBox",
+    
+    props: {
     },
+
     methods: {
     },
+
     data() { 
         return {
+            visible : false,
+            linked: false,
             typeSearch: 'A',
             optionsTypeSearch: [
                 { text: 'Exact', value: 'A' },
@@ -60,9 +53,15 @@ export default {
             filterValue: '',
         }
     }
+})
+
+export default class UriBox extends Vue {
+
 }
+
+
 </script>
 
-<style lang="scss">
+<style>
 
 </style>
