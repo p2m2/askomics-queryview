@@ -1,4 +1,4 @@
-import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, NodeType, DatatypeLiteral, ViewLink3DJS, ViewNode3DJS } from './types'
+import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, ViewLink3DJS, ViewNode3DJS } from './types'
 import RequestManager from './RequestManager'
 import { Vue } from 'vue-class-component'
 

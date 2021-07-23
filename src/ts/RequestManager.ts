@@ -1,5 +1,7 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { DatatypeLiteral, ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, AskOmicsViewNode, AskOmicsViewLink, NodeType, UserConfiguration, ObjectState, AttributeSpec } from './types'
+import { ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, 
+         AskOmicsViewNode, AskOmicsViewLink, NodeType, 
+         ObjectState, AskOmicsViewAttributes } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -71,7 +73,8 @@ export default class RequestManager {
 
             sw = sw
             .something("start")
-            .decorate("node",AskOmicsViewNode.build(n))
+            .setDecoration("node",AskOmicsViewNode.build(n))
+            .setDecoration("attributes",JSON.stringify([...new Map()]))
         }
          
         this.setDiscovery(sw)
@@ -114,8 +117,10 @@ export default class RequestManager {
                 
                 this.setDiscovery(
                     this.getDiscovery()
-                    .decorate("link",AskOmicsViewLink.build(link))
-                    .decorate("node",AskOmicsViewNode.build(node)))
+                    .setDecoration("link",AskOmicsViewLink.build(link))
+                    .setDecoration("node",AskOmicsViewNode.build(node))
+                    .setDecoration("attributes",JSON.stringify([...new Map()]))
+                    )
 
                 break; 
             } 
@@ -130,8 +135,10 @@ export default class RequestManager {
                 
                 this.setDiscovery(
                         this.getDiscovery()
-                        .decorate("link",AskOmicsViewLink.build(link))
-                        .decorate("node",AskOmicsViewNode.build(node)))
+                        .setDecoration("link",AskOmicsViewLink.build(link))
+                        .setDecoration("node",AskOmicsViewNode.build(node))
+                        .setDecoration("attributes",JSON.stringify([...new Map()]))
+                        )
                break; 
             } 
             case LinkType.IS_A: { 
@@ -149,8 +156,6 @@ export default class RequestManager {
             } 
          }
 
-
-         
          return this.getDiscovery().focus() 
     }
 
@@ -218,11 +223,28 @@ export default class RequestManager {
         }
     }
 
-    updateAttribute(attribute :AttributeSpec) {
-        alert(JSON.stringify(attribute))
+    updateAttribute(attribute :AskOmicsViewAttributes) {
+        
+        let map : Map<String,AskOmicsViewAttributes> = new Map(JSON.parse(this.getDiscovery().getDecoration("attributes")))
+
+        map = map.set(attribute.uri, attribute)
+
+        /** ON PEUT PAS ENCORE SUPPRIMER UN DATATYPE */
+
+        if ( attribute.visible ) {
+            this.setDiscovery(
+                this.getDiscovery()
+                .datatype(attribute.uri,attribute.id)
+                )
+        }
+
+        this.setDiscovery(
+            this.getDiscovery()
+            .setDecoration("attributes",JSON.stringify([...map]))
+            )
     }
 
-    attributeList(focus: string) : Promise<DatatypeLiteral[]> {
+    attributeList(focus: string) : Promise<AskOmicsViewAttributes[]> {
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 this.strategy.attributeList(this.getDiscovery(),focus) 
@@ -234,7 +256,7 @@ export default class RequestManager {
                 .then(
                     (response : any) => {
                         //console.log(response)
-                        const results : DatatypeLiteral[] = []
+                        const results : AskOmicsViewAttributes[] = []
                         
                         const m : Map<string,string> = new Map()
                         for (let i=0;i<response.results.bindings.length;i++) {
@@ -271,15 +293,19 @@ export default class RequestManager {
  
                             this.strategy.getDatatypes(this.config_str, lUris)
                             .then ( (mapPropertyAndRange )=>{
+                                let iCount = 0
                                 lUris.map(
                                     uriProperty => {
-                                        const label = m.get(uriProperty)
+                                        let label = m.get(uriProperty)
                                         let range = mapPropertyAndRange.get(uriProperty)
                                         
-                                        if (!range) range=""
-
+                                        if (!label) label = uriProperty.split(/\/#/).pop()
+                                        if (!label) label = ""
+                                        if (!range) range = ""
+                                        
+                                        const id : string = focus+"_dt_"+iCount++
                                         results.push(
-                                            new DatatypeLiteral(uriProperty,range,label)
+                                            new AskOmicsViewAttributes(id,uriProperty,range,label)
                                         )
                                     })
                                 successCallback(results)
@@ -408,6 +434,23 @@ export default class RequestManager {
         const rm = this.getDiscovery() ;
         const r = rm.browse(
             (node : any, deep : Number) => {
+                if( node.decorations && node.decorations.attributes ) {
+                    const attributes : Map<String,AskOmicsViewAttributes> = new Map(JSON.parse(node.decorations.attributes))
+
+                    for (const [key, element] of attributes) {
+                        if ( element.visible ) {
+                            return {
+                                node_id : node.idRef,
+                                label: element.label,
+                                field: element.id,
+                                width: "3%",
+                                sortable: true,
+                                isKey: false
+                               }
+                        } 
+                    }
+                }
+                /*
                 if( node.decorations && node.decorations.node ) {
                    return {
                     label: node.idRef,
@@ -416,7 +459,7 @@ export default class RequestManager {
                     sortable: true,
                     isKey: false
                    }
-                }
+                }*/
             })
             .filter( (value : Object) => value )
 
@@ -427,13 +470,15 @@ export default class RequestManager {
 
     getCountAndLaziesPages(numberOfResults : number = 10) {
         
-        const variables = this.getColumnsResults().map( (value : any) => value.field )
-        
+        const variables = this.getColumnsResults().flatMap( (value : any) => [value.node_id,value.field] )
+        const variables_uniq = [...new Set(variables)];
+
         this.setPageSize(numberOfResults)
         
         return new Promise((successCallback, failureCallback) => {
             this.getDiscovery()
-                .selectByPage(...variables)
+                .console()
+                .selectByPage(...variables_uniq)
                 .then( ( args : any ) => {
                     successCallback(args)
                 }).catch( (error : string) => {

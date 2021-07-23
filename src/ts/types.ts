@@ -1,14 +1,58 @@
 import Utils from "./utils"
 
+interface AskOmicsViewAttributesI {
+    id: string
+    uri: string
+    label: string
+    range : string
+    visible: boolean    
+    negative: boolean   
+    linked: boolean     
+}
 
-export type AttributeSpec = {
-      id: Number
-      uri: String
-      range : String
-      label: String
-      visible: Boolean
-      negative: Boolean
-      linked: Boolean
+export class AskOmicsViewAttributes {
+      id: string
+      uri: string
+      label: string
+      range : string
+      visible: boolean    = false
+      negative: boolean   = false
+      linked: boolean     = false
+
+      constructor(id: string,uri: string,range: string, label : string="") {
+        this.id = id
+        this.uri = uri
+        this.label = label == "" ? Utils.splitUrl(uri): label 
+        this.range = range.trim().replace("http://www.w3.org/2001/XMLSchema#","xsd:")
+      }
+    
+      getObject() {
+        return {
+            id: this.id, 
+            uri : this.uri, 
+            label: this.label, 
+            range: this.range, 
+            visible: this.visible , 
+            negative: this.negative,
+            linked : this.linked
+          }
+      }
+
+      static build(n: AskOmicsViewAttributes) {
+          return JSON.stringify(n.getObject())
+      }
+
+
+
+      static from(n: AskOmicsViewAttributesI) : AskOmicsViewAttributes {
+        const att = new AskOmicsViewAttributes(n.id,n.uri,n.range,n.label)
+        att.visible = n.visible
+        att.negative = n.negative 
+        att.linked = n.linked
+        return att
+
+    }
+
 }
 
 export type ViewNode3DJS = {
@@ -142,8 +186,8 @@ export class UserConfiguration {
 
 export abstract class AskOmicsGenericNode {
     id          : string
-    uri         : string
-    label       : string 
+    uri         : string = ""
+    label       : string = ""
     state_n     : ObjectState
 
     static idCounter : number  = 0 ;
@@ -238,27 +282,6 @@ export enum RangeBoxType {
     XSD_NUMERIC,
     XSD_BOOLEAN,
     XSD_STRING,   
-}
-
-export class DatatypeLiteral {
-    static idCounter : number  = 0 ;
-
-    id       : Number 
-    uri      : string
-    range    : string
-    label    : string
-    
-    constructor(uri: string, range : string, label : string= "") {
-        this.id    = DatatypeLiteral.idCounter++
-        this.uri   = uri
-        this.label = label == "" ? Utils.splitUrl(uri): label 
-        this.range = range.trim().replace("http://www.w3.org/2001/XMLSchema#","xsd:")
-       
-    }
-
-    getObject() : Object {
-        return Object.assign({ visible: false, negative: false, linked: false },this)
-    }
 }
 
 export type RdfSparqlResultForm = {

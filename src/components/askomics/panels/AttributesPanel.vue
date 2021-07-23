@@ -133,19 +133,18 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
-     
+       //alert("-------------- updateRequestString ---------------------")
       this.request = new RequestManager(value)
 
       if (this.request.focusIsSelected()) { 
         GraphBuilder.buildAttributesBox(this.request).then(
           (response : Object[]) => {
-            this.attributeList =  response;
-            this.attributeList.unshift({id : "uri", uri : "uri", range: "uri", label : "URI" })
-          
+            this.attributeList = response
           })
       } else {
         this.attributeList = [];
       }
+     
     },
 
     removeNode() {
@@ -155,6 +154,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
     updateAttribute(event : string) {
       this.request.updateAttribute(JSON.parse(event))
+      this.$emit('updateRequestManager',this.request.serialized())
     }
   }
 })

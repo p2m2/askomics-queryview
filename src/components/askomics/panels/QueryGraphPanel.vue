@@ -181,7 +181,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
         this.request.setFocusRoot()
         this.$emit('updateRequestManager',this.request.serialized())
-
       } else {
          
         /**----------------------------------------------------------------------------

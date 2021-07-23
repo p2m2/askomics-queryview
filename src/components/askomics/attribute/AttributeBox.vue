@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AttributeSpec } from '@/ts/types';
+import { AskOmicsViewAttributes } from '@/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -55,7 +55,7 @@ import XsdNumeric from './XsdNumeric.vue';
 
   props: { 
       attribute : {
-        type : Object as () => AttributeSpec, 
+        type : Object as () => AskOmicsViewAttributes, 
         required: true
       }
   },
@@ -93,7 +93,7 @@ import XsdNumeric from './XsdNumeric.vue';
 })
 
 export default class AttributeBox extends Vue {
-  attribute!: AttributeSpec
+  attribute!: AskOmicsViewAttributes
 }
 
 </script>

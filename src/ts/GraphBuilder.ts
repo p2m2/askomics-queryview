@@ -1,4 +1,4 @@
-import {AskOmicsViewNode, AskOmicsViewLink, ObjectState, DatatypeLiteral } from '@/ts/types'
+import {AskOmicsViewNode, AskOmicsViewLink, AskOmicsViewAttributes } from '@/ts/types'
 import RequestManager from './RequestManager';
 
 interface GraphBuilderExpr {
@@ -52,13 +52,37 @@ export class GraphBuilder {
         return new Promise((successCallback, failureCallback) => {
             rm.getDiscovery().browse(
                 (node : any, deep : Number) => {
-                    console.log("idRef:",node.idRef)
                     if ( node.idRef == rm.getFocus()) {
-                        /* TODO : set box if children is set (filter, bind, value, etc....) */
-                        console.log("GO")
+                        const nodeInst = JSON.parse(node.decorations.node)
+                        const decorations : Map<String,AskOmicsViewAttributes> = 
+                            node.decorations.attributes ? 
+                                new Map(JSON.parse(node.decorations.attributes)) as Map<String,AskOmicsViewAttributes> : new Map() 
+                        
+
                         rm.attributeList(rm.getFocus()).then(
                             response => {
-                                successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
+                                const keyUri = "uri"
+                               
+                                /* special attribute box -> URI */
+                                const uriBox = decorations.has(keyUri) ? 
+                                    AskOmicsViewAttributes.from(decorations.get(keyUri)!) : new AskOmicsViewAttributes(keyUri,nodeInst.uri,"uri",nodeInst.label)
+                                
+                                /* attribute from RDF store*/
+                                const listAttributes : Object[] = 
+                                
+                                response
+                                  .map( (obj : AskOmicsViewAttributes)  =>  {
+                                    if (  decorations.has(obj.uri) ) {
+                                        return AskOmicsViewAttributes.from(decorations.get(obj.uri)!)
+                                    } 
+                                    
+                                    return obj
+                                  })
+                                  .map( (obj : AskOmicsViewAttributes )  =>  obj.getObject() )
+                                  
+                                  listAttributes.unshift(uriBox)
+
+                                successCallback(listAttributes)
                             }
                         ).catch(e => {failureCallback(e)})
                     }

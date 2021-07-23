@@ -26,12 +26,12 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AttributeSpec } from 'src/ts/types';
+import { AskOmicsViewAttributes } from 'src/ts/types';
 
 @Options({
     
     props: {
-        attribute : Object as () => AttributeSpec 
+        attribute : Object as () => AskOmicsViewAttributes 
     },
 
     methods: {
@@ -55,7 +55,7 @@ import { AttributeSpec } from 'src/ts/types';
 })
 
 export default class XsdString extends Vue {
-  attribute!: AttributeSpec
+  attribute!: AskOmicsViewAttributes
 }
 
 
