@@ -1,0 +1,438 @@
+
+<!-- 
+
+  Implementation AskOmics Visualization inside a Web Component
+  https://github.com/askomics/flaskomics/blob/dev/askomics/react/src/routes/query/visualization.jsx 
+
+-->
+<template>
+  <div id="query-graph-panel" :class="canvasClass">
+    <canvas id="canvas-askomics-graph" :width="width" :height="height" disabled> </canvas>
+  </div>
+</template>
+
+<script>
+import { Options, Vue } from 'vue-class-component';
+import * as d3 from 'd3';
+import Utils from '@/ts/utils'
+import RequestManager from '@/ts/RequestManager'
+import UserIncrementManager from '@/ts/UserIncrementManager'
+import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
+import { GraphBuilder } from '@/ts/GraphBuilder'
+
+@Options({
+  name: "QueryGraphPanel",
+  
+  emits: ["updateRequestManager","requestManagerBusy","requestManagerBusyEvent","requestManagerBusyPercent"],
+  
+  components : {  },
+  
+  props: {
+    requestString   : {
+                        type: String,
+                        required: true
+                      },
+    filterProperty   : FilterProperty,
+    width           : Number,
+    height          : Number,
+  },
+
+  data () {
+    return {
+      ctrlKey: false,
+      canvas: null,
+      ctx: null,
+      color: d3.scaleOrdinal(["#6b486b", "#a05d56", "#d0743c", "#ff8c00"]),
+      zoom : 5,
+      zoomTime : 1000,
+      trans : d3.zoomIdentity,
+      colorGrey : '#808080',
+      colorDarkGrey : '#404040',
+      colorFirebrick : '#cc0000',
+      lineWidth : 2.5,
+      nodeSize : 17,
+      textSize : 12,
+      blankNodeSize : 1,
+      arrowLength : 40,
+      forceCollide: 40,
+      strengthForce: 1.0,
+      strengthForceManBody: -2000,
+      alphaTarget : 0,
+      canvasClass : "",
+      graph       : { nodes : [], links : [] },
+      request      : null,
+      selectedNodeCanvas : null
+    }
+  },
+
+  mounted() {
+    this.request = new RequestManager(this.requestString)
+    this.graph = GraphBuilder.build3DJSGraph(this.request) 
+    this.setUpCanvas();
+  },
+  
+  beforeDestroy() {
+  },
+
+  watch: {
+    requestString() {
+      this.request = new RequestManager(this.requestString)
+      this.graph = GraphBuilder.build3DJSGraph(this.request)
+      this.updateCanvas(this.selectedNodeCanvas)
+    },
+
+    filterProperty() {
+      this.updateCanvas(this.selectedNodeCanvas)     
+    }
+    
+  },
+  
+  computed : {
+    selectedNode() {
+      return this.graph.nodes.filter( n => n.state_n == ObjectState.SELECTED ).pop() 
+    }
+  },
+
+  methods: {
+ 
+    setUpCanvas() {
+
+        /**
+         * Managing CANVAS
+         */
+      
+      this.canvas = d3.select("#canvas-askomics-graph")
+      this.ctx = this.canvas.node().getContext("2d");
+
+      this.simulation = d3
+          .forceSimulation()
+          .force("x",d3.forceX(this.width/2).strength(this.strengthForce) )
+          .force("y",d3.forceY(this.height/2).strength(this.strengthForce) )
+          .force("collide",d3.forceCollide(this.nodeSize+this.forceCollide))
+          .force("charge", d3.forceManyBody().strength(this.strengthForceManBody))
+       //   .force("center", null)
+         ;
+              
+      this.simulation.on("tick", this.update);
+
+      this.canvas
+        .on("click", this.canvasClick)
+        .call(d3.drag()
+            .container(this.canvas.node())
+            .subject(this.dragsubject)
+            .on("start", this.dragstarted)
+            .on("drag", this.dragged)
+            .on("end", this.dragended)
+          )
+        /*.call(
+          d3.zoom()
+              .extent([[0, 0], [this.width, this.height]])
+              .scaleExtent([1, 8])
+              .on("zoom", this.zoomed)
+          )*/
+          ;
+    },
+        
+    update() {
+      if ( this.graph && this.graph.nodes && this.graph.links ) {
+        this.ctx.clearRect(0,0,this.width, this.height);
+        this.ctx.fillStyle = "Gainsboro";
+        this.ctx.fillRect(0,0,this.width,this.height);
+
+        this.ctx.beginPath();
+        this.ctx.globalAlpha = 1.0;
+        this.ctx.strokeStyle = "#aaa";
+        this.graph.links.forEach(this.drawLink);
+        this.ctx.stroke();
+
+        this.ctx.globalAlpha = 1.0;
+       
+        this.graph.nodes.forEach(this.drawNode);
+
+        this.simulation.nodes(this.graph.nodes);
+        this.simulation
+                .force("link", d3.forceLink().id(function (d) { return d.id; }))
+                .force("link").links(this.graph.links)
+        
+        this.simulation.restart()
+      } else {
+        console.error("graph is not initialized.")
+      }
+      
+    },
+
+    zoomed(event) {
+      this.ctx.translate(event.transform.x, event.transform.y); 
+      this.ctx.scale(event.transform.k, event.transform.k);
+    },
+    
+    dragsubject(event) {
+        return this.simulation.find(event.x, event.y);
+    },
+
+    /**
+     * usefull to update canavs when requestManager change his internal state
+     */
+    updateCanvas(selectedNodeCanvas) {   
+      /**
+       * Nothing is selected with go out and remove selection */ 
+      if (! selectedNodeCanvas ) {
+        console.log(" ---  UNSELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
+        this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
+        this.request.setFocusRoot()
+        this.$emit('updateRequestManager',this.request.serialized())
+      } else {
+         
+        /**----------------------------------------------------------------------------
+         * Creation Node/Links  
+         */
+        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.setShapeNode --- ")
+        this.graph = UserIncrementManager.setShapeNode(this.request,selectedNodeCanvas,this.graph)
+
+        /**----------------------------------------------------------------------------
+         * Remove Suggestion unused
+         */
+        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
+        this.graph = UserIncrementManager.removeSuggestion(this.graph) 
+
+        /**-----------------------------------------------------------------------------
+         *  suggestions management
+         * 
+         **/
+
+        this.lock_suggestions();
+      }
+
+      this.$emit('updateRequestManager',this.request.serialized())
+      this.update()
+    },
+
+    canvasClick(event) {
+      
+      console.log("------------------ canvasClick ---------------")      
+      // if ctrl released 
+      if ( ! event.ctrlKey ) this.graph = UserIncrementManager.releaseSelectedObject(this.graph)
+     
+      /* Find Selected Object */
+      let rect = this.canvas.node().getBoundingClientRect();
+      
+      this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      this.updateCanvas(this.selectedNodeCanvas)     
+    },
+
+  lock_suggestions( ) {
+    /* proposes suggestion only if defined */
+    if (! this.selectedNode )
+      return 
+
+      /* add new suggestions */
+      /* fix bug / trick to update graph with new values */
+      let graph = this.graph
+      let component = this
+      component.canvasClass = "query-graph-panel-disabled"
+      let ArrayPromises = []
+      switch (this.filterProperty) {
+        case FilterProperty.ALL : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+            ]
+          break
+        }
+        case FilterProperty.TO : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+            ]
+          break
+        }
+        case FilterProperty.FROM : {
+          ArrayPromises = [
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+            ]
+          break
+        }
+         case FilterProperty.IS_A : {
+          ArrayPromises = []
+          break
+        }
+      }
+
+      Promise.all(ArrayPromises).then(nodesAndLinksArray =>{
+          console.log("----------------------lock_suggestions----------------------------")
+          for ( let nodesAndLinks of nodesAndLinksArray ) {
+            console.log(JSON.stringify(nodesAndLinks))
+            console.log("--------------------------------------------------")
+            component.graph.nodes = graph.nodes.concat(nodesAndLinks[0]);
+            component.graph.links = graph.links.concat(nodesAndLinks[1]);
+            graph = this.graph
+          }
+          component.graph = graph
+          component.canvasClass = ""
+          
+      }).catch( e => {
+        alert(e)
+      })
+      .finally(function() {
+        component.canvasClass = ""
+        component.update()
+      }) 
+    },
+    
+    dragstarted(event) {
+     
+      if (!event.active) this.simulation.alphaTarget(0.3).restart();
+      event.subject.fx = event.subject.x;
+      event.subject.fy = event.subject.y;
+    },
+
+    dragged(event) {
+      event.subject.fx = event.x;
+      event.subject.fy = event.y;
+    },
+    dragended(event) {
+        if (!event.active) this.simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+      },
+    
+    IntersectionCoordinate (x1, y1, x2, y2, r) {
+        let theta = Math.atan((y2 - y1) / (x1 - x2))
+        let x
+        let y
+        if (x1 < x2) {
+          x = x1 + r * Math.cos(theta)
+          y = y1 - r * Math.sin(theta)
+        } else {
+            x = x1 - r * Math.cos(theta)
+            y = y1 + r * Math.sin(theta)
+          }
+          return { x: x, y: y }
+        },
+    middleCoordinate (x1, y1, x2, y2) {
+        let theta = Math.atan((y2 - y1) / (x1 - x2))
+        let x
+        let y
+        if (x1 < x2) {
+          x = x1 + (this.nodeSize * 4) * Math.cos(theta)
+          y = y1 - (this.nodeSize * 4) * Math.sin(theta)
+        } else {
+          x = x1 - (this.nodeSize * 4) * Math.cos(theta)
+          y = y1 + (this.nodeSize * 4) * Math.sin(theta)
+        }
+        return { x: x, y: y }
+      },
+
+    triangleCoordinate (x1, y1, x2, y2, headlen) {
+      let theta = Math.atan2(y1 - y2, x1 - x2)
+
+      let xa = x1 - headlen * Math.cos(theta - Math.PI / 14)
+      let ya = y1 - headlen * Math.sin(theta - Math.PI / 14)
+
+      let xb = x1 - headlen * Math.cos(theta + Math.PI / 14)
+      let yb = y1 - headlen * Math.sin(theta + Math.PI / 14)
+
+      return {
+        xa: xa,
+        ya: ya,
+        xb: xb,
+        yb: yb
+      }
+    },
+
+    subNums (id) {
+        let newStr = ""
+        let oldStr = id.toString()
+        let arrayString = [...oldStr]
+        arrayString.forEach(char => {
+          let code = char.charCodeAt()
+          newStr += String.fromCharCode(code + 8272)
+        })
+        return newStr
+    },
+
+    drawNode(node) {
+
+      let unselectedColor = this.colorGrey
+      let unselectedColorText = this.colorDarkGrey
+      
+      this.ctx.fillStyle = node.uri ? Utils.stringToHexColor(node.uri) : "#faaafff" ;
+      
+      this.ctx.lineWidth = this.lineWidth ;
+
+      this.ctx.strokeStyle = node.state_n == ObjectState.SELECTED ? this.colorFirebrick : unselectedColor ;
+      this.ctx.globalAlpha = node.state_n == ObjectState.SUGGESTED ? 0.5 : 1 ;
+      node.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+
+      // draw node
+      this.ctx.beginPath();
+      this.ctx.arc(node.x, node.y, this.nodeSize, 0, 2 * Math.PI, false);
+      this.ctx.stroke();
+      this.ctx.fill();
+      this.ctx.closePath();
+      // draw text
+      this.ctx.beginPath();
+      this.ctx.fillStyle = unselectedColorText;
+      this.ctx.font = this.nodeSize + 'px Sans-Serif';
+      this.ctx.textAlign = 'middle';
+      this.ctx.textBaseline = 'middle';
+      let label = node.humanId ? node.label + " " + this.subNums(node.humanId) : node.label;
+      this.ctx.fillText(label, node.x + this.nodeSize, node.y + this.nodeSize);
+      this.ctx.closePath();
+
+    },
+
+    drawLink(link) {
+      link.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
+      let unselectedColor = this.colorGrey
+      let unselectedColorText = this.colorDarkGrey
+      
+      this.ctx.strokeStyle = link.state_n == ObjectState.SELECTED ? this.colorFirebrick : unselectedColor
+      this.ctx.fillStyle = link.state_n == ObjectState.SELECTED ? this.colorFirebrick : this.colorGrey
+      this.ctx.globalAlpha = link.state_n == ObjectState.SUGGESTED ? 0.3 : 1
+      this.ctx.lineWidth = this.lineWidth
+
+      this.ctx.beginPath();
+      let c = this.IntersectionCoordinate(link.source.x, link.source.y, link.target.x, link.target.y, this.nodeSize)
+      this.ctx.moveTo(c.x, c.y);
+      c = this.IntersectionCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.nodeSize)
+      this.ctx.lineTo(c.x, c.y);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+       // draw arrow
+       if (link.type == LinkType.FORWARD_PROPERTY || link.type == LinkType.BACKWARD_PROPERTY) {
+          this.ctx.beginPath()
+          let triangle = this.triangleCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.arrowLength)
+          this.ctx.moveTo(c.x, c.y)
+          this.ctx.lineTo(triangle.xa, triangle.ya)
+          this.ctx.lineTo(triangle.xb, triangle.yb)
+          this.ctx.fill()
+          this.ctx.closePath()
+       }
+      // draw text
+        this.ctx.beginPath()
+        this.ctx.fillStyle = unselectedColorText
+        this.ctx.font = this.textSize + 'px Sans-Serif'
+        this.ctx.textAlign = 'middle'
+        this.ctx.textBaseline = 'middle'
+        let m = this.middleCoordinate(link.source.x, link.source.y, link.target.x, link.target.y)
+        this.ctx.fillText(link.label, m.x, m.y)
+        this.ctx.closePath()
+   }
+    
+  }
+})
+
+export default class QueryGraphPanel extends Vue {
+
+}
+
+</script>
+
+<style>
+
+.query-graph-panel-disabled {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>

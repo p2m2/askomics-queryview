@@ -17,27 +17,19 @@
 </div>
 </template>
 
-<script>
-export default {
-    name: 'XsdNumeric',
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component';
+import { AskOmicsViewAttributes } from 'src/ts/types'
+
+@Options({
     props: { 
-        'config' : {
-            user : {
-                admin : Boolean
-            }
-        },
-        'attribute' : {
-            id: Number,
-            uri: String,
-            range : String,
-            label: String,
-            visible: Boolean,
-            negative: Boolean,
-            linked: Boolean,
-        } 
+        attribute : Object as () => AskOmicsViewAttributes 
     },
-    methods: {
+    
+    methods : {
+    
     },
+
     data() { 
         return {
             operator: '=',
@@ -51,9 +43,14 @@ export default {
             filterValue: '',
         }
     }
+})
+
+export default class XsdNumeric extends Vue {
+  attribute!: AskOmicsViewAttributes
 }
+
 </script>
 
-<style lang="scss">
+<style>
 
 </style>
