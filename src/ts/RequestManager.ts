@@ -463,7 +463,6 @@ export default class RequestManager {
             })
             .filter( (value : Object) => value )
 
-        console.log(r)
         return r 
 
     }

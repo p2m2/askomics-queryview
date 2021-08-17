@@ -66,9 +66,14 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   },
 
   mounted() {
-    this.request = new RequestManager(this.requestString)
-    this.graph = GraphBuilder.build3DJSGraph(this.request) 
-    this.setUpCanvas();
+    if (this.requestString) {
+      this.request = new RequestManager(this.requestString)
+      this.graph = GraphBuilder.build3DJSGraph(this.request) 
+      this.setUpCanvas();
+    } else {
+      alert("requestString is not set.")
+    }
+    
   },
   
   beforeDestroy() {

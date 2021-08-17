@@ -20,7 +20,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'app',
-    component: AskOmics
+    component: Configuration
   },
   {
     path: '/askomics/:query',

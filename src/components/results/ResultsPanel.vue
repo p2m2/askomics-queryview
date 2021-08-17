@@ -79,17 +79,23 @@ import VueTableLite from 'vue3-table-lite'
 
     computed: {
         columns() {
-            const columns = new RequestManager(this.rm).getColumnsResults() 
-            this.resultsPage(0)
-
-            return columns
+            //const columns = 
+            //this.resultsPage(0)
+            return new RequestManager(this.rm).getColumnsResults() 
         }
+    },
+
+    mounted() {
+        this.resultsPage(0)
     },
 
     methods: {
 
         resultsPage(indexLazyPage : number, numberOfResults : number) {
-          
+          if (this.columns.length == 0 ) {
+                this.rows = []
+          } 
+          else 
             new RequestManager(this.rm).getCountAndLaziesPages(numberOfResults)
             .then( 
                 (args : any) => {
@@ -104,7 +110,7 @@ import VueTableLite from 'vue3-table-lite'
                             .commit()
                             .raw()
                             .then( (response : any) => { 
-                            //console.log(JSON.stringify(response,null,2));
+                           // console.log(JSON.stringify(response,null,2));
                             this.rows = []
                             let URIinstance : Map<String,String> = new Map()
                             for (let i=0;i<response.results.bindings.length;i++) {
@@ -125,11 +131,14 @@ import VueTableLite from 'vue3-table-lite'
                                         let val ="<undefined>"
 
                                         const uriInstance : string = URIinstance.get(col.node_id) as string
-                                        
-                                        console.log(JSON.stringify(response.results.datatypes[col.field][uriInstance]))
-                                        if (response.results.datatypes[col.field] && response.results.datatypes[col.field][uriInstance]) {
-                                            if (response.results.datatypes[col.field][uriInstance].length>0)
-                                                val = response.results.datatypes[col.field][uriInstance][0].value; 
+                                        if (col.field === "uri" ) {
+                                            val = uriInstance
+                                        } else {
+                                            console.log(JSON.stringify(response.results.datatypes[col.field][uriInstance]))
+                                            if (response.results.datatypes[col.field] && response.results.datatypes[col.field][uriInstance]) {
+                                                if (response.results.datatypes[col.field][uriInstance].length>0)
+                                                    val = response.results.datatypes[col.field][uriInstance][0].value; 
+                                            }
                                         }
                                         
                                         row[col.field] = val

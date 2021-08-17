@@ -21,7 +21,10 @@ import { UserConfiguration } from '@/ts/types'
   
   computed: {
     configuration() {
-      return UserConfiguration.build(JSON.parse(this.$route.params.configuration))
+      if (this.$route.params.configuration)
+        return UserConfiguration.build(JSON.parse(this.$route.params.configuration))
+      else 
+        return undefined
     }
   },
 

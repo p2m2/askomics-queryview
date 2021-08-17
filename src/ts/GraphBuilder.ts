@@ -65,7 +65,7 @@ export class GraphBuilder {
                                
                                 /* special attribute box -> URI */
                                 const uriBox = decorations.has(keyUri) ? 
-                                    AskOmicsViewAttributes.from(decorations.get(keyUri)!) : new AskOmicsViewAttributes(keyUri,nodeInst.uri,"uri",nodeInst.label)
+                                    AskOmicsViewAttributes.from(decorations.get(keyUri)!) : new AskOmicsViewAttributes(keyUri,nodeInst.uri,"uri",nodeInst.label+" (URI)")
                                 
                                 /* attribute from RDF store*/
                                 const listAttributes : Object[] = 

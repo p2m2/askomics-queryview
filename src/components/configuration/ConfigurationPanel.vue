@@ -141,9 +141,23 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   mounted() {
-    this.selectedimetype  = this.configuration.mimetype
-    this.selectedEndpoint = this.configuration.url
-    this.selectedStrategy = this.configuration.strategy
+
+    if (this.configurationsList.length <= 0) {
+      throw "devel : None configuration list is finded."
+    }
+     
+    let configuration : UserConfiguration  
+
+    if (! this.configuration ) {
+      configuration = this.getUserConfiguration(this.configurationsList[0])
+    } else {
+      configuration = this.configuration
+    }
+
+
+    this.selectedimetype  = configuration.mimetype
+    this.selectedEndpoint = configuration.url
+    this.selectedStrategy = configuration.strategy
   },
   
   methods: {
