@@ -19,7 +19,6 @@ import ResultsPanel from '@/components/results/ResultsPanel'
   
   computed: {
     rm() {
-      console.log(this.$route.params)
       return this.$route.params.rm
     }
   },

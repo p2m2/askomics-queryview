@@ -69,18 +69,12 @@ import VueTableLite from 'vue3-table-lite'
                 },
                     
             isLoading : false,
-            isReSearch : false,
-            isSortable : {
-                    order : "id",
-                    sort : "asc"
-            },
+            isReSearch : false
         }
     },
 
     computed: {
         columns() {
-            //const columns = 
-            //this.resultsPage(0)
             return new RequestManager(this.rm).getColumnsResults() 
         }
     },
@@ -110,30 +104,32 @@ import VueTableLite from 'vue3-table-lite'
                             .commit()
                             .raw()
                             .then( (response : any) => { 
-                           // console.log(JSON.stringify(response,null,2));
-                            this.rows = []
-                            let URIinstance : Map<String,String> = new Map()
-                            for (let i=0;i<response.results.bindings.length;i++) {
-                                let row : any = {};
-                                row['id'] = (indexLazyPage*10)+i
-                                
-                                const tabURI = [...new Set(this.columns
-                                    .filter( (col : any) => col.node_id ).map( (col : any) => col.node_id))]
-                                
-                                tabURI.forEach((uri : any ) => {   
-                                    /* value of instance only */
-                                    URIinstance.set(uri,response.results.bindings[i][uri].value)
-                                })
+                                console.log(JSON.stringify(response,null,2));
+                                this.rows = []
+                                let URIinstance : Map<String,String> = new Map()
+                                for (let i=0;i<response.results.bindings.length;i++) {
+                                    let row : any = {};
+                                    row['id'] = (indexLazyPage*10)+i
+                                    
+                                    const tabURI = [...new Set(this.columns
+                                        .filter( (col : any) => col.node_id ).map( (col : any) => col.node_id))]
+                                    
+                                    tabURI.forEach((uri : any ) => {   
+                                        /* value of instance only */
+                                        URIinstance.set(uri,response.results.bindings[i][uri].value)
+                                    })
 
-                                this.columns.forEach((col : any) => {              
+                                    this.columns.forEach((col : any) => {             
+                                        console.log(col)
                                     /* datatype only */
                                     if ( col.field != col.node_id) {
-                                        let val ="<undefined>"
+                                        let val =""
 
                                         const uriInstance : string = URIinstance.get(col.node_id) as string
                                         if (col.field === "uri" ) {
                                             val = uriInstance
                                         } else {
+                                            console.log("filed:"+col.field)
                                             console.log(JSON.stringify(response.results.datatypes[col.field][uriInstance]))
                                             if (response.results.datatypes[col.field] && response.results.datatypes[col.field][uriInstance]) {
                                                 if (response.results.datatypes[col.field][uriInstance].length>0)

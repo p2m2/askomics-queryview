@@ -34,7 +34,7 @@ export default class RequestManager {
     
     defaultGraph(focus: string)  : any {
         return {
-            nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE,focus)],
+            nodes : [AskOmicsViewNode.something(ObjectState.SELECTED,focus)],
             links : []
         }
     }
@@ -74,7 +74,7 @@ export default class RequestManager {
             sw = sw
             .something("start")
             .setDecoration("node",AskOmicsViewNode.build(n))
-            .setDecoration("attributes",JSON.stringify([...new Map()]))
+            .setDecoration("attributes",JSON.stringify({}))
         }
          
         this.setDiscovery(sw)
@@ -119,7 +119,7 @@ export default class RequestManager {
                     this.getDiscovery()
                     .setDecoration("link",AskOmicsViewLink.build(link))
                     .setDecoration("node",AskOmicsViewNode.build(node))
-                    .setDecoration("attributes",JSON.stringify([...new Map()]))
+                    .setDecoration("attributes",JSON.stringify({}))
                     )
 
                 break; 
@@ -137,7 +137,7 @@ export default class RequestManager {
                         this.getDiscovery()
                         .setDecoration("link",AskOmicsViewLink.build(link))
                         .setDecoration("node",AskOmicsViewNode.build(node))
-                        .setDecoration("attributes",JSON.stringify([...new Map()]))
+                        .setDecoration("attributes",JSON.stringify({}))
                         )
                break; 
             } 
@@ -224,10 +224,14 @@ export default class RequestManager {
     }
 
     updateAttribute(attribute :AskOmicsViewAttributes) {
+       
+        if(!this.getDiscovery().getDecoration("attributes")) {
+            alert("Bad definition of decorations : "+this.getDiscovery().getDecoration("attributes"))
+        }
         
-        let map : Map<String,AskOmicsViewAttributes> = new Map(JSON.parse(this.getDiscovery().getDecoration("attributes")))
-
-        map = map.set(attribute.uri, attribute)
+        const map = JSON.parse(this.getDiscovery().getDecoration("attributes"))
+        
+        map[attribute.uri] = attribute
 
         /** ON PEUT PAS ENCORE SUPPRIMER UN DATATYPE */
 
@@ -237,11 +241,11 @@ export default class RequestManager {
                 .datatype(attribute.uri,attribute.id)
                 )
         }
-
+       
         this.setDiscovery(
             this.getDiscovery()
-            .setDecoration("attributes",JSON.stringify([...map]))
-            )
+            .setDecoration("attributes",JSON.stringify(map))
+            )    
     }
 
     attributeList(focus: string) : Promise<AskOmicsViewAttributes[]> {
@@ -433,23 +437,33 @@ export default class RequestManager {
         console.log(this.config_str)
         const rm = this.getDiscovery() ;
         const r = rm.browse(
-            (node : any, deep : Number) => {
-                if( node.decorations && node.decorations.attributes ) {
-                    const attributes : Map<String,AskOmicsViewAttributes> = new Map(JSON.parse(node.decorations.attributes))
+            (node : any, deep : Number) => { 
+          //      try { 
+                    const attributes_current_node = []
+                    if( node.decorations && node.decorations.attributes )  {
+                        const attributes : Object = JSON.parse(node.decorations.attributes)
+                        
+                        for (const [key, element ] of Object.entries(attributes)) {
+                            if ( element.visible ) {
+                                
+                                attributes_current_node.push ({
+                                    node_id : node.idRef,
+                                    label: element.label,
+                                    field: element.id,
+                                    width: "3%",
+                                    sortable: true,
+                                    isKey: false
+                                })
 
-                    for (const [key, element] of attributes) {
-                        if ( element.visible ) {
-                            return {
-                                node_id : node.idRef,
-                                label: element.label,
-                                field: element.id,
-                                width: "3%",
-                                sortable: true,
-                                isKey: false
-                               }
-                        } 
+                            } 
+                        }
+                       
                     }
-                }
+                    return attributes_current_node
+                //}
+               /* catch (e ) {
+                    console.log("pas grave............")
+                }*/
                 /*
                 if( node.decorations && node.decorations.node ) {
                    return {
@@ -461,9 +475,9 @@ export default class RequestManager {
                    }
                 }*/
             })
-            .filter( (value : Object) => value )
+            .filter( (value : Array<Object>) => value.length>0 )
 
-        return r 
+        return r.flat() 
 
     }
 

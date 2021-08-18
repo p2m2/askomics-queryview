@@ -82,8 +82,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   watch: {
     requestString() {
       this.request = new RequestManager(this.requestString)
+      //alert("1:"+this.request.getDiscovery().getDecoration("attributes"))
       this.graph = GraphBuilder.build3DJSGraph(this.request)
-      this.updateCanvas(this.selectedNodeCanvas)
     },
 
     filterProperty() {
@@ -151,7 +151,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         this.ctx.stroke();
 
         this.ctx.globalAlpha = 1.0;
-       
+        console.log(" == DRAW NODE === ")
         this.graph.nodes.forEach(this.drawNode);
 
         this.simulation.nodes(this.graph.nodes);
@@ -207,8 +207,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
         this.lock_suggestions();
       }
-
-      this.$emit('updateRequestManager',this.request.serialized())
+      //note OFI : ne devrait pas etre update car on affiche le graph seulement.....
+      //this.$emit('updateRequestManager',this.request.serialized())
       this.update()
     },
 
@@ -356,7 +356,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     },
 
     drawNode(node) {
-
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       

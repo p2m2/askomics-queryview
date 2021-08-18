@@ -24,6 +24,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
                   .filter.isLiteral
                     .focus("property")
                     .datatype(new URI("rdfs:label"),"labelProperty")
+                    .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
     }
 
     forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {

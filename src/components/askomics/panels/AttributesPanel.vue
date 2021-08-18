@@ -62,21 +62,21 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     height            : Number,
   },
 
-  mounted() {
-    
-    this.updateRequestString(this.requestString) 
+  created() {
+   
+  },
 
+  mounted() {
+    this.updateRequestString(this.requestString)
     let attributesList = document.querySelector<HTMLElement>('.attributesList')
     if ( attributesList ) {
       attributesList.style.height = this.height + "px"
       attributesList.style.width  = this.width + "px"
-    }
-    
+    }   
   },
 
   watch : {
     requestString(value) {
-      console.log("receive!!!")
       this.updateRequestString(value) 
     },
 
@@ -133,9 +133,12 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
-       //alert("-------------- updateRequestString ---------------------")
       this.request = new RequestManager(value)
+      //alert("2:"+this.request.getDiscovery().getDecoration("attributes"))
+      this.updateAttributeList()
+    },
 
+    updateAttributeList() {
       if (this.request.focusIsSelected()) { 
         GraphBuilder.buildAttributesBox(this.request).then(
           (response : Object[]) => {
@@ -143,17 +146,18 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
           })
       } else {
         this.attributeList = [];
-      }
-     
+      }     
     },
 
     removeNode() {
       this.request.removeNode(this)
+      this.updateAttributeList()
       this.$emit('updateRequestManager',this.request.serialized())
     },
 
     updateAttribute(event : string) {
       this.request.updateAttribute(JSON.parse(event))
+      this.updateAttributeList()
       this.$emit('updateRequestManager',this.request.serialized())
     }
   }

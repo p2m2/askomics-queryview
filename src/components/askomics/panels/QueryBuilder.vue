@@ -108,7 +108,18 @@ import { FilterProperty } from '@/ts/types';
     requestBusy : 'prepareRequestBusy',
     requestBusyPercent : 'prepareRequestBusy'
   } ,
+
+  created() {
+   
+  },
   
+  mounted() {
+
+  },
+
+  computed : {
+  },
+
   methods: {
     
     prepareRequestBusy() {
@@ -120,7 +131,7 @@ import { FilterProperty } from '@/ts/types';
 
     updateQuery(value : string) {
       this.currentQuery = value
-      this.$emit('updateQuery',value)
+      this.$emit('updateQuery',this.currentQuery)
     },
 
     attributeBoxEvent(e: string) {

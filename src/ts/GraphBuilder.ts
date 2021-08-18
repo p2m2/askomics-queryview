@@ -36,6 +36,8 @@ export class GraphBuilder {
 
         console.log("----------------------------------------------")
         console.log(graph)
+        
+        
         if ( graph.nodes.length <= 0 &&  graph.links.length <= 0 ) {
             throw Error("Can not handle empty graph")
         } else {
@@ -48,32 +50,41 @@ export class GraphBuilder {
      */
       static buildAttributesBox(rm : RequestManager) : Promise< Object[]> {
         const lAttributeBox :  Object[] = [] ;
-        
+      //  alert("buildAttributesBox")
         return new Promise((successCallback, failureCallback) => {
             rm.getDiscovery().browse(
                 (node : any, deep : Number) => {
                     if ( node.idRef == rm.getFocus()) {
                         const nodeInst = JSON.parse(node.decorations.node)
-                        const decorations : Map<String,AskOmicsViewAttributes> = 
-                            node.decorations.attributes ? 
-                                new Map(JSON.parse(node.decorations.attributes)) as Map<String,AskOmicsViewAttributes> : new Map() 
-                        
-
+                        //alert(JSON.stringify(node.decorations.attributes))
+                        //: Map<String,AskOmicsViewAttributes>
+                        const decorations  = node.decorations.attributes ? JSON.parse(node.decorations.attributes) : {}
+                                //new Map(JSON.parse(node.decorations.attributes)) as Map<String,AskOmicsViewAttributes> : new Map() 
+                       
+                       
+                        alert(JSON.stringify(decorations))
                         rm.attributeList(rm.getFocus()).then(
                             response => {
                                 const keyUri = "uri"
                                
                                 /* special attribute box -> URI */
-                                const uriBox = decorations.has(keyUri) ? 
-                                    AskOmicsViewAttributes.from(decorations.get(keyUri)!) : new AskOmicsViewAttributes(keyUri,nodeInst.uri,"uri",nodeInst.label+" (URI)")
+                                let uriBox 
                                 
-                                /* attribute from RDF store*/
+                                if ( decorations[keyUri] ) {
+                                    uriBox = AskOmicsViewAttributes.from(decorations[keyUri]!)
+                                } else {
+                                    uriBox = new AskOmicsViewAttributes(keyUri,"uri","uri",nodeInst.label+" (URI)")
+                                }
+                              //  alert(uriBox.visible)
+
+                                /* attribute from RDF store */
                                 const listAttributes : Object[] = 
                                 
                                 response
                                   .map( (obj : AskOmicsViewAttributes)  =>  {
-                                    if (  decorations.has(obj.uri) ) {
-                                        return AskOmicsViewAttributes.from(decorations.get(obj.uri)!)
+                                    console.log(obj.uri)
+                                    if (  decorations[obj.uri] ) {
+                                        return AskOmicsViewAttributes.from(decorations[obj.uri]!)
                                     } 
                                     
                                     return obj
@@ -81,6 +92,8 @@ export class GraphBuilder {
                                   .map( (obj : AskOmicsViewAttributes )  =>  obj.getObject() )
                                   
                                   listAttributes.unshift(uriBox)
+                                
+                                  console.log(JSON.stringify(listAttributes))
 
                                 successCallback(listAttributes)
                             }
