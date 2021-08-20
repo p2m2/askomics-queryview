@@ -254,12 +254,6 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
 
         this.display_suggestions();
       }
-      //note OFI : ne devrait pas etre update car on affiche le graph seulement.....
-     
-      this.$emit('updateRequestManager',this.request.serialized())
-     // this.setObjectsSimulation() 
-
-      //this.updateSimulation()
     },
 
   display_suggestions( ) {

@@ -22,7 +22,7 @@ export class GraphBuilder {
                     if ( node.idRef == rm.getFocus()) {
                         const decorations  = node.decorations.attributes ? JSON.parse(node.decorations.attributes) : {}
                                 //new Map(JSON.parse(node.decorations.attributes)) as Map<String,AskOmicsViewAttributes> : new Map() 
-                       
+                        
                         rm.attributeList(rm.getFocus()).then(
                             response => {
                                 const keyUri = "uri"

@@ -59,7 +59,11 @@ import XsdNumeric from './XsdNumeric.vue';
         required: true
       }
   },
-
+  mounted() {
+    console.log("------ATT BOX------")
+    console.log(JSON.stringify(this.attributeInt))
+    
+  },
   methods: {
       toggleLinkAttribute: () => { console.log( "click 1 !") },
       

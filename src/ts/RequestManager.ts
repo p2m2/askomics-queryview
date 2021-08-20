@@ -111,7 +111,6 @@ export default class RequestManager {
                     .setDecoration("graph",JSON.stringify(graph))
                     .focus(focus)
                     )
-
         this.vue.$emit('updateRequestManager',this.serialized())
     }
 
@@ -124,6 +123,7 @@ export default class RequestManager {
 
     setDiscovery(disco : any) : void  { 
         discovery_map.set(this.id,disco) 
+        
     } 
 
     getDiscovery() : any { return getDiscovery(this.id) }
@@ -243,20 +243,19 @@ export default class RequestManager {
         const map = JSON.parse(this.getDiscovery().getDecoration("attributes"))
         
         map[attribute.uri] = attribute
-
+        
         /** ON PEUT PAS ENCORE SUPPRIMER UN DATATYPE */
 
         if ( attribute.visible ) {
-            this.setDiscovery(
-                this.getDiscovery()
-                .datatype(attribute.uri,attribute.id)
-                )
+            this.setDiscovery(this.getDiscovery().datatype(attribute.uri,attribute.id))
         }
-       
+        
         this.setDiscovery(
             this.getDiscovery()
             .setDecoration("attributes",JSON.stringify(map))
-            )    
+            )
+        
+        this.vue.$emit('updateRequestManager',this.serialized())    
     }
 
     attributeList(focus: string) : Promise<AskOmicsViewAttributes[]> {

@@ -77,11 +77,19 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
   watch : {
     requestString(value) {
+     
       this.updateRequestString(value) 
+    
     },
 
     selected_filterProperty(value) {
       this.$emit('updateFilterProperty',JSON.stringify(value))
+    } ,
+
+    attributeList(value) {
+      console.log("----------------- attributeList");
+      console.log(JSON.stringify(value))
+      //this.$forceUpdate(); 
     }
   },
   data () {
@@ -106,7 +114,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       ],
       request : null,
       selected_filterProperty : FilterProperty.TO,
-      attributeList: []
+      attributeList: [],
+      componentKey: 0,
     }
   },
 
@@ -129,13 +138,13 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
 
   },
-  
+
+ 
   methods: {
     
     updateRequestString(value : string) {
 
       this.request = new RequestManager(value,this)
-      //alert("2:"+this.request.getDiscovery().getDecoration("attributes"))
       this.updateAttributeList()
     },
 
@@ -153,14 +162,11 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     removeNode() {
       this.request.removeNode(this)
       this.updateAttributeList()
-      this.$emit('updateRequestManager',this.request.serialized())
     },
 
     updateAttribute(event : string) {
       this.request.updateAttribute(JSON.parse(event))
       this.updateAttributeList()
-
-      this.$emit('updateRequestManager',this.request.serialized())
     }
   }
 })
