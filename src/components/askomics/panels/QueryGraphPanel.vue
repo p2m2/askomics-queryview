@@ -18,7 +18,7 @@ import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
 import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
-import { GraphBuilder } from '@/ts/GraphBuilder'
+//import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
   name: "QueryGraphPanel",
@@ -59,7 +59,8 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       strengthForceManBody: -2000,
       alphaTarget : 0,
       canvasClass : "",
-      graph       : { nodes : [], links : [] },
+      nodesSimulation : [],
+      linksSimulation : [],
       request      : null,
       selectedNodeCanvas : null
     }
@@ -68,8 +69,11 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   mounted() {
     if (this.requestString) {
       this.request = new RequestManager(this.requestString)
-      this.graph = GraphBuilder.build3DJSGraph(this.request) 
-      this.setUpCanvas();
+     
+      this.setUpSimulation();
+      this.display_suggestions()
+      this.refreshSimulation()
+
     } else {
       alert("requestString is not set.")
     }
@@ -82,25 +86,21 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   watch: {
     requestString() {
       this.request = new RequestManager(this.requestString)
-      //alert("1:"+this.request.getDiscovery().getDecoration("attributes"))
-      this.graph = GraphBuilder.build3DJSGraph(this.request)
     },
-
+    
     filterProperty() {
-      this.updateCanvas(this.selectedNodeCanvas)     
+      this.refreshSimulation()
     }
     
   },
   
-  computed : {
-    selectedNode() {
-      return this.graph.nodes.filter( n => n.state_n == ObjectState.SELECTED ).pop() 
-    }
-  },
-
   methods: {
- 
-    setUpCanvas() {
+    
+    selectedNode() {
+      return this.request.getGraph().nodes.filter( n => n.state_n == ObjectState.SELECTED ).pop() 
+    } ,
+
+    setUpSimulation() {
 
         /**
          * Managing CANVAS
@@ -118,7 +118,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
        //   .force("center", null)
          ;
               
-      this.simulation.on("tick", this.update);
+      this.simulation.on("tick", this.updateSimulation);
 
       this.canvas
         .on("click", this.canvasClick)
@@ -137,33 +137,67 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
           )*/
           ;
     },
-        
-    update() {
-      if ( this.graph && this.graph.nodes && this.graph.links ) {
-        this.ctx.clearRect(0,0,this.width, this.height);
-        this.ctx.fillStyle = "Gainsboro";
-        this.ctx.fillRect(0,0,this.width,this.height);
 
-        this.ctx.beginPath();
-        this.ctx.globalAlpha = 1.0;
-        this.ctx.strokeStyle = "#aaa";
-        this.graph.links.forEach(this.drawLink);
-        this.ctx.stroke();
+    refreshSimulation() {
+      this.setObjectsSimulation()
+      this.updateSimulation()
+    },
 
-        this.ctx.globalAlpha = 1.0;
-        console.log(" == DRAW NODE === ")
-        this.graph.nodes.forEach(this.drawNode);
-
-        this.simulation.nodes(this.graph.nodes);
-        this.simulation
-                .force("link", d3.forceLink().id(function (d) { return d.id; }))
-                .force("link").links(this.graph.links)
-        
-        this.simulation.restart()
-      } else {
-        console.error("graph is not initialized.")
-      }
+    setObjectsSimulation() {
+      console.log(" -- setObjectsSimulation -- ")
       
+      this.nodesSimulation = this.request.getGraph().nodes.map(
+        node => {
+          const isNode = ( x )=> x.id === node.id 
+          const idxSimulation = this.nodesSimulation.findIndex( isNode )
+          if ( idxSimulation>=0 ) {
+            node.x = this.nodesSimulation[idxSimulation].x
+            node.y = this.nodesSimulation[idxSimulation].y
+          }
+          return node
+        } 
+      )
+      console.log("AVANT:"+JSON.stringify(this.linksSimulation))
+      this.linksSimulation = this.request.getGraph().links.map(
+        link => {
+          const isNode = ( x )=> x.id === link.id 
+          const idxSimulation = this.linksSimulation.findIndex( isNode )
+          if ( idxSimulation>=0 ) {
+            link.x = this.linksSimulation[idxSimulation].x
+            link.y = this.linksSimulation[idxSimulation].y
+            link.vx = this.linksSimulation[idxSimulation].x
+            link.vy = this.linksSimulation[idxSimulation].y
+          }
+          return link
+        } 
+      )
+      console.log("APRES LINKS:"+JSON.stringify(this.linksSimulation))
+    },
+        
+    updateSimulation() {
+      
+      this.ctx.clearRect(0,0,this.width, this.height);
+      this.ctx.fillStyle = "Gainsboro";
+      this.ctx.fillRect(0,0,this.width,this.height);
+
+      this.ctx.beginPath();
+      this.ctx.globalAlpha = 1.0;
+      this.ctx.strokeStyle = "#aaa";
+
+      this.linksSimulation.forEach(this.drawLink);
+      this.ctx.stroke();
+
+      this.ctx.globalAlpha = 1.0;
+      this.nodesSimulation.forEach(this.drawNode);
+      
+
+      this.simulation.nodes(this.nodesSimulation);
+      this.simulation
+              .force("link", d3.forceLink().id(function (d) { return d.id; }))
+              .force("link").links(this.linksSimulation)
+        
+        //this.simulation.restart()
+
     },
 
     zoomed(event) {
@@ -176,83 +210,87 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     },
 
     /**
+     * Interaction with user actions
+     */
+    
+    canvasClick(event) {
+      
+      // if ctrl released 
+      if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
+     
+      /* Find Selected Object */
+      let rect = this.canvas.node().getBoundingClientRect();
+      
+      this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
+      this.updateGraph(this.selectedNodeCanvas)     
+    },
+    /**
      * usefull to update canavs when requestManager change his internal state
      */
-    updateCanvas(selectedNodeCanvas) {   
+    updateGraph(selectedNodeCanvas) {   
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! selectedNodeCanvas ) {
-        console.log(" ---  UNSELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
-        this.graph =  UserIncrementManager.removeSuggestion(this.graph) 
+        console.log(" ---  UNSELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
+        this.request.setGraph(UserIncrementManager.removeSuggestion(this.request)) 
         this.request.setFocusRoot()
-        this.$emit('updateRequestManager',this.request.serialized())
       } else {
-         
+        
         /**----------------------------------------------------------------------------
          * Creation Node/Links  
          */
-        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.setShapeNode --- ")
-        this.graph = UserIncrementManager.setShapeNode(this.request,selectedNodeCanvas,this.graph)
-
+        console.log(" ---  SELECTED NODE / updateGraph/UserIncrementManager.setShapeNode --- ")
+        this.request.setGraph(UserIncrementManager.setShapeNode(this.request,selectedNodeCanvas))
+        console.log(JSON.stringify(this.request.getGraph()))
         /**----------------------------------------------------------------------------
          * Remove Suggestion unused
          */
-        console.log(" ---  SELECTED NODE / updateCanvas/UserIncrementManager.removeSuggestion --- ")
-        this.graph = UserIncrementManager.removeSuggestion(this.graph) 
+        console.log(" ---  SELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
+        this.request.setGraph(UserIncrementManager.removeSuggestion(this.request))
 
         /**-----------------------------------------------------------------------------
          *  suggestions management
          * 
          **/
 
-        this.lock_suggestions();
+        this.display_suggestions();
       }
       //note OFI : ne devrait pas etre update car on affiche le graph seulement.....
-      //this.$emit('updateRequestManager',this.request.serialized())
-      this.update()
-    },
-
-    canvasClick(event) {
-      
-      console.log("------------------ canvasClick ---------------")      
-      // if ctrl released 
-      if ( ! event.ctrlKey ) this.graph = UserIncrementManager.releaseSelectedObject(this.graph)
      
-      /* Find Selected Object */
-      let rect = this.canvas.node().getBoundingClientRect();
-      
-      this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      this.updateCanvas(this.selectedNodeCanvas)     
+      this.$emit('updateRequestManager',this.request.serialized())
+     // this.setObjectsSimulation() 
+
+      //this.updateSimulation()
     },
 
-  lock_suggestions( ) {
+  display_suggestions( ) {
+    
     /* proposes suggestion only if defined */
-    if (! this.selectedNode )
+    if (! this.selectedNode() )
       return 
 
       /* add new suggestions */
-      /* fix bug / trick to update graph with new values */
-      let graph = this.graph
+    
       let component = this
       component.canvasClass = "query-graph-panel-disabled"
       let ArrayPromises = []
       switch (this.filterProperty) {
         case FilterProperty.ALL : {
           ArrayPromises = [
-              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
-              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode()),
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode())
             ]
           break
         }
         case FilterProperty.TO : {
           ArrayPromises = [
-              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode),
+              UserIncrementManager.clickNodeForward(this,this.request,this.selectedNode()),
             ]
           break
         }
         case FilterProperty.FROM : {
           ArrayPromises = [
-              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode)
+              UserIncrementManager.clickNodeBackward(this,this.request,this.selectedNode())
             ]
           break
         }
@@ -261,17 +299,21 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
           break
         }
       }
-
+      
       Promise.all(ArrayPromises).then(nodesAndLinksArray =>{
-          console.log("----------------------lock_suggestions----------------------------")
+
+          let nodes = component.request.getGraph().nodes 
+          let links = component.request.getGraph().links 
+          
           for ( let nodesAndLinks of nodesAndLinksArray ) {
-            console.log(JSON.stringify(nodesAndLinks))
-            console.log("--------------------------------------------------")
-            component.graph.nodes = graph.nodes.concat(nodesAndLinks[0]);
-            component.graph.links = graph.links.concat(nodesAndLinks[1]);
-            graph = this.graph
+            nodes = nodes.concat(nodesAndLinks[0]) 
+            links = links.concat(nodesAndLinks[1])
           }
-          component.graph = graph
+          
+          component.request.setGraph( 
+              { nodes : nodes , links : links }
+              );
+
           component.canvasClass = ""
           
       }).catch( e => {
@@ -279,7 +321,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       })
       .finally(function() {
         component.canvasClass = ""
-        component.update()
+        component.refreshSimulation()
       }) 
     },
     
@@ -356,6 +398,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     },
 
     drawNode(node) {
+     // console.log(JSON.stringify(node))
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
       
@@ -382,7 +425,6 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
       let label = node.humanId ? node.label + " " + this.subNums(node.humanId) : node.label;
       this.ctx.fillText(label, node.x + this.nodeSize, node.y + this.nodeSize);
       this.ctx.closePath();
-
     },
 
     drawLink(link) {

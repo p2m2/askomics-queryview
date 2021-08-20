@@ -1,7 +1,7 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
-import { ViewNode3DJS, ViewLink3DJS, LinkType, AskOmicsGenericNode, 
+import { LinkType, AskOmicsGenericNode, 
          AskOmicsViewNode, AskOmicsViewLink, NodeType, 
-         ObjectState, AskOmicsViewAttributes } from './types'
+         ObjectState, AskOmicsViewAttributes, Graph3DJS } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -34,7 +34,7 @@ export default class RequestManager {
     
     defaultGraph(focus: string)  : any {
         return {
-            nodes : [AskOmicsViewNode.something(ObjectState.SELECTED,focus)],
+            nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE,focus)],
             links : []
         }
     }
@@ -65,16 +65,17 @@ export default class RequestManager {
 
         let sw = SWDiscovery(this.config)
         
-        if (serializedDiscovery && serializedDiscovery.length>0)
+        if (serializedDiscovery && serializedDiscovery.length>0) {
             sw = sw.setSerializedString(serializedDiscovery)
-        else {
-
+        } else {
             const n = this.defaultGraph("start").nodes[0]
 
             sw = sw
+            .root()
+            .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
             .something("start")
-            .setDecoration("node",AskOmicsViewNode.build(n))
             .setDecoration("attributes",JSON.stringify({}))
+            .root()
         }
          
         this.setDiscovery(sw)
@@ -96,49 +97,36 @@ export default class RequestManager {
 
     }
 
+    getGraph() : Graph3DJS {
+        return JSON.parse(this.getDiscovery().root().getDecoration("graph"))
+    }
+
 
     setDiscovery(disco : any) : void  { discovery_map.set(this.id,disco) } 
 
     getDiscovery() : any { return getDiscovery(this.id) }
 
-    update(node : ViewNode3DJS, link : ViewLink3DJS ) : string {
-        
-        const snd_node = link.source.id == node.id ? link.source : link.target
+    setNewNodeWithLink(node : AskOmicsViewNode, link : AskOmicsViewLink ) : string {
+        const snd_node_id = link.source == node.id ? link.source : link.target
+        const snd_node : AskOmicsViewNode = this.getGraph().nodes.filter( x => x.id == snd_node_id).pop()!
         const d : any = this.getDiscovery()
         
         switch(link.type) { 
             case LinkType.FORWARD_PROPERTY: { 
                 this.setDiscovery(
                     d.isSubjectOf(new URI(link.uri))
-                    .isA(new URI(snd_node.uri)))
-                
-                node.state_n = ObjectState.CONCRETE
-                node.focus = this.getDiscovery().focus()
-                
-                this.setDiscovery(
-                    this.getDiscovery()
-                    .setDecoration("link",AskOmicsViewLink.build(link))
-                    .setDecoration("node",AskOmicsViewNode.build(node))
                     .setDecoration("attributes",JSON.stringify({}))
-                    )
-
+                    .isA(new URI(snd_node.uri)))
+               
                 break; 
             } 
             case LinkType.BACKWARD_PROPERTY: { 
                 this.setDiscovery(
                     d
                     .isObjectOf(new URI(link.uri))
+                    .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
-                
-                node.state_n = ObjectState.CONCRETE
-                node.focus = this.getDiscovery().focus()
-                
-                this.setDiscovery(
-                        this.getDiscovery()
-                        .setDecoration("link",AskOmicsViewLink.build(link))
-                        .setDecoration("node",AskOmicsViewNode.build(node))
-                        .setDecoration("attributes",JSON.stringify({}))
-                        )
+              
                break; 
             } 
             case LinkType.IS_A: { 
@@ -158,6 +146,20 @@ export default class RequestManager {
 
          return this.getDiscovery().focus() 
     }
+
+    setGraph(graph : Object) {
+        const focus : string = this.getDiscovery().focus()
+        this.setDiscovery(
+                    this.getDiscovery()
+                    .root()
+                    .setDecoration("graph",JSON.stringify(graph))
+                    .focus(focus)
+                    )
+
+    }
+
+
+
 
     /** CONFIGURATION */
     setPageSize(numberOfResults : number) {
@@ -197,8 +199,8 @@ export default class RequestManager {
         this.setDiscovery(disco);
     }
 
-    setFocus(idFocus : string) : void {
-        const disco = this.getDiscovery().focus(idFocus) ;
+    setFocus(focus : string) : void {
+        const disco = this.getDiscovery().focus(focus)
         this.setDiscovery(disco);
     }
 

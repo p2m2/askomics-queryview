@@ -1,4 +1,4 @@
-import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink, ViewLink3DJS, ViewNode3DJS } from './types'
+import { ObjectState , Graph3DJS, AskOmicsViewNode, AskOmicsViewLink } from './types'
 import RequestManager from './RequestManager'
 import { Vue } from 'vue-class-component'
 
@@ -83,34 +83,35 @@ export default class UserIncrementManager {
 }
 
 
-    static setShapeNode(request :RequestManager, toShape: ViewNode3DJS , graph : Graph3DJS ) : Graph3DJS {
+    static setShapeNode(request :RequestManager, toShape: AskOmicsViewNode) : Object {
         
         /**
          * nothing todo is node is selected 
          */
 
-         if ( toShape.state_n == ObjectState.SELECTED ) return graph
+        
 
+         if ( toShape.state_n == ObjectState.SELECTED ) return request.getGraph()
 
+        const graph = request.getGraph()
         /**
          * Select Node if node is concrete and exit .
          */
         if ( toShape.state_n == ObjectState.CONCRETE ) {
-            
 
             if ( toShape.focus && toShape.focus.length>0  ) {
+
                 graph.nodes = graph.nodes.map(
-                    (n : ViewNode3DJS )=> {
+                    (n : AskOmicsViewNode )=> {
+                        console.log(n.id,toShape.id)
                         if ( n.id == toShape.id ) {
                             n.state_n = ObjectState.SELECTED
-                            request.setFocus(toShape.focus)
+                            request.setFocus(n.focus)
                         }
                         return n
                     })
-
-                
             }
-           
+
             return graph
         }
         
@@ -120,21 +121,22 @@ export default class UserIncrementManager {
          */
         
         graph.links = graph.links.map(
-            (l : ViewLink3DJS )=> {
-                
-                if ( (l.state_n == ObjectState.SUGGESTED) && (l.source.id == toShape.id || l.target.id == toShape.id) ) {
+            (l : AskOmicsViewLink )=> {
+
+                console.log(l.source,l.target,toShape.id)
+                if ( (l.state_n == ObjectState.SUGGESTED) && (l.source == toShape.id || l.target == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
-                    
+                   
                     /* ------------ */
                     /* update model */
                     /* ------------ */
-                    const focus : string = request.update(toShape,l)
+                    const focus : string = request.setNewNodeWithLink(toShape,l)
 
                     /* ------------ */
                     /* FOCUS        */
                     /* ------------ */
                     graph.nodes = graph.nodes.map(
-                        (n : ViewNode3DJS )=> {
+                        (n : AskOmicsViewNode )=> {
                             if ( n.id == toShape.id ) n.focus = focus
                             return n 
                         })
@@ -145,7 +147,7 @@ export default class UserIncrementManager {
         * SELECTED 
         */
          graph.nodes = graph.nodes.map(
-            (n : ViewNode3DJS )=> {
+            (n : AskOmicsViewNode )=> {
                 if ( n.id == toShape.id ) {
                     n.state_n = ObjectState.SELECTED
                 }
@@ -156,9 +158,12 @@ export default class UserIncrementManager {
 
     }
 
-    static removeSuggestion(graph : Graph3DJS) : Graph3DJS {
+    static removeSuggestion(request :RequestManager) {
+        const graph = request.getGraph()
+
         graph.nodes = graph.nodes.filter( n => n.state_n != ObjectState.SUGGESTED )
         graph.links = graph.links.filter( l => l.state_n != ObjectState.SUGGESTED )
+        
         return graph
     }
 

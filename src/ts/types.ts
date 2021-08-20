@@ -55,28 +55,9 @@ export class AskOmicsViewAttributes {
 
 }
 
-export type ViewNode3DJS = {
-    id     : string
-    uri    : string
-    focus  : string
-    label  : string
-    state_n  : ObjectState
-    type   : NodeType
-}
-
-export type ViewLink3DJS = {
-    id     : string
-    uri    : string
-    label  : string
-    source : ViewNode3DJS
-    target : ViewNode3DJS
-    state_n  : ObjectState
-    type   : LinkType
-}
-
 export interface Graph3DJS { 
-    nodes : ViewNode3DJS[], 
-    links : ViewLink3DJS[] 
+    nodes : AskOmicsViewNode[], 
+    links : AskOmicsViewLink[] 
 }
 
 
@@ -237,17 +218,6 @@ export class AskOmicsViewNode extends AskOmicsGenericNode {
         n.focus = focus
         return n
     }
-
-    static build( node : ViewNode3DJS ) : string {
-        return JSON.stringify({ 
-            id: node.id, 
-            uri : node.uri, 
-            label: node.label, 
-            type: node.type , 
-            focus: node.focus,
-            state_n : node.state_n
-        })
-    }
 } 
 
 export class AskOmicsViewLink extends AskOmicsGenericNode {
@@ -262,19 +232,6 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
         this.source = source
         this.target = target    
     }
-
-    static build( link : ViewLink3DJS ) : string {
-        return JSON.stringify({ 
-            id: link.id , 
-            uri : link.uri, 
-            label : link.label, 
-            type: link.type, 
-            source: link.source.id, 
-            target : link.target.id,
-            state_n : link.state_n
-     })
-    }
-   
 } 
 
 export enum RangeBoxType {
