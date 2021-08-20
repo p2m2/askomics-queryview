@@ -133,7 +133,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
-      this.request = new RequestManager(value)
+      this.request = new RequestManager(value,this)
       //alert("2:"+this.request.getDiscovery().getDecoration("attributes"))
       this.updateAttributeList()
     },

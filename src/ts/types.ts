@@ -202,9 +202,11 @@ export abstract class AskOmicsGenericNode {
 }
 
 export class AskOmicsViewNode extends AskOmicsGenericNode {
-    focus : string
-    type : NodeType
-    
+    focus     : string
+    type      : NodeType
+    x         : number = 0
+    y         : number = 0
+
     constructor(uri : string, label : string, type: NodeType) {
         super(uri,label);
         this.type  = type
@@ -224,6 +226,10 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
     type      : LinkType
     source    : string
     target    : string
+    x         : number = 0
+    y         : number = 0
+    vx         : number = 0
+    vy         : number = 0
 
     constructor(uri : string,  label : string, typeLink : LinkType, source : string, target : string) {
         super(uri,label);

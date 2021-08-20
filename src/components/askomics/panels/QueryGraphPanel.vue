@@ -11,13 +11,13 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import * as d3 from 'd3';
 import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
-import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
+import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLink } from '@/ts/types';
 //import { GraphBuilder } from '@/ts/GraphBuilder'
 
 @Options({
@@ -68,7 +68,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
 
   mounted() {
     if (this.requestString) {
-      this.request = new RequestManager(this.requestString)
+      this.request = new RequestManager(this.requestString,this)
      
       this.setUpSimulation();
       this.display_suggestions()
@@ -85,7 +85,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
 
   watch: {
     requestString() {
-      this.request = new RequestManager(this.requestString)
+      this.request = new RequestManager(this.requestString,this)
     },
     
     filterProperty() {
@@ -97,7 +97,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
   methods: {
     
     selectedNode() {
-      return this.request.getGraph().nodes.filter( n => n.state_n == ObjectState.SELECTED ).pop() 
+      return this.request.getGraph().nodes.filter( (n : AskOmicsViewNode) => n.state_n == ObjectState.SELECTED ).pop() 
     } ,
 
     setUpSimulation() {
@@ -144,11 +144,10 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
     },
 
     setObjectsSimulation() {
-      console.log(" -- setObjectsSimulation -- ")
       
       this.nodesSimulation = this.request.getGraph().nodes.map(
-        node => {
-          const isNode = ( x )=> x.id === node.id 
+        (node : AskOmicsViewNode) => {
+          const isNode = ( x : AskOmicsViewNode )=> x.id === node.id 
           const idxSimulation = this.nodesSimulation.findIndex( isNode )
           if ( idxSimulation>=0 ) {
             node.x = this.nodesSimulation[idxSimulation].x
@@ -157,11 +156,11 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
           return node
         } 
       )
-      console.log("AVANT:"+JSON.stringify(this.linksSimulation))
+      
       this.linksSimulation = this.request.getGraph().links.map(
-        link => {
-          const isNode = ( x )=> x.id === link.id 
-          const idxSimulation = this.linksSimulation.findIndex( isNode )
+        (link : AskOmicsViewLink ) => {
+          const isLink = ( x : AskOmicsViewLink )=> x.id === link.id 
+          const idxSimulation = this.linksSimulation.findIndex( isLink )
           if ( idxSimulation>=0 ) {
             link.x = this.linksSimulation[idxSimulation].x
             link.y = this.linksSimulation[idxSimulation].y
@@ -171,7 +170,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
           return link
         } 
       )
-      console.log("APRES LINKS:"+JSON.stringify(this.linksSimulation))
+     
     },
         
     updateSimulation() {
@@ -193,19 +192,19 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
 
       this.simulation.nodes(this.nodesSimulation);
       this.simulation
-              .force("link", d3.forceLink().id(function (d) { return d.id; }))
+              .force("link", d3.forceLink().id(function (d : any ) { return d.id; }))
               .force("link").links(this.linksSimulation)
         
         //this.simulation.restart()
 
     },
 
-    zoomed(event) {
+    zoomed(event : any) {
       this.ctx.translate(event.transform.x, event.transform.y); 
       this.ctx.scale(event.transform.k, event.transform.k);
     },
     
-    dragsubject(event) {
+    dragsubject(event : any) {
         return this.simulation.find(event.x, event.y);
     },
 
@@ -213,7 +212,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
      * Interaction with user actions
      */
     
-    canvasClick(event) {
+    canvasClick(event : any) {
       
       // if ctrl released 
       if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
@@ -227,11 +226,11 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
     /**
      * usefull to update canavs when requestManager change his internal state
      */
-    updateGraph(selectedNodeCanvas) {   
+    updateGraph(selectedNodeCanvas : AskOmicsViewNode) {   
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! selectedNodeCanvas ) {
-        console.log(" ---  UNSELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
+        console.debug(" ---  UNSELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
         this.request.setGraph(UserIncrementManager.removeSuggestion(this.request)) 
         this.request.setFocusRoot()
       } else {
@@ -239,13 +238,13 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
         /**----------------------------------------------------------------------------
          * Creation Node/Links  
          */
-        console.log(" ---  SELECTED NODE / updateGraph/UserIncrementManager.setShapeNode --- ")
+        console.debug(" ---  SELECTED NODE / updateGraph/UserIncrementManager.setShapeNode --- ")
         this.request.setGraph(UserIncrementManager.setShapeNode(this.request,selectedNodeCanvas))
-        console.log(JSON.stringify(this.request.getGraph()))
+       
         /**----------------------------------------------------------------------------
          * Remove Suggestion unused
          */
-        console.log(" ---  SELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
+        console.debug(" ---  SELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
         this.request.setGraph(UserIncrementManager.removeSuggestion(this.request))
 
         /**-----------------------------------------------------------------------------
@@ -273,7 +272,9 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
     
       let component = this
       component.canvasClass = "query-graph-panel-disabled"
-      let ArrayPromises = []
+      
+      let ArrayPromises : Array<Promise<[Object[],Object[]]>> = []
+
       switch (this.filterProperty) {
         case FilterProperty.ALL : {
           ArrayPromises = [
@@ -325,24 +326,24 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
       }) 
     },
     
-    dragstarted(event) {
+    dragstarted(event : any) {
      
       if (!event.active) this.simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
     },
 
-    dragged(event) {
+    dragged(event : any) {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
     },
-    dragended(event) {
+    dragended(event : any) {
         if (!event.active) this.simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
       },
     
-    IntersectionCoordinate (x1, y1, x2, y2, r) {
+    IntersectionCoordinate (x1 : number , y1 : number, x2 : number, y2 : number, r : number) {
         let theta = Math.atan((y2 - y1) / (x1 - x2))
         let x
         let y
@@ -355,7 +356,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
           }
           return { x: x, y: y }
         },
-    middleCoordinate (x1, y1, x2, y2) {
+    middleCoordinate (x1 : number, y1 : number, x2 : number, y2 : number) {
         let theta = Math.atan((y2 - y1) / (x1 - x2))
         let x
         let y
@@ -369,7 +370,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
         return { x: x, y: y }
       },
 
-    triangleCoordinate (x1, y1, x2, y2, headlen) {
+    triangleCoordinate (x1 : number, y1 : number, x2 : number, y2 : number, headlen : number) {
       let theta = Math.atan2(y1 - y2, x1 - x2)
 
       let xa = x1 - headlen * Math.cos(theta - Math.PI / 14)
@@ -386,18 +387,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
       }
     },
 
-    subNums (id) {
-        let newStr = ""
-        let oldStr = id.toString()
-        let arrayString = [...oldStr]
-        arrayString.forEach(char => {
-          let code = char.charCodeAt()
-          newStr += String.fromCharCode(code + 8272)
-        })
-        return newStr
-    },
-
-    drawNode(node) {
+    drawNode(node : AskOmicsViewNode) {
      // console.log(JSON.stringify(node))
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
@@ -422,12 +412,17 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
       this.ctx.font = this.nodeSize + 'px Sans-Serif';
       this.ctx.textAlign = 'middle';
       this.ctx.textBaseline = 'middle';
-      let label = node.humanId ? node.label + " " + this.subNums(node.humanId) : node.label;
+      let label = node.label
       this.ctx.fillText(label, node.x + this.nodeSize, node.y + this.nodeSize);
       this.ctx.closePath();
     },
-
-    drawLink(link) {
+    /**
+     * Note . Link could not be of AskOmicsViewLink because 
+     *  target and source are node identifier in the definition 
+     *  but, at this step, there are of AskOmicsViewNode type.
+     * 
+     */
+    drawLink(link : any) {
       link.state_n == ObjectState.SUGGESTED ? this.ctx.setLineDash([this.lineWidth, this.lineWidth]) : this.ctx.setLineDash([]);
       let unselectedColor = this.colorGrey
       let unselectedColorText = this.colorDarkGrey
@@ -436,19 +431,24 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
       this.ctx.fillStyle = link.state_n == ObjectState.SELECTED ? this.colorFirebrick : this.colorGrey
       this.ctx.globalAlpha = link.state_n == ObjectState.SUGGESTED ? 0.3 : 1
       this.ctx.lineWidth = this.lineWidth
+      
+      const target = link.target
+      const source = link.source 
 
       this.ctx.beginPath();
-      let c = this.IntersectionCoordinate(link.source.x, link.source.y, link.target.x, link.target.y, this.nodeSize)
+      let c = this.IntersectionCoordinate(source.x, source.y, target.x, target.y, this.nodeSize)
       this.ctx.moveTo(c.x, c.y);
-      c = this.IntersectionCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.nodeSize)
+      c = this.IntersectionCoordinate(target.x, target.y, source.x, source.y, this.nodeSize)
       this.ctx.lineTo(c.x, c.y);
       this.ctx.stroke();
       this.ctx.closePath();
 
+      
+
        // draw arrow
        if (link.type == LinkType.FORWARD_PROPERTY || link.type == LinkType.BACKWARD_PROPERTY) {
           this.ctx.beginPath()
-          let triangle = this.triangleCoordinate(link.target.x, link.target.y, link.source.x, link.source.y, this.arrowLength)
+          let triangle = this.triangleCoordinate(target.x, target.y, source.x, source.y, this.arrowLength)
           this.ctx.moveTo(c.x, c.y)
           this.ctx.lineTo(triangle.xa, triangle.ya)
           this.ctx.lineTo(triangle.xb, triangle.yb)
@@ -461,7 +461,7 @@ import { ObjectState, LinkType, FilterProperty } from '@/ts/types';
         this.ctx.font = this.textSize + 'px Sans-Serif'
         this.ctx.textAlign = 'middle'
         this.ctx.textBaseline = 'middle'
-        let m = this.middleCoordinate(link.source.x, link.source.y, link.target.x, link.target.y)
+        let m = this.middleCoordinate(source.x, source.y, target.x, target.y)
         this.ctx.fillText(link.label, m.x, m.y)
         this.ctx.closePath()
    }

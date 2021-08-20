@@ -31,6 +31,18 @@ export default class RequestManager {
     strategy_str     : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     = null ;
+    vue              : Vue                      ;
+
+   
+    constructor(requestManagerStringify : string, vue : Vue) {
+        if ( !discovery_map ) {
+            discovery_map =  new Map<number,any>() ;
+        }
+        
+        this.vue = vue 
+        this.parse(requestManagerStringify)
+        
+    }
     
     defaultGraph(focus: string)  : any {
         return {
@@ -39,13 +51,6 @@ export default class RequestManager {
         }
     }
 
-    constructor(requestManagerStringify : string) {
-        if ( !discovery_map ) {
-            discovery_map =  new Map<number,any>() ;
-        }
-        
-        this.parse(requestManagerStringify)
-    }
 
     serialized() : string {
         return JSON.stringify([ this.config_str, this.strategy_str, this.getDiscovery().getSerializedString()])
@@ -102,7 +107,9 @@ export default class RequestManager {
     }
 
 
-    setDiscovery(disco : any) : void  { discovery_map.set(this.id,disco) } 
+    setDiscovery(disco : any) : void  { 
+        discovery_map.set(this.id,disco) 
+    } 
 
     getDiscovery() : any { return getDiscovery(this.id) }
 

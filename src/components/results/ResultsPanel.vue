@@ -75,7 +75,7 @@ import VueTableLite from 'vue3-table-lite'
 
     computed: {
         columns() {
-            return new RequestManager(this.rm).getColumnsResults() 
+            return new RequestManager(this.rm,this).getColumnsResults() 
         }
     },
 
@@ -90,7 +90,7 @@ import VueTableLite from 'vue3-table-lite'
                 this.rows = []
           } 
           else 
-            new RequestManager(this.rm).getCountAndLaziesPages(numberOfResults)
+            new RequestManager(this.rm,this).getCountAndLaziesPages(numberOfResults)
             .then( 
                 (args : any) => {
                     
