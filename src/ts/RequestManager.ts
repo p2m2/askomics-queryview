@@ -38,7 +38,7 @@ export default class RequestManager {
         if ( !discovery_map ) {
             discovery_map =  new Map<number,any>() ;
         }
-        
+
         this.vue = vue 
         this.parse(requestManagerStringify)
         
@@ -101,8 +101,23 @@ export default class RequestManager {
         }
 
     }
+    
+    setGraph(graph : Object) {
+        const focus : string = this.getDiscovery().focus()
+        
+        this.setDiscovery(
+                    this.getDiscovery()
+                    .root()
+                    .setDecoration("graph",JSON.stringify(graph))
+                    .focus(focus)
+                    )
+
+        this.vue.$emit('updateRequestManager',this.serialized())
+    }
+
 
     getGraph() : Graph3DJS {
+        console.log(JSON.stringify(this.getDiscovery().root().getDecoration("graph")))
         return JSON.parse(this.getDiscovery().root().getDecoration("graph"))
     }
 
@@ -153,19 +168,6 @@ export default class RequestManager {
 
          return this.getDiscovery().focus() 
     }
-
-    setGraph(graph : Object) {
-        const focus : string = this.getDiscovery().focus()
-        this.setDiscovery(
-                    this.getDiscovery()
-                    .root()
-                    .setDecoration("graph",JSON.stringify(graph))
-                    .focus(focus)
-                    )
-
-    }
-
-
 
 
     /** CONFIGURATION */
@@ -226,7 +228,7 @@ export default class RequestManager {
     removeNode(vue : Vue) {
         if ( this.focusIsSelected() ) {
             this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;            
-            vue.$emit('updateRequestManager',this.serialized())
+            this.vue.$emit('updateRequestManager',this.serialized())
         } else {
             console.warn("None node is selected !")
         }
@@ -442,8 +444,6 @@ export default class RequestManager {
      * @returns 
      */
     getColumnsResults() {
-        console.log(" --- getColumnsResults ---")
-        console.log(this.config_str)
         const rm = this.getDiscovery() ;
         const r = rm.browse(
             (node : any, deep : Number) => { 

@@ -104,7 +104,6 @@ import VueTableLite from 'vue3-table-lite'
                             .commit()
                             .raw()
                             .then( (response : any) => { 
-                                console.log(JSON.stringify(response,null,2));
                                 this.rows = []
                                 let URIinstance : Map<String,String> = new Map()
                                 for (let i=0;i<response.results.bindings.length;i++) {
@@ -120,7 +119,6 @@ import VueTableLite from 'vue3-table-lite'
                                     })
 
                                     this.columns.forEach((col : any) => {             
-                                        console.log(col)
                                     /* datatype only */
                                     if ( col.field != col.node_id) {
                                         let val =""
@@ -129,8 +127,6 @@ import VueTableLite from 'vue3-table-lite'
                                         if (col.field === "uri" ) {
                                             val = uriInstance
                                         } else {
-                                            console.log("filed:"+col.field)
-                                            console.log(JSON.stringify(response.results.datatypes[col.field][uriInstance]))
                                             if (response.results.datatypes[col.field] && response.results.datatypes[col.field][uriInstance]) {
                                                 if (response.results.datatypes[col.field][uriInstance].length>0)
                                                     val = response.results.datatypes[col.field][uriInstance][0].value; 
@@ -148,16 +144,14 @@ import VueTableLite from 'vue3-table-lite'
         },
         
         doSearch(offset : number, limit : number, order : string, sort : string) {
-            console.log("doSearch")
-            console.log(offset,limit,order,sort)
-
+           
             this.isLoading = true
 
             if (offset)
                 this.isReSearch = true 
             else 
                 this.isReSearch = false
-            //console.log(offset)
+        
             
             this.resultsPage(Math.floor(offset/10),limit)
             try {
@@ -174,8 +168,6 @@ import VueTableLite from 'vue3-table-lite'
         },
 
         tableLoadingFinish() {
-            console.log("tableLoadingFinish")
-            //alert("DO tableLoadingFinish")
             this.isLoading = false;
         },
 

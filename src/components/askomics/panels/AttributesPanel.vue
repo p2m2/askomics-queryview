@@ -133,6 +133,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
   methods: {
     
     updateRequestString(value : string) {
+
       this.request = new RequestManager(value,this)
       //alert("2:"+this.request.getDiscovery().getDecoration("attributes"))
       this.updateAttributeList()
@@ -158,6 +159,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
     updateAttribute(event : string) {
       this.request.updateAttribute(JSON.parse(event))
       this.updateAttributeList()
+
       this.$emit('updateRequestManager',this.request.serialized())
     }
   }

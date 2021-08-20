@@ -103,7 +103,6 @@ export default class UserIncrementManager {
 
                 graph.nodes = graph.nodes.map(
                     (n : AskOmicsViewNode )=> {
-                        console.log(n.id,toShape.id)
                         if ( n.id == toShape.id ) {
                             n.state_n = ObjectState.SELECTED
                             request.setFocus(n.focus)
@@ -123,7 +122,6 @@ export default class UserIncrementManager {
         graph.links = graph.links.map(
             (l : AskOmicsViewLink )=> {
 
-                console.log(l.source,l.target,toShape.id)
                 if ( (l.state_n == ObjectState.SUGGESTED) && (l.source == toShape.id || l.target == toShape.id) ) {
                     l.state_n = ObjectState.CONCRETE
                    
@@ -166,30 +164,5 @@ export default class UserIncrementManager {
         
         return graph
     }
-
-
-    /*
-
-    static attributeList(request :RequestManager, current: AskOmicsViewNode ) : Promise<Object[]> {
-        console.log("go :",current)
-
-        return new Promise((successCallback, failureCallback) => {
-            if (Object.keys(current).length == 0) {
-                successCallback([])
-            } else {
-              //  console.log(current.type)
-                if(current.type == NodeType.SOMETHING) {
-                    console.log("get everything attributes")
-                } else {
-                    
-                    request.attributeList(current).then(
-                        response => {
-                            successCallback(response.map( (obj : DatatypeLiteral)  => obj.getObject()))
-                        }
-                    ).catch(e => {failureCallback(e)})
-                }
-            }
-        })
-    } */
 
 }

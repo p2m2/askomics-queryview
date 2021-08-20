@@ -11,7 +11,7 @@
             >AskOmics Query Builder </router-link> -->
 
             <router-link class="nav-link" aria-current="page"
-            :to="{ name : 'askomics' , params: { query: requestManagerStringify }}" 
+            :to="{ name : 'askomics' , params: { query: requestManagerStringify }}"
             >AskOmics Query Builder </router-link>
           </li>
           
@@ -75,6 +75,7 @@ import { UserConfiguration } from '@/ts/types'
   },
  
   methods : {
+    
     updateConfiguration(configuration : string) {
       this.configuration = UserConfiguration.build(JSON.parse(configuration))
       this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])

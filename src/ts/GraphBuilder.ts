@@ -42,7 +42,6 @@ export class GraphBuilder {
                                 
                                 response
                                   .map( (obj : AskOmicsViewAttributes)  =>  {
-                                    console.log(obj.uri)
                                     if (  decorations[obj.uri] ) {
                                         return AskOmicsViewAttributes.from(decorations[obj.uri]!)
                                     } 
@@ -52,8 +51,6 @@ export class GraphBuilder {
                                   .map( (obj : AskOmicsViewAttributes )  =>  obj.getObject() )
                                   
                                   listAttributes.unshift(uriBox)
-                                
-                                  console.log(JSON.stringify(listAttributes))
 
                                 successCallback(listAttributes)
                             }
