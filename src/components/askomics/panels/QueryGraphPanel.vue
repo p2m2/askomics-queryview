@@ -18,7 +18,7 @@ import Utils from '@/ts/utils'
 import RequestManager from '@/ts/RequestManager'
 import UserIncrementManager from '@/ts/UserIncrementManager'
 import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLink } from '@/ts/types';
-//import { GraphBuilder } from '@/ts/GraphBuilder'
+
 
 @Options({
   name: "QueryGraphPanel",
@@ -256,6 +256,7 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
 
         this.display_suggestions();
       }
+
     },
 
   display_suggestions( ) {

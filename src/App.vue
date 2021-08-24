@@ -59,10 +59,8 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   watch: {
-    discovery(value: string) {
-      //alert(value)
+    discovery() {
       this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
-      console.log("******************************LOG ==> "+value)
     }
   },
   

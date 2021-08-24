@@ -19,9 +19,13 @@ function getDiscovery(id : number) : any {
         return d ;
     return new SWDiscovery();
 }
+
 /**
  * end trick
  */
+
+ let history          : Array<String>           = []
+ let idx_history      : number                  = -1 
 
 export default class RequestManager {
     static idCounter : number                  = 0 ;
@@ -32,7 +36,6 @@ export default class RequestManager {
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     = null ;
     vue              : Vue                      ;
-
    
     constructor(requestManagerStringify : string, vue : Vue) {
         if ( !discovery_map ) {
@@ -56,6 +59,68 @@ export default class RequestManager {
         return JSON.stringify([ this.config_str, this.strategy_str, this.getDiscovery().getSerializedString()])
     }
 
+    clear() {
+        const n = this.defaultGraph("start").nodes[0]
+       
+        this.setDiscovery(
+            SWDiscovery(this.config)
+            .root()
+            .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
+            .something("start")
+            .setDecoration("id","0")
+            .setDecoration("label","start")
+            .setDecoration("attributes",JSON.stringify({}))
+            .root())
+
+            
+        history                     = []
+        idx_history                 = -1 
+
+    }
+
+    /**
+     * History session management with push, forward, back
+     * 
+     */
+    push() {
+        if ( idx_history>0 ) {
+            history = history.slice(0,idx_history+1)
+        }
+        idx_history = history.push(this.serialized()) -1
+    }
+
+    static forwardIsActive() {
+        return idx_history < history.length-1
+    }
+
+    static forward() : String {
+        if ( RequestManager.forwardIsActive() ) {
+            const stringify = history[idx_history]
+            idx_history = idx_history + 1
+            return stringify
+        } else {
+            throw Error("Can not pop a discovery session.")
+        }
+    }
+
+    static backwardIsActive() {
+        return idx_history >= 0
+    }
+
+
+    static backward() : String {
+        
+        if ( RequestManager.backwardIsActive() ) {
+            const stringify = history[idx_history]
+            idx_history = idx_history - 1
+            return stringify
+        } else {
+            throw Error("Can not pop a discovery session.")
+        }
+
+    }
+
+
     parse( str : string ) {
         
         if (! str || str.length<=0) {
@@ -67,25 +132,12 @@ export default class RequestManager {
         this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
         this.strategy_str = r[1]
         const serializedDiscovery = r[2]
-
-        let sw = SWDiscovery(this.config)
         
         if (serializedDiscovery && serializedDiscovery.length>0) {
-            sw = sw.setSerializedString(serializedDiscovery)
+            this.setDiscovery(SWDiscovery(this.config).setSerializedString(serializedDiscovery))
         } else {
-            const n = this.defaultGraph("start").nodes[0]
-
-            sw = sw
-            .root()
-            .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
-            .something("start")
-            .setDecoration("id","0")
-            .setDecoration("label","start")
-            .setDecoration("attributes",JSON.stringify({}))
-            .root()
+            this.clear()
         }
-         
-        this.setDiscovery(sw)
         
         switch(this.strategy_str) {
             case "askomics" : {
@@ -118,10 +170,8 @@ export default class RequestManager {
 
 
     getGraph() : Graph3DJS {
-        console.log(JSON.stringify(this.getDiscovery().root().getDecoration("graph")))
         return JSON.parse(this.getDiscovery().root().getDecoration("graph"))
     }
-
 
     setDiscovery(disco : any) : void  { 
         discovery_map.set(this.id,disco) 
@@ -143,8 +193,11 @@ export default class RequestManager {
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
-               
-                break; 
+                
+                /* save session to back old step */
+                this.push()
+                break;
+
             } 
             case LinkType.BACKWARD_PROPERTY: { 
                 this.setDiscovery(
@@ -154,7 +207,10 @@ export default class RequestManager {
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
-              
+               
+                /* save session to back old step */
+                this.push()
+
                break; 
             } 
             case LinkType.IS_A: { 
@@ -196,12 +252,10 @@ export default class RequestManager {
     }
 
     setAskOmicsStrategy() {
-        console.log(" -- setAskOmicsStrategy -- ");
         this.strategy = new StrategyRequestAskOmics(this.config) ;
     }
 
     setDataDrivenStrategy() {
-        console.log(" -- setDataDrivenStrategy -- ");
         this.strategy = new StrategyRequestDataDriven() ;
     }
 
@@ -245,6 +299,8 @@ export default class RequestManager {
             
             this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;
             this.setGraph(g)
+            
+            this.push()
 
             this.vue.$emit('updateRequestManager',this.serialized())
         } else {
@@ -273,6 +329,7 @@ export default class RequestManager {
             .setDecoration("attributes",JSON.stringify(map))
             )
         
+        this.push()
         this.vue.$emit('updateRequestManager',this.serialized())    
     }
 
@@ -530,7 +587,7 @@ export default class RequestManager {
         
         return new Promise((successCallback, failureCallback) => {
             this.getDiscovery()
-                .console()
+               // .console()
                 .selectByPage(...variables_uniq)
                 .then( ( args : any ) => {
                     successCallback(args)

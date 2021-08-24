@@ -31,29 +31,25 @@
               
          </div>
          <div class="row">
+          <div class="col">
+            <div class="btn-group" role="group" aria-label="tools graph">
+              <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">&lt;&lt;</button>
+              <button type="button" class="form-control btn btn-primary disabled" v-else disabled>&lt;&lt;</button>
 
+              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="forwardActive">&gt;&gt;</button>
+               <button type="button" class="form-control btn btn-primary disabled"  v-else disabled>&gt;&gt;</button>
 
-           <div class="d-flex flex-row mb-3">
-              <div class="p-2 bd-highlight">
-              <button type="button" class="form-control btn btn-primary" @click="back">&lt;&lt;</button>
-             </div>
-             <div class="p-2 bd-highlight">
-              <button type="button" class="form-control btn btn-primary" @click="forward">&gt;&gt;</button>
-             </div>
-             
-             <div class="p-2 bd-highlight">
-              <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>
-             </div>
-
-             <div class="p-2 bd-highlight">
+              <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>            
+              
               <button type="button" class="form-control btn btn-primary" @click="forward">URL</button>
-             </div>
-
-            <div class="p-2 bd-highlight">
-             <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
-             </div>
+              <button type="button" class="form-control btn btn-danger" @click="clear">Clear</button>
+            </div>
+            </div>  
+          <div class="col col-xs-5">
+               <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
+               </div>
           </div>
-                
+        
           <div class="progress" v-if="requestBusy">
                 <div class="progress-bar" role="progressbar" :style="'width: '+requestBusyPercent+'%'" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
                   {{ requestBusyPercent }} {{ requestBusyEvent }}
@@ -61,7 +57,7 @@
           </div> 
          </div>
      </div>
-  </div>
+ 
 </template>
 
 <script lang="ts">
@@ -78,6 +74,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import { FilterProperty } from '@/ts/types';
+import RequestManager from '@/ts/RequestManager'
 
 [ faSpinner ].map(icon => library.add(icon)) ;
 
@@ -88,7 +85,7 @@ import { FilterProperty } from '@/ts/types';
       library,FontAwesomeIcon, QueryGraphPanel,AttributesPanel
       },
   
-  emits: ["updateQuery"],
+  emits: ["updateRequestManager","updateQuery"],
   
   props : {
     query :  String
@@ -101,6 +98,8 @@ import { FilterProperty } from '@/ts/types';
       requestBusyPercent : "0",
       requestBusyEvent   : "",
       filterProperty     : FilterProperty.TO,
+      forwardActive      : false,
+      backwardActive     : false,
     }
   },
    
@@ -131,6 +130,7 @@ import { FilterProperty } from '@/ts/types';
 
     updateQuery(value : string) {
       this.currentQuery = value
+      this.updateHistoryButton() 
       this.$emit('updateQuery',this.currentQuery)
     },
 
@@ -144,12 +144,25 @@ import { FilterProperty } from '@/ts/types';
       router.push({ name : 'results' , params: { rm: this.currentQuery }})
     } ,
 
-    back() {
+    updateHistoryButton() {
+      this.forwardActive  = RequestManager.forwardIsActive()
+      this.backwardActive = RequestManager.backwardIsActive()
+    },
 
+    back() {
+      this.updateQuery(RequestManager.backward())
+      this.updateHistoryButton() 
     } ,
 
     forward() {
+      this.updateQuery(RequestManager.forward())
+      this.updateHistoryButton() 
+    },
 
+    clear() {
+      let r = new RequestManager(this.currentQuery,this)
+      r.clear()
+      this.updateQuery(r.serialized())
     }
   }
   

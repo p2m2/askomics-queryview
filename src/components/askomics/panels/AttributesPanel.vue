@@ -77,20 +77,13 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
   watch : {
     requestString(value) {
-     
       this.updateRequestString(value) 
     
     },
 
     selected_filterProperty(value) {
       this.$emit('updateFilterProperty',JSON.stringify(value))
-    } ,
-
-    attributeList(value) {
-      console.log("----------------- attributeList");
-      console.log(JSON.stringify(value))
-      //this.$forceUpdate(); 
-    }
+    } 
   },
   data () {
     return {
