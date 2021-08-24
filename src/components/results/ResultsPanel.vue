@@ -132,7 +132,7 @@ import VueTableLite from 'vue3-table-lite'
                                                     val = response.results.datatypes[col.field][uriInstance][0].value; 
                                             }
                                         }
-                                        console.log(col.field,val)
+
                                         row[col.field] = val
                                     //}
                                     
