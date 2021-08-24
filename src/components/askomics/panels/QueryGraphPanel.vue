@@ -69,9 +69,8 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
   mounted() {
     if (this.requestString) {
       this.request = new RequestManager(this.requestString,this)
-     
+      
       this.setUpSimulation();
-      this.display_suggestions()
       this.refreshSimulation()
 
     } else {
@@ -86,6 +85,7 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
   watch: {
     requestString() {
       this.request = new RequestManager(this.requestString,this)
+      this.refreshSimulation()
     },
     
     filterProperty() {
@@ -226,13 +226,15 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
     /**
      * usefull to update canavs when requestManager change his internal state
      */
-    updateGraph(selectedNodeCanvas : AskOmicsViewNode) {   
+    updateGraph(selectedNodeCanvas : AskOmicsViewNode) {
+      
       /**
        * Nothing is selected with go out and remove selection */ 
       if (! selectedNodeCanvas ) {
         console.debug(" ---  UNSELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
         this.request.setGraph(UserIncrementManager.removeSuggestion(this.request)) 
         this.request.setFocusRoot()
+        this.refreshSimulation()
       } else {
         
         /**----------------------------------------------------------------------------

@@ -233,7 +233,19 @@ export default class RequestManager {
 
     removeNode(vue : Vue) {
         if ( this.focusIsSelected() ) {
-            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;            
+            const focus = this.getDiscovery().focus()
+            
+            //alert(this.getDiscovery().root().getDecoration("graph"))
+            
+            const g = this.getGraph()
+            const id_node_rem = g.nodes.filter( n => n.focus == focus ).map( n => n.id).pop()
+            /* remove node and suggested node */
+            g.nodes = g.nodes.filter( n => (n.focus != focus) && (n.state_n != ObjectState.SUGGESTED) )
+            g.links = g.links.filter( link => (link.source != id_node_rem)&&(link.target != id_node_rem)&&(link.state_n != ObjectState.SUGGESTED) )
+            
+            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;
+            this.setGraph(g)
+
             this.vue.$emit('updateRequestManager',this.serialized())
         } else {
             console.warn("None node is selected !")
