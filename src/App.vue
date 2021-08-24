@@ -23,12 +23,12 @@
             <router-link class="nav-link" :to="{ name : 'configuration' , params: { configuration: JSON.stringify(configuration) }}">Configuration </router-link>
           </li>
         </ul>
-        
+        <!--
         <form class="d-flex">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
-      
+      -->
       </div>
     </div>
   </nav>
@@ -41,6 +41,12 @@
   />
     <!--  -->
 
+ <div class="card-footer">
+     
+     <a href="https://github.com/p2m2/askomics-queryview" target="_blank" >beta-0.0.1</a> 
+     <br/>
+     <a href="https://p2m2.github.io/discovery/" target="_blank">@p2m2/discovery</a>
+ </div>
 </template>
 
 <script lang="ts">

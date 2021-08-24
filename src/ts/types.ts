@@ -170,6 +170,12 @@ export abstract class AskOmicsGenericNode {
     uri         : string = ""
     label       : string = ""
     state_n     : ObjectState
+    
+    static min : number = -4
+    static max : number = 4
+
+    x         : number = 375 + AskOmicsGenericNode.randomInteger(AskOmicsGenericNode.min,AskOmicsGenericNode.max) // (740/2) 
+    y         : number = 225 + AskOmicsGenericNode.randomInteger(AskOmicsGenericNode.min,AskOmicsGenericNode.max) // (450/2)
 
     static idCounter : number  = 0 ;
 
@@ -183,6 +189,11 @@ export abstract class AskOmicsGenericNode {
         else
             this.label = Utils.splitUrl(uri)
     }
+
+    static randomInteger(min : number , max : number) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
 
     isSuggested() : Boolean { return this.state_n == ObjectState.SUGGESTED}
 
@@ -202,17 +213,17 @@ export abstract class AskOmicsGenericNode {
 }
 
 export class AskOmicsViewNode extends AskOmicsGenericNode {
+    
     focus     : string
     type      : NodeType
-    x         : number = 0
-    y         : number = 0
 
     constructor(uri : string, label : string, type: NodeType) {
         super(uri,label);
         this.type  = type
         this.focus = ""
     }
-
+    
+  
     static something(state : ObjectState,focus:string) : AskOmicsViewNode {
         const n = new AskOmicsViewNode("something","Something",NodeType.SOMETHING) ;
         n.type = NodeType.SOMETHING ;
@@ -226,8 +237,6 @@ export class AskOmicsViewLink extends AskOmicsGenericNode {
     type      : LinkType
     source    : string
     target    : string
-    x         : number = 0
-    y         : number = 0
     vx         : number = 0
     vy         : number = 0
 

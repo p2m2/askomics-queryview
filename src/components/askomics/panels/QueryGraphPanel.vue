@@ -67,6 +67,7 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
   },
 
   mounted() {
+  
     if (this.requestString) {
       this.request = new RequestManager(this.requestString,this)
       
@@ -84,12 +85,15 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
 
   watch: {
     requestString() {
+    
       this.request = new RequestManager(this.requestString,this)
       this.refreshSimulation()
+      this.simulation.restart()
     },
     
     filterProperty() {
       this.refreshSimulation()
+      this.simulation.restart()
     }
     
   },
