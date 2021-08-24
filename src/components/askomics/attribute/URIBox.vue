@@ -26,11 +26,13 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { AskOmicsViewAttributes } from 'src/ts/types'
 
 @Options({
     name: "URIBox",
     
     props: {
+        attribute : Object as () => AskOmicsViewAttributes 
     },
 
     methods: {
@@ -56,7 +58,7 @@ import { Options, Vue } from 'vue-class-component';
 })
 
 export default class UriBox extends Vue {
-
+    attribute!: AskOmicsViewAttributes
 }
 
 

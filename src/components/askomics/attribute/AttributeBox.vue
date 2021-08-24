@@ -11,7 +11,9 @@
     </div>
     
     <div v-if="attributeInt.range == 'uri'">
-      <URIBox>
+      <URIBox
+        v-bind:attribute="attributeInt"
+      >
       </URIBox>
     </div>
     
@@ -59,11 +61,7 @@ import XsdNumeric from './XsdNumeric.vue';
         required: true
       }
   },
-  mounted() {
-    console.log("------ATT BOX------")
-    console.log(JSON.stringify(this.attributeInt))
-    
-  },
+  
   methods: {
       toggleLinkAttribute: () => { console.log( "click 1 !") },
       
@@ -89,9 +87,15 @@ import XsdNumeric from './XsdNumeric.vue';
 
       toggleOptional: () => { console.log( "click 3 !") }
   },
+  
   data () {
     return {
-      attributeInt : this.attribute
+    }
+  },
+
+  computed : {
+    attributeInt() {
+      return this.attribute
     }
   }
 })
