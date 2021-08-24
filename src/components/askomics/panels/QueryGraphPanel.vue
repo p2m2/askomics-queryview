@@ -225,7 +225,9 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
       let rect = this.canvas.node().getBoundingClientRect();
       
       this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      this.updateGraph(this.selectedNodeCanvas)     
+      this.updateGraph(this.selectedNodeCanvas)
+      
+      this.$emit('updateRequestManager',this.request.serialized())
     },
     /**
      * usefull to update canavs when requestManager change his internal state

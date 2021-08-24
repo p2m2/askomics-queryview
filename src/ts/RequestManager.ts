@@ -59,20 +59,17 @@ export default class RequestManager {
         return JSON.stringify([ this.config_str, this.strategy_str, this.getDiscovery().getSerializedString()])
     }
 
-    clear() {
-        const n = this.defaultGraph("start").nodes[0]
-       
+    clear() {       
         this.setDiscovery(
             SWDiscovery(this.config)
             .root()
             .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
             .something("start")
-            .setDecoration("id","0")
-            .setDecoration("label","start")
+            .setDecoration("label","Something")
             .setDecoration("attributes",JSON.stringify({}))
             .root())
 
-            
+
         history                     = []
         idx_history                 = -1 
 
@@ -189,7 +186,6 @@ export default class RequestManager {
             case LinkType.FORWARD_PROPERTY: { 
                 this.setDiscovery(
                     d.isSubjectOf(new URI(link.uri))
-                    .setDecoration("id",node.id)
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
@@ -203,7 +199,6 @@ export default class RequestManager {
                 this.setDiscovery(
                     d
                     .isObjectOf(new URI(link.uri))
-                    .setDecoration("id",node.id)
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
