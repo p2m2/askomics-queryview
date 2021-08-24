@@ -79,6 +79,8 @@ export default class RequestManager {
             .root()
             .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
             .something("start")
+            .setDecoration("id","0")
+            .setDecoration("label","start")
             .setDecoration("attributes",JSON.stringify({}))
             .root()
         }
@@ -137,6 +139,8 @@ export default class RequestManager {
             case LinkType.FORWARD_PROPERTY: { 
                 this.setDiscovery(
                     d.isSubjectOf(new URI(link.uri))
+                    .setDecoration("id",node.id)
+                    .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
                
@@ -146,6 +150,8 @@ export default class RequestManager {
                 this.setDiscovery(
                     d
                     .isObjectOf(new URI(link.uri))
+                    .setDecoration("id",node.id)
+                    .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
               
@@ -246,7 +252,7 @@ export default class RequestManager {
         
         /** ON PEUT PAS ENCORE SUPPRIMER UN DATATYPE */
 
-        if ( attribute.visible ) {
+        if ( attribute.visible && attribute.uri != "uri") {
             this.setDiscovery(this.getDiscovery().datatype(attribute.uri,attribute.id))
         }
         
@@ -453,20 +459,34 @@ export default class RequestManager {
                         
                         for (const [key, element ] of Object.entries(attributes)) {
                             if ( element.visible ) {
-                                
-                                attributes_current_node.push ({
-                                    node_id : node.idRef,
-                                    label: element.label,
-                                    field: element.id,
-                                    width: "3%",
-                                    sortable: true,
-                                    isKey: false
-                                })
-
+                                if (element.uri != "uri") {
+                                    attributes_current_node.push ({
+                                        node_label : node.decorations.label,
+                                        node_id : node.idRef,
+                                        label: element.label,
+                                        field: element.id,
+                                        width: "3%",
+                                        sortable: true,
+                                        isKey: false
+                                    })    
+                                } else {
+                                    attributes_current_node.push ({
+                                        node_label : node.decorations.label,
+                                        node_id : node.idRef,
+                                        label: node.decorations.label,
+                                        field: node.idRef,
+                                        width: "3%",
+                                        sortable: true,
+                                        isKey: false
+                                    })
+    
+                                }
+                              
                             } 
                         }
                        
                     }
+                   // alert(JSON.stringify(attributes_current_node))
                     return attributes_current_node
                 //}
                /* catch (e ) {
@@ -491,9 +511,9 @@ export default class RequestManager {
 
     getCountAndLaziesPages(numberOfResults : number = 10) {
         
-        const variables = this.getColumnsResults().flatMap( (value : any) => [value.node_id,value.field] )
+        const variables = this.getColumnsResults().flatMap( (value : any) => [value.node_id,value.field] )  
         const variables_uniq = [...new Set(variables)];
-
+      
         this.setPageSize(numberOfResults)
         
         return new Promise((successCallback, failureCallback) => {

@@ -120,11 +120,11 @@ import VueTableLite from 'vue3-table-lite'
 
                                     this.columns.forEach((col : any) => {             
                                     /* datatype only */
-                                    if ( col.field != col.node_id) {
+                                   // if ( col.field != col.node_id) {
                                         let val =""
 
                                         const uriInstance : string = URIinstance.get(col.node_id) as string
-                                        if (col.field === "uri" ) {
+                                        if (col.field === col.node_id ) {
                                             val = uriInstance
                                         } else {
                                             if (response.results.datatypes[col.field] && response.results.datatypes[col.field][uriInstance]) {
@@ -132,9 +132,9 @@ import VueTableLite from 'vue3-table-lite'
                                                     val = response.results.datatypes[col.field][uriInstance][0].value; 
                                             }
                                         }
-                                        
+                                        console.log(col.field,val)
                                         row[col.field] = val
-                                    }
+                                    //}
                                     
                                 })
                                 this.rows.push(row) ;
