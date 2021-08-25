@@ -496,6 +496,7 @@ export default class RequestManager {
                      disco
                         //.console()
                         .select("property","entity","labelEntity","labelProperty")
+                        .limit(20)
                         .distinct()
                         .commit()
                         .progression( (percent : Number) => {

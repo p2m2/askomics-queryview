@@ -59,7 +59,7 @@ import { UserConfiguration } from '@/ts/types'
   data() { 
         return {
           discovery               : "",
-          configuration           : new UserConfiguration("test") ,//`{ "sources" : [{ "id"  : "test", "url" : "https://openstack-192-168-101-49.vm.openstack.genouest.org/sparql/" }]}`,
+          configuration           : null,
           requestManagerStringify : ""
         }
   },
@@ -71,10 +71,20 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   created() {
+    
     this.configuration  = new UserConfiguration("test")
+    
+    
     this.configuration.type = "url"
     this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
     this.configuration.strategy  = "data-driven" 
+    
+    /*
+    this.configuration.type      = "file"
+    this.configuration.url       = "https://raw.githubusercontent.com/p2m2/database-files/master/ttl/Metabolights_studies.ttl"
+    this.configuration.mimetype  = "text/turtle"
+    this.configuration.strategy  = "data-driven" 
+   */
     this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
   },
  

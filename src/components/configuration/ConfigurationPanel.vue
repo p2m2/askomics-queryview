@@ -73,32 +73,14 @@ import { UserConfiguration } from '@/ts/types'
           mimetype : "application/sparql-query"
         },
         {
+          title    : "FORUM Endpoint - Metabolism Knowledge Network Portal",
+          endpoint : "https://forum.semantic-metabolomics.fr/sparql/",
+          type     : "url",
+          mimetype : "application/sparql-query"
+        },
+        {
           title    : "Genostack - Metabolights",
           endpoint : "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql",
-          type     : "url",
-          mimetype : "application/sparql-query"
-        },
-         {
-          title    : "Rhea - expert-curated knowledgebase of chemical and transport reactions of biological interest",
-          endpoint : "https://sparql.rhea-db.org/sparql",
-          type     : "url",
-          mimetype : "application/sparql-query"
-        },
-        {
-          title    : "KEGG - Kyoto Encyclopedia of Genes and Genomes",
-          endpoint : "https://www.genome.jp/oc/proxy/sparql",
-          type     : "url",
-          mimetype : "application/sparql-query"
-        },
-        {
-          title    : "Mesh Term",
-          endpoint : "https://id.nlm.nih.gov/mesh/sparql",
-          type     : "url",
-          mimetype : "application/sparql-query"
-        },
-        {
-          title    : "MetaNetX - Automated Model Construction and Genome Annotation for Large-Scale Metabolic Networks",
-          endpoint : "https://rdf.metanetx.org/sparql",
           type     : "url",
           mimetype : "application/sparql-query"
         },
@@ -113,12 +95,6 @@ import { UserConfiguration } from '@/ts/types'
           endpoint : "https://raw.githubusercontent.com/p2m2/database-files/master/ttl/Metabolights_studies_askomics.ttl",
           type     : "file",
           mimetype : "text/turtle"
-        },
-        {
-          title    : "DBPedia",
-          endpoint : "https://dbpedia.org/sparql/",
-          type     : "url",
-          mimetype : "application/sparql-query"
         }
       ]
       },
@@ -133,7 +109,7 @@ import { UserConfiguration } from '@/ts/types'
         selectedimetype: 'application/sparql-query',
         optionsMimetype: [
             { text: 'SPARQL', value: 'application/sparql-query' },
-            { text: 'Turtle', value: 'B' }
+            { text: 'Turtle', value: 'text/turtle' }
           ],
         selectedStrategy: this.strategy,
         selectedEndpoint : "" 
