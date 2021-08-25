@@ -102,7 +102,6 @@ export default class RequestManager {
     }
 
     static forwardIsActive() {
-        console.log(idx_history,history.length)
         return idx_history < history.length-1
     }
 
@@ -240,7 +239,6 @@ export default class RequestManager {
     setPageSize(numberOfResults : number) {
         const re = /("pageSize"\s*:\s*)(\d+)/; 
         this.config_str = this.config_str.replace(re, "$1"+numberOfResults)
-        console.log(this.config_str)
         this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
         const disco = this.getDiscovery()
         this.setDiscovery(disco.setConfig(this.config))
@@ -289,19 +287,68 @@ export default class RequestManager {
         return true
     }
 
+    /**
+     * A node is removable if he is connected with only oldest node.
+     * Otherwise user have to remove all newest node before this node
+     */
+    removableNode() : Boolean {
+        
+        if ( !( this.focusIsSelected() && !this.isFocusStart())) 
+            return false 
+
+        const g = this.getGraph()
+        const nodeFocus  = g.nodes.filter( n => n.focus == this.getDiscovery().focus()).pop()!
+        
+        const cond = (l : AskOmicsViewLink ) => 
+        ( (l.source == nodeFocus.id) && ( Number(l.target)<Number(nodeFocus.id)) ) || 
+        ( (l.target == nodeFocus.id) && ( Number(l.source)<Number(nodeFocus.id)) ) 
+        
+
+        return g.links
+                  .filter(l=> l.state_n == ObjectState.CONCRETE)
+                  .filter(l => (l.source == nodeFocus.id)||(l.target == nodeFocus.id) )
+                  .every( cond )
+    }
+
+    remove_node_graph( graph : Graph3DJS, idx_node : string | undefined ) : Graph3DJS {
+
+        if ( !idx_node ) return graph
+
+        const g : Graph3DJS = { nodes : [], links : [] }
+
+        const neighbours = 
+            graph.links.filter(link => (link.source == idx_node)||(link.target == idx_node) )
+                       .filter( link => (link.source != "1")&&(link.target != "1") ) /* tricks to avoid to remove Something node */
+                       .map( link => { 
+                           if ( link.source == idx_node ) { 
+                               return link.target 
+                            } else { 
+                               return link.source
+                            } })
+
+        /* remove links */
+        g.links = graph.links.filter( link => (link.source != idx_node)&&(link.target != idx_node) )
+        /* remove node  */
+        g.nodes = graph.nodes.filter( n => (n.id != idx_node) )
+        
+        /* check if link exist with neighbours. if none remove node ! */
+        const nodesWithExistingLinks = g.links.flatMap( l => [l.source,l.target] )
+        g.nodes = g.nodes.filter( n => ! ( neighbours.includes(n.id)&& (!nodesWithExistingLinks.includes(n.id) ) ))
+        
+        return g
+    }
+
     removeNode(vue : Vue) {
         if ( this.focusIsSelected() ) {
             const focus = this.getDiscovery().focus()
             
             //alert(this.getDiscovery().root().getDecoration("graph"))
             
-            const g = this.getGraph()
-            const id_node_rem = g.nodes.filter( n => n.focus == focus ).map( n => n.id).pop()
-            /* remove node and suggested node */
-            g.nodes = g.nodes.filter( n => (n.focus != focus) && (n.state_n != ObjectState.SUGGESTED) )
-            g.links = g.links.filter( link => (link.source != id_node_rem)&&(link.target != id_node_rem)&&(link.state_n != ObjectState.SUGGESTED) )
+            const id_node_rem = this.getGraph().nodes.filter( n => n.focus == focus ).map( n => n.id).pop()
+            const g = this.remove_node_graph(this.getGraph(),id_node_rem)
             
-            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;
+            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus()).root()) ;
+
             this.setGraph(g)
             
             this.push()

@@ -122,7 +122,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
 
     displayRemoveButton() {
       if (this.request) {
-        return this.request.focusIsSelected() && !this.request.isFocusStart()
+        return this.request.removableNode()
       }
         
       else
