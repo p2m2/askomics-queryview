@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import AskOmics from '../views/AskOmics.vue'
+import AskOmicsTest from '../views/AskOmicsTest.vue'
 import Results from '../views/Results.vue'
 import Configuration from '../views/Configuration.vue'
 

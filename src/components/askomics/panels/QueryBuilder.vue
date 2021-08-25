@@ -159,9 +159,15 @@ import RequestManager from '@/ts/RequestManager'
     },
 
     url() {
+     // alert(this.currentQuery)
       const compressed = require('lzbase62').compress(this.currentQuery);
-      alert(compressed)
-    //  alert(this.currentQuery)
+      const rout = this.$route.href.split("/")
+
+      rout.pop()
+      console.log(JSON.stringify(document.location))
+      //alert(rout.join("/"))
+      console.log(document.location.origin+process.env.BASE_URL+"query/"+compressed)
+      //console.log(process.env.BASE_URL)
     },
 
     clear() {

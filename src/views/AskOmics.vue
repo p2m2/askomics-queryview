@@ -7,7 +7,7 @@ import { Options, Vue } from 'vue-class-component';
 import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
 
 @Options({
-  name: "AskOmicsView",
+  name: "AskOmics",
   
   components: {
     QueryBuilder 

@@ -8,7 +8,7 @@ import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vu
 import { UserConfiguration } from '@/ts/types'
 
 @Options({
-  name: "ConfigurationView",
+  name: "Configuration",
   components: {
     ConfigurationPanel
   },

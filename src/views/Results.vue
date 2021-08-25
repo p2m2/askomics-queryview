@@ -7,7 +7,7 @@ import { Options, Vue } from 'vue-class-component';
 import ResultsPanel from '@/components/results/ResultsPanel'
 
 @Options({
-  name: "ResultsView",
+  name: "Results",
   components: {
     ResultsPanel
   },

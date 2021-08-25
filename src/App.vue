@@ -92,19 +92,39 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   created() {
-    
-    this.configuration  = new UserConfiguration("test")
-    
-    this.configuration.type = "url"
-    this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
-    this.configuration.strategy  = "data-driven" 
-    
-    /*
-    this.configuration.type      = "file"
-    this.configuration.url       = "https://raw.githubusercontent.com/p2m2/database-files/master/ttl/Metabolights_studies.ttl"
-    this.configuration.mimetype  = "text/turtle"
-    this.configuration.strategy  = "data-driven" 
-   */
+    /* If user have a permalink -- management */
+    const url_split = window.location.href.split("/query/")
+   
+    if (url_split.length>1) {
+       /* form http://..../query/XXXXXXX */
+       
+       const r = JSON.parse(require('lzbase62').decompress(url_split[url_split.length-1]))
+       this.configuration  = new UserConfiguration("test")
+        
+      this.configuration.type = "url"
+      this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
+      this.configuration.strategy  = "data-driven" 
+       //alert((r[0]))
+       //this.configuration = UserConfiguration.build(r[0])
+       //this.configuration.strategy = r[1]
+       this.discovery = require('lzbase62').decompress(r[2])
+
+
+    } else {
+      this.configuration  = new UserConfiguration("test")
+      
+      this.configuration.type = "url"
+      this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
+      this.configuration.strategy  = "data-driven" 
+      
+      /*
+      this.configuration.type      = "file"
+      this.configuration.url       = "https://raw.githubusercontent.com/p2m2/database-files/master/ttl/Metabolights_studies.ttl"
+      this.configuration.mimetype  = "text/turtle"
+      this.configuration.strategy  = "data-driven" 
+    */
+    }
+
     this.updateRequestManagerStringify()
   },
  
