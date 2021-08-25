@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy" : "sh deploy.sh"
+    "deploy": "sh deploy.sh"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
@@ -16,6 +16,7 @@
     "bootstrap": "^5.0.0-beta3",
     "core-js": "^3.6.5",
     "d3": "^7.0.0",
+    "lzbase62": "^2.0.0",
     "typings": "^2.1.1",
     "vue": "^3.0.0",
     "vue-class-component": "^8.0.0-0",

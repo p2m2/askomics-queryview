@@ -19,7 +19,7 @@ import ResultsPanel from '@/components/results/ResultsPanel'
   
   computed: {
     rm() {
-      return this.$route.params.rm
+      return require('lzbase62').decompress(this.$route.params.rm)
     }
   },
 

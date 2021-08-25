@@ -22,7 +22,7 @@ import { UserConfiguration } from '@/ts/types'
   computed: {
     configuration() {
       if (this.$route.params.configuration)
-        return UserConfiguration.build(JSON.parse(this.$route.params.configuration))
+        return UserConfiguration.build(JSON.parse(require('lzbase62').decompress(this.$route.params.configuration)))
       else 
         return undefined
     }

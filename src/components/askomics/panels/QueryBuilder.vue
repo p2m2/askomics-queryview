@@ -41,7 +41,7 @@
 
               <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>            
               
-              <button type="button" class="form-control btn btn-primary" @click="forward">URL</button>
+              <button type="button" class="form-control btn btn-primary" @click="url">URL</button>
               <button type="button" class="form-control btn btn-danger" @click="clear">Clear</button>
             </div>
             </div>  
@@ -109,7 +109,6 @@ import RequestManager from '@/ts/RequestManager'
   } ,
 
   created() {
-   
   },
   
   mounted() {
@@ -141,7 +140,7 @@ import RequestManager from '@/ts/RequestManager'
     /* https://router.vuejs.org/guide/essentials/navigation.html*/
 
     getResults() {
-      router.push({ name : 'results' , params: { rm: this.currentQuery }})
+      router.push({ name : 'results' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
     } ,
 
     updateHistoryButton() {
@@ -157,6 +156,12 @@ import RequestManager from '@/ts/RequestManager'
     forward() {
       this.updateQuery(RequestManager.forward())
       this.updateHistoryButton() 
+    },
+
+    url() {
+      const compressed = require('lzbase62').compress(this.currentQuery);
+      alert(compressed)
+    //  alert(this.currentQuery)
     },
 
     clear() {

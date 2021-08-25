@@ -10,17 +10,38 @@
             :to="{ path : '/' , props: { configuration : userConfig }}" 
             >AskOmics Query Builder </router-link> -->
 
-            <router-link class="nav-link" aria-current="page"
-            :to="{ name : 'askomics' , params: { query: requestManagerStringify }}"
+            <router-link 
+              class="nav-link" 
+              aria-current="page"
+              :to="{ 
+                name : 'askomics' , 
+                params: { 
+                  query: require('lzbase62').compress(requestManagerStringify) 
+                  }
+              }"
             >AskOmics Query Builder </router-link>
           </li>
           
           <li class="nav-item">
-            <router-link class="nav-link" :to="{ name : 'results' , params: { rm: requestManagerStringify }}">Results </router-link>
+            <router-link 
+              class="nav-link" 
+              :to="{ 
+                name : 'results' , 
+                params: { 
+                  rm: require('lzbase62').compress(requestManagerStringify) 
+                }
+              }">Results </router-link>
           </li>
 
           <li class="nav-item">
-            <router-link class="nav-link" :to="{ name : 'configuration' , params: { configuration: JSON.stringify(configuration) }}">Configuration </router-link>
+            <router-link 
+              class="nav-link" 
+              :to="{ 
+                name : 'configuration' , 
+                params: { 
+                  configuration: require('lzbase62').compress(JSON.stringify(configuration)) 
+                  }
+              }">Configuration </router-link>
           </li>
         </ul>
         <!--
@@ -66,14 +87,13 @@ import { UserConfiguration } from '@/ts/types'
   
   watch: {
     discovery() {
-      this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+      this.updateRequestManagerStringify()
     }
   },
   
   created() {
     
     this.configuration  = new UserConfiguration("test")
-    
     
     this.configuration.type = "url"
     this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
@@ -85,15 +105,22 @@ import { UserConfiguration } from '@/ts/types'
     this.configuration.mimetype  = "text/turtle"
     this.configuration.strategy  = "data-driven" 
    */
-    this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+    this.updateRequestManagerStringify()
   },
  
   methods : {
     
     updateConfiguration(configuration : string) {
       this.configuration = UserConfiguration.build(JSON.parse(configuration))
-      this.requestManagerStringify = JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+      this.updateRequestManagerStringify()
+    },
+
+    updateRequestManagerStringify() {
+      this.requestManagerStringify = 
+        JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
     }
+
+
   }
 })
 export default class App extends Vue {}
