@@ -217,16 +217,18 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
     
     canvasClick(event : any) {
       
-      // if ctrl released 
-      if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
-     
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
-      
       this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      this.updateGraph(this.selectedNodeCanvas)
       
-      this.$emit('updateRequestManager',this.request.serialized())
+      if ( this.selectedNodeCanvas.state_n != ObjectState.SELECTED) {
+         // if ctrl released 
+        if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
+
+        this.updateGraph(this.selectedNodeCanvas)
+        this.$emit('updateRequestManager',this.request.serialized())
+      }
+      
     },
     /**
      * usefull to update canavs when requestManager change his internal state

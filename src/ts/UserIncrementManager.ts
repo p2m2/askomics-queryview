@@ -89,8 +89,6 @@ export default class UserIncrementManager {
          * nothing todo is node is selected 
          */
 
-        
-
          if ( toShape.state_n == ObjectState.SELECTED ) return request.getGraph()
 
         const graph = request.getGraph()
