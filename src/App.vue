@@ -73,6 +73,8 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { UserConfiguration } from '@/ts/types'
+import router from '@/router/index';
+import RequestManager from './ts/RequestManager';
 
 @Options({
   name: "AppView",
@@ -97,18 +99,13 @@ import { UserConfiguration } from '@/ts/types'
    
     if (url_split.length>1) {
        /* form http://..../query/XXXXXXX */
-       
-       const r = JSON.parse(require('lzbase62').decompress(url_split[url_split.length-1]))
-       this.configuration  = new UserConfiguration("test")
-        
-      this.configuration.type = "url"
-      this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
-      this.configuration.strategy  = "data-driven" 
-       //alert((r[0]))
-       //this.configuration = UserConfiguration.build(r[0])
-       //this.configuration.strategy = r[1]
-       this.discovery = require('lzbase62').decompress(r[2])
+      const compress_data = url_split[url_split.length-1]
+      this.requestManagerStringify = require('lzbase62').decompress(compress_data)
 
+      const rm = new RequestManager(this.requestManagerStringify,this)
+      alert(JSON.stringify(rm.config))
+      /* TODO ==> homogeniser UserConfiguation.......*/
+      router.push({ name : 'askomics' , params: { query: compress_data }})
 
     } else {
       this.configuration  = new UserConfiguration("test")
@@ -123,9 +120,10 @@ import { UserConfiguration } from '@/ts/types'
       this.configuration.mimetype  = "text/turtle"
       this.configuration.strategy  = "data-driven" 
     */
+      this.updateRequestManagerStringify()
     }
 
-    this.updateRequestManagerStringify()
+    
   },
  
   methods : {
