@@ -85,7 +85,6 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
 
   watch: {
     requestString() {
-    
       this.request = new RequestManager(this.requestString,this)
       this.refreshSimulation()
       this.simulation.restart()
@@ -243,6 +242,8 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
         this.refreshSimulation()
       } else {
         
+        const creation_node = selectedNodeCanvas.state_n == ObjectState.SUGGESTED
+
         /**----------------------------------------------------------------------------
          * Creation Node/Links  
          */
@@ -254,6 +255,9 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
          */
         console.debug(" ---  SELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
         this.request.setGraph(UserIncrementManager.removeSuggestion(this.request))
+
+        /* save session */
+        if (creation_node) this.request.push()
 
         /**-----------------------------------------------------------------------------
          *  suggestions management
@@ -324,6 +328,7 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
         alert(e)
       })
       .finally(function() {
+        /* save session to back old step */
         component.canvasClass = ""
         component.refreshSimulation()
       }) 

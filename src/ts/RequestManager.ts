@@ -73,6 +73,8 @@ export default class RequestManager {
         history                     = []
         idx_history                 = -1 
 
+        this.push()
+
     }
 
     /**
@@ -83,34 +85,46 @@ export default class RequestManager {
         if ( idx_history>0 ) {
             history = history.slice(0,idx_history+1)
         }
-        idx_history = history.push(this.serialized()) -1
+
+        /* remove all suggested stuff t*/
+        const rm = new RequestManager(this.serialized(),this.vue)
+        const g = rm.getGraph()
+        g.nodes = g.nodes
+                   .filter( n => (n.state_n == ObjectState.CONCRETE || n.state_n == ObjectState.SELECTED ) )
+                   .map( n => { n.state_n = ObjectState.CONCRETE ; return n  })
+
+        g.links = g.links
+                   .filter( l => (l.state_n == ObjectState.CONCRETE || l.state_n == ObjectState.SELECTED ) )
+                   .map( l => { l.state_n = ObjectState.CONCRETE ; return l  })
+        
+        rm.setGraph(g)
+        idx_history = history.push(rm.serialized()) -1
     }
 
     static forwardIsActive() {
+        console.log(idx_history,history.length)
         return idx_history < history.length-1
     }
 
     static forward() : String {
         if ( RequestManager.forwardIsActive() ) {
-            const stringify = history[idx_history]
             idx_history = idx_history + 1
-            return stringify
+            return history[idx_history]
         } else {
             throw Error("Can not pop a discovery session.")
         }
     }
 
     static backwardIsActive() {
-        return idx_history >= 0
+        return idx_history > 0
     }
 
 
     static backward() : String {
         
         if ( RequestManager.backwardIsActive() ) {
-            const stringify = history[idx_history]
             idx_history = idx_history - 1
-            return stringify
+            return history[idx_history]
         } else {
             throw Error("Can not pop a discovery session.")
         }
@@ -190,8 +204,6 @@ export default class RequestManager {
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
                 
-                /* save session to back old step */
-                this.push()
                 break;
 
             } 
@@ -203,9 +215,6 @@ export default class RequestManager {
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
                
-                /* save session to back old step */
-                this.push()
-
                break; 
             } 
             case LinkType.IS_A: { 
