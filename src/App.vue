@@ -105,7 +105,7 @@ import RequestManager from './ts/RequestManager';
       router.push({ name : 'askomics' , params: { query: compress_data }})
 
     } else {
-      this.configuration  = new UserConfiguration("test")
+      this.configuration  = new UserConfiguration("default_rdf_source")
       
       this.configuration.type = "url"
       this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"

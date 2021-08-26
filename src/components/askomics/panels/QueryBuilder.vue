@@ -49,12 +49,12 @@
               <button type="button" class="form-control btn btn-primary" @click="getResults">
                 <font-awesome-icon icon="poll" />  
               </button>            
-              
-              <button type="button" class="form-control btn btn-primary" @click="copyPermalinkQueryBuilderToClipBoard">
+              <!--
+              <button type="button" class="form-control btn btn-success" @click="copyPermalinkResultsToClipBoard">
                 <font-awesome-icon icon="clipboard" />
               </button>
-
-              <button type="button" class="form-control btn btn-primary" @click="copyPermalinkQueryBuilderToClipBoard">
+               -->
+              <button type="button" class="form-control btn btn-success" @click="copyPermalinkQueryBuilderToClipBoard">
                 <font-awesome-icon icon="clipboard-list" />
               </button>
 
@@ -183,6 +183,20 @@ import RequestManager from '@/ts/RequestManager'
           }, function(e:Event) {
             /* clipboard write failed */
             vue.$toast.error("query builder url to clipboard failed !"); 
+             console.error(e)
+          });
+    },
+
+    copyPermalinkResultsToClipBoard() {
+        const compressed = require('lzbase62').compress(this.currentQuery);
+        const url = document.location.origin+process.env.BASE_URL+"results/"+compressed
+        const vue = this
+        navigator.clipboard.writeText(url).then(function() {
+            /* clipboard successfully set */
+            vue.$toast.success("results url to clipboard !"); 
+          }, function(e:Event) {
+            /* clipboard write failed */
+            vue.$toast.error("results url to clipboard failed !"); 
              console.error(e)
           });
     },
