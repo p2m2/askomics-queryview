@@ -22,9 +22,8 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
   },
 
   methods : {
-    updateQuery(config_strategy_query : string) {
-      const r = JSON.parse(config_strategy_query)
-      this.$emit('updateDiscovery',r[2])
+    updateQuery(requestManagerString : string) {
+      this.$emit('updateDiscovery',requestManagerString)
     }
   }
 

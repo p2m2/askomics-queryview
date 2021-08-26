@@ -103,6 +103,11 @@ export class UserConfiguration {
     strategy       : string = "data-driven"
     logLevel       : string = "info"
 
+    pageSize        : number = 10
+    batchProcessing : number = 10
+
+    cache           : boolean = true 
+
     constructor(id  : string) {
             this.id = id
     }
@@ -111,13 +116,16 @@ export class UserConfiguration {
     static build(s : any) : UserConfiguration {
         const copy     = new UserConfiguration(s.id)
         
-        copy.url     = s.url 
-        copy.file    = s.file 
-        copy.content = s.content
-        copy.mimetype = s.mimetype 
-        copy.method = s.method 
-        copy.strategy = s.strategy  
-        copy.logLevel = s.logLevel
+        if (s.url) copy.url    = s.url 
+        if (s.file) copy.file            = s.file 
+        if (s.content) copy.content         = s.content
+        if (s.mimetype) copy.mimetype        = s.mimetype 
+        if (s.method) copy.method          = s.method 
+        if (s.strategy) copy.strategy        = s.strategy  
+        if (s.logLevel) copy.logLevel        = s.logLevel
+        if (s.pageSize) copy.pageSize        = s.pageSize  
+        if (s.batchProcessing) copy.batchProcessing = s.batchProcessing
+        if (s.cache) copy.cache = s.cache
 
         return copy  
     }
@@ -155,10 +163,10 @@ export class UserConfiguration {
             `"mimetype" : "`+this.mimetype+`"` + 
         `}],
             "settings" : {
-                "cache" : true,
-                "logLevel" : "`+this.logLevel+`",` +
-                `"sizeBatchProcessing" : 10,
-                "pageSize" : 10
+                "cache" : `+this.cache +`,
+                "logLevel" : "`+this.logLevel+`",
+                "sizeBatchProcessing" :  `+this.batchProcessing +`,
+                "pageSize" : `+this.pageSize +`
             }
         }`
     }

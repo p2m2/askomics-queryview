@@ -57,7 +57,7 @@
   <!-- Extraneous non-emits event listeners  -->
 
   <router-view 
-      @updateDiscovery="discovery = $event"
+      @updateDiscovery="requestManagerStringify = $event"
       @updateConfiguration ="updateConfiguration"
   />
     <!--  -->
@@ -81,15 +81,15 @@ import RequestManager from './ts/RequestManager';
   
   data() { 
         return {
-          discovery               : "",
           configuration           : null,
           requestManagerStringify : ""
         }
   },
   
   watch: {
-    discovery() {
-      this.updateRequestManagerStringify()
+    requestManagerStringify() {
+      /* update configuration */
+      this.configuration = new RequestManager(this.requestManagerStringify,this).getConfiguration()
     }
   },
   
@@ -100,11 +100,8 @@ import RequestManager from './ts/RequestManager';
     if (url_split.length>1) {
        /* form http://..../query/XXXXXXX */
       const compress_data = url_split[url_split.length-1]
-      this.requestManagerStringify = require('lzbase62').decompress(compress_data)
+      this.requestManagerStringify = require('lzbase62').decompress(compress_data)      
 
-      const rm = new RequestManager(this.requestManagerStringify,this)
-      alert(JSON.stringify(rm.config))
-      /* TODO ==> homogeniser UserConfiguation.......*/
       router.push({ name : 'askomics' , params: { query: compress_data }})
 
     } else {
@@ -120,7 +117,7 @@ import RequestManager from './ts/RequestManager';
       this.configuration.mimetype  = "text/turtle"
       this.configuration.strategy  = "data-driven" 
     */
-      this.updateRequestManagerStringify()
+      this.requestManagerStringify = RequestManager.getDefault(this.configuration,this).serialized()
     }
 
     
@@ -130,14 +127,10 @@ import RequestManager from './ts/RequestManager';
     
     updateConfiguration(configuration : string) {
       this.configuration = UserConfiguration.build(JSON.parse(configuration))
-      this.updateRequestManagerStringify()
-    },
-
-    updateRequestManagerStringify() {
-      this.requestManagerStringify = 
-        JSON.stringify([this.configuration.jsonConfigurationSWDiscoveryString(),this.configuration.strategy,this.discovery])
+      let rm = new RequestManager(this.requestManagerStringify,this)
+      rm.setConfiguration(this.configuration)
+      this.requestManagerStringify = rm.serialized()
     }
-
 
   }
 })
