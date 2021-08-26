@@ -19,7 +19,7 @@
                   query: require('lzbase62').compress(requestManagerStringify) 
                   }
               }"
-            >AskOmics Query Builder </router-link>
+            >Query Builder </router-link>
           </li>
           
           <li class="nav-item">

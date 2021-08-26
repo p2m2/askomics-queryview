@@ -3,7 +3,6 @@
       <div class="container"> 
           <hr/>
           <!-- waiting div -->
-          
               <br />
               <div class="row">
                 
@@ -33,15 +32,32 @@
          <div class="row">
           <div class="col">
             <div class="btn-group" role="group" aria-label="tools graph">
-              <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">&lt;&lt;</button>
-              <button type="button" class="form-control btn btn-primary disabled" v-else disabled>&lt;&lt;</button>
+              <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">
+                <font-awesome-icon icon="backward" />  
+              </button>
+              <button type="button" class="form-control btn btn-primary disabled" v-else disabled>
+                 <font-awesome-icon icon="backward" />  
+              </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="forwardActive">&gt;&gt;</button>
-               <button type="button" class="form-control btn btn-primary disabled"  v-else disabled>&gt;&gt;</button>
+              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="forwardActive">
+                 <font-awesome-icon icon="forward" />  
+              </button>
+              <button type="button" class="form-control btn btn-primary disabled"  v-else disabled>
+                 <font-awesome-icon icon="forward" />  
+              </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="getResults">Results</button>            
+              <button type="button" class="form-control btn btn-primary" @click="getResults">
+                <font-awesome-icon icon="poll" />  
+              </button>            
               
-              <button type="button" class="form-control btn btn-primary" @click="url">URL</button>
+              <button type="button" class="form-control btn btn-primary" @click="copyPermalinkQueryBuilderToClipBoard">
+                <font-awesome-icon icon="clipboard" />
+              </button>
+
+              <button type="button" class="form-control btn btn-primary" @click="copyPermalinkQueryBuilderToClipBoard">
+                <font-awesome-icon icon="clipboard-list" />
+              </button>
+
               <button type="button" class="form-control btn btn-danger" @click="clear">Clear</button>
             </div>
             </div>  
@@ -67,7 +83,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import router from '@/router/index';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 
@@ -76,7 +92,7 @@ import AttributesPanel from './AttributesPanel.vue'
 import { FilterProperty } from '@/ts/types';
 import RequestManager from '@/ts/RequestManager'
 
-[ faSpinner ].map(icon => library.add(icon)) ;
+[ faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll ].map(icon => library.add(icon)) ;
 
 @Options({
   name: "QueryBuilder",
@@ -112,7 +128,6 @@ import RequestManager from '@/ts/RequestManager'
   },
   
   mounted() {
-
   },
 
   computed : {
@@ -158,23 +173,27 @@ import RequestManager from '@/ts/RequestManager'
       this.updateHistoryButton() 
     },
 
-    url() {
-     // alert(this.currentQuery)
-      const compressed = require('lzbase62').compress(this.currentQuery);
-      const rout = this.$route.href.split("/")
-
-      rout.pop()
-      console.log(JSON.stringify(document.location))
-      //alert(rout.join("/"))
-      console.log(document.location.origin+process.env.BASE_URL+"query/"+compressed)
-      //console.log(process.env.BASE_URL)
+    copyPermalinkQueryBuilderToClipBoard() {
+        const compressed = require('lzbase62').compress(this.currentQuery);
+        const url = document.location.origin+process.env.BASE_URL+"query/"+compressed
+        const vue = this
+        navigator.clipboard.writeText(url).then(function() {
+            /* clipboard successfully set */
+            vue.$toast.success("query builder url to clipboard !"); 
+          }, function(e:Event) {
+            /* clipboard write failed */
+            vue.$toast.error("query builder url to clipboard failed !"); 
+             console.error(e)
+          });
     },
 
     clear() {
       let r = new RequestManager(this.currentQuery,this)
       r.clear()
       this.updateQuery(r.serialized())
-    }
+      this.$toast.info("clear session !"); 
+    },
+
   }
   
 })
@@ -186,4 +205,8 @@ export default class AskOmics extends Vue {
 </script>
 
 <style>
+.modal-body{
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
 </style>
