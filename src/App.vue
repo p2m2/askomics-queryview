@@ -6,10 +6,6 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           
           <li class="nav-item">
-          <!--  <router-link class="nav-link" aria-current="page" 
-            :to="{ path : '/' , props: { configuration : userConfig }}" 
-            >AskOmics Query Builder </router-link> -->
-
             <router-link 
               class="nav-link" 
               aria-current="page"
@@ -50,8 +46,8 @@
               :to="{ 
                 name : 'configuration' , 
                 params: { 
-                  configuration: require('lzbase62').compress(JSON.stringify(configuration)) 
-                  }
+                  rm: require('lzbase62').compress(requestManagerStringify) 
+                }
               }">Configuration</router-link>
           </li>
 
@@ -69,8 +65,7 @@
   <!-- Extraneous non-emits event listeners  -->
 
   <router-view 
-      @updateDiscovery="requestManagerStringify = $event"
-      @updateConfiguration ="updateConfiguration"
+      @updateRequestManager="requestManagerStringify = $event"
   />
     <!--  -->
 
@@ -93,16 +88,8 @@ import RequestManager from './ts/RequestManager';
   
   data() { 
         return {
-          configuration           : null,
           requestManagerStringify : ""
         }
-  },
-  
-  watch: {
-    requestManagerStringify() {
-      /* update configuration */
-      this.configuration = new RequestManager(this.requestManagerStringify,this).getConfiguration()
-    }
   },
   
   created() {
@@ -117,11 +104,11 @@ import RequestManager from './ts/RequestManager';
       router.push({ name : 'askomics' , params: { query: compress_data }})
 
     } else {
-      this.configuration  = new UserConfiguration("default_rdf_source")
+      let configuration  = new UserConfiguration("default_rdf_source")
       
-      this.configuration.type = "url"
-      this.configuration.url  = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
-      this.configuration.strategy  = "data-driven" 
+      configuration.mimetype = "application/sparql-query"
+      configuration.url      = "https://askomics-metabolights-192-168-100-98.vm.openstack.genouest.org/virtuoso/sparql"
+      configuration.strategy = "data-driven" 
       
       /*
       this.configuration.type      = "file"
@@ -129,22 +116,15 @@ import RequestManager from './ts/RequestManager';
       this.configuration.mimetype  = "text/turtle"
       this.configuration.strategy  = "data-driven" 
     */
-      this.requestManagerStringify = RequestManager.getDefault(this.configuration,this).serialized()
+      this.requestManagerStringify = RequestManager.getDefault(configuration,this).serialized()
     }
 
     
   },
  
   methods : {
-    
-    updateConfiguration(configuration : string) {
-      this.configuration = UserConfiguration.build(JSON.parse(configuration))
-      let rm = new RequestManager(this.requestManagerStringify,this)
-      rm.setConfiguration(this.configuration)
-      this.requestManagerStringify = rm.serialized()
-    }
-
   }
+  
 })
 export default class App extends Vue {}
 </script>

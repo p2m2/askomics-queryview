@@ -32,6 +32,10 @@
          <div class="row">
           <div class="col">
             <div class="btn-group" role="group" aria-label="tools graph">
+              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="configuration">
+                 <font-awesome-icon icon="sliders-h" />  
+              </button>
+
               <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">
                 <font-awesome-icon icon="backward" />  
               </button>
@@ -48,7 +52,12 @@
 
               <button type="button" class="form-control btn btn-primary" @click="getResults">
                 <font-awesome-icon icon="poll" />  
-              </button>            
+              </button> 
+              
+              <button type="button" class="form-control btn btn-info" @click="console">
+                <font-awesome-icon icon="terminal" />
+              </button>
+
               <!--
               <button type="button" class="form-control btn btn-success" @click="copyPermalinkResultsToClipBoard">
                 <font-awesome-icon icon="clipboard" />
@@ -83,7 +92,7 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import router from '@/router/index';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll } from '@fortawesome/free-solid-svg-icons';
+import { faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll, faTerminal, faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 
@@ -92,7 +101,7 @@ import AttributesPanel from './AttributesPanel.vue'
 import { FilterProperty } from '@/ts/types';
 import RequestManager from '@/ts/RequestManager'
 
-[ faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll ].map(icon => library.add(icon)) ;
+[ faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll, faTerminal, faSlidersH ].map(icon => library.add(icon)) ;
 
 @Options({
   name: "QueryBuilder",
@@ -101,7 +110,7 @@ import RequestManager from '@/ts/RequestManager'
       library,FontAwesomeIcon, QueryGraphPanel,AttributesPanel
       },
   
-  emits: ["updateRequestManager","updateQuery"],
+  emits: ["updateRequestManager"],
   
   props : {
     query :  String
@@ -145,7 +154,7 @@ import RequestManager from '@/ts/RequestManager'
     updateQuery(value : string) {
       this.currentQuery = value
       this.updateHistoryButton() 
-      this.$emit('updateQuery',this.currentQuery)
+      this.$emit('updateRequestManager',this.currentQuery)
     },
 
     attributeBoxEvent(e: string) {
@@ -157,6 +166,14 @@ import RequestManager from '@/ts/RequestManager'
     getResults() {
       router.push({ name : 'results' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
     } ,
+
+    console() {
+      router.push({ name : 'console' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
+    },
+
+    configuration() {
+      router.push({ name : 'configuration' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
+    },
 
     updateHistoryButton() {
       this.forwardActive  = RequestManager.forwardIsActive()

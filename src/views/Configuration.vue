@@ -1,11 +1,12 @@
 <template>
-  <ConfigurationPanel :configurations_list="config_list" v-model:configuration="configuration" />
+  <ConfigurationPanel 
+     :configurations_list="config_list" 
+     :requestManagerStringify="requestManagerStringify"/>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import ConfigurationPanel from '@/components/configuration/ConfigurationPanel.vue'
-import { UserConfiguration } from '@/ts/types'
 
 @Options({
   name: "Configuration",
@@ -20,11 +21,9 @@ import { UserConfiguration } from '@/ts/types'
   },
   
   computed: {
-    configuration() {
-      if (this.$route.params.configuration)
-        return UserConfiguration.build(JSON.parse(require('lzbase62').decompress(this.$route.params.configuration)))
-      else 
-        return undefined
+    
+    requestManagerStringify() {
+      return require('lzbase62').decompress(this.$route.params.rm)
     }
   },
 

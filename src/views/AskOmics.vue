@@ -1,5 +1,5 @@
 <template>
-    <QueryBuilder v-model:query="query" @updateQuery="updateQuery" />
+    <QueryBuilder v-model:query="query" @updateRequestManager="updateQuery" />
 </template>
 
 <script lang="ts">
@@ -13,7 +13,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
     QueryBuilder 
   },
 
-  emits: ["updateDiscovery"],
+  emits: ["updateRequestManager"],
  
   computed: {
     query() {
@@ -23,7 +23,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
 
   methods : {
     updateQuery(requestManagerString : string) {
-      this.$emit('updateDiscovery',requestManagerString)
+      this.$emit('updateRequestManager',requestManagerString)
     }
   }
 

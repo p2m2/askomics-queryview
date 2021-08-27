@@ -31,7 +31,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Console
   },
   {
-    path: '/configuration/:configuration',
+    path: '/configuration/:rm',
     name: 'configuration',
     component: Configuration
   }
