@@ -8,12 +8,10 @@ import StrategyRequestAbstract from './StrategyRequestAbstract'
 export default class StrategyRequestAskOmics extends StrategyRequestAbstract {
 
     askomics_prefix : string = "http://askomics.org/internal/"
-    config_endp  : string
 
-    constructor(config_endp : string) {
+    constructor() {
         super();
         console.log(" ============ StrategyRequestAskOmics ============ ") ;
-        this.config_endp = config_endp
     }
 
     attributeList(discovery : any,focus: string) : any {

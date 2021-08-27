@@ -92,6 +92,7 @@ export default class UserIncrementManager {
          if ( toShape.state_n == ObjectState.SELECTED ) return request.getGraph()
 
         const graph = request.getGraph()
+
         /**
          * Select Node if node is concrete and exit .
          */

@@ -23,7 +23,7 @@ import { AskOmicsViewAttributes } from 'src/ts/types'
 
 @Options({
     props: { 
-        attribute : Object as () => AskOmicsViewAttributes 
+        attributeInt : Object as () => AskOmicsViewAttributes 
     },
     
     methods : {

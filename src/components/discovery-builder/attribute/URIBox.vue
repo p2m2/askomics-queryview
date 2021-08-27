@@ -1,5 +1,5 @@
 <template>
-<div id="askomics-text-box">
+<div id="askomics-uri-box">
 <table>
 <tr>
     <td>
@@ -26,12 +26,13 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AskOmicsViewAttributes } from 'src/ts/types';
+import { AskOmicsViewAttributes } from 'src/ts/types'
 
 @Options({
+    name: "URIBox",
     
     props: {
-        attribute : Object as () => AskOmicsViewAttributes 
+        attributeInt : Object as () => AskOmicsViewAttributes 
     },
 
     methods: {
@@ -39,6 +40,8 @@ import { AskOmicsViewAttributes } from 'src/ts/types';
 
     data() { 
         return {
+            visible : false,
+            linked: false,
             typeSearch: 'A',
             optionsTypeSearch: [
                 { text: 'Exact', value: 'A' },
@@ -54,8 +57,8 @@ import { AskOmicsViewAttributes } from 'src/ts/types';
     }
 })
 
-export default class XsdString extends Vue {
-  attribute!: AskOmicsViewAttributes
+export default class UriBox extends Vue {
+    attribute!: AskOmicsViewAttributes
 }
 
 
