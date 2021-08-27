@@ -85,7 +85,6 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
 
   watch: {
     requestString() {
-    
       this.request = new RequestManager(this.requestString,this)
       this.refreshSimulation()
       this.simulation.restart()
@@ -218,14 +217,18 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
     
     canvasClick(event : any) {
       
-      // if ctrl released 
-      if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
-     
       /* Find Selected Object */
       let rect = this.canvas.node().getBoundingClientRect();
-      
       this.selectedNodeCanvas = this.simulation.find(event.x - rect.left, event.y - rect.top,this.nodeSize);
-      this.updateGraph(this.selectedNodeCanvas)     
+      
+      if ( !this.selectedNodeCanvas || this.selectedNodeCanvas.state_n != ObjectState.SELECTED) {
+         // if ctrl released 
+        if ( ! event.ctrlKey ) this.request.setGraph(UserIncrementManager.releaseSelectedObject(this.request.getGraph()))
+
+        this.updateGraph(this.selectedNodeCanvas)
+        this.$emit('updateRequestManager',this.request.serialized())
+      }
+      
     },
     /**
      * usefull to update canavs when requestManager change his internal state
@@ -241,6 +244,8 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
         this.refreshSimulation()
       } else {
         
+        const creation_node = selectedNodeCanvas.state_n == ObjectState.SUGGESTED
+
         /**----------------------------------------------------------------------------
          * Creation Node/Links  
          */
@@ -252,6 +257,9 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
          */
         console.debug(" ---  SELECTED NODE / updateGraph/UserIncrementManager.removeSuggestion --- ")
         this.request.setGraph(UserIncrementManager.removeSuggestion(this.request))
+
+        /* save session */
+        if (creation_node) this.request.push()
 
         /**-----------------------------------------------------------------------------
          *  suggestions management
@@ -322,6 +330,7 @@ import { ObjectState, LinkType, FilterProperty, AskOmicsViewNode, AskOmicsViewLi
         alert(e)
       })
       .finally(function() {
+        /* save session to back old step */
         component.canvasClass = ""
         component.refreshSimulation()
       }) 

@@ -7,7 +7,7 @@ import { Options, Vue } from 'vue-class-component';
 import ResultsPanel from '@/components/results/ResultsPanel'
 
 @Options({
-  name: "ResultsView",
+  name: "Results",
   components: {
     ResultsPanel
   },
@@ -19,7 +19,7 @@ import ResultsPanel from '@/components/results/ResultsPanel'
   
   computed: {
     rm() {
-      return this.$route.params.rm
+      return require('lzbase62').decompress(this.$route.params.rm)
     }
   },
 

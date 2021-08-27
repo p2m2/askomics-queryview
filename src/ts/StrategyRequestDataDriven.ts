@@ -9,7 +9,7 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
 
     constructor() {
         super();
-       // console.log(" ============ StrategyRequestDataDriven ============ ") ;
+        //console.log(" ============ StrategyRequestDataDriven ============ ") ;
     }
 
     
@@ -28,16 +28,15 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
     }
 
     forwardEntities(discovery : any,config_rdf : string,current: AskOmicsViewNode) : any {
-
         return discovery
            .isSubjectOf(new QueryVariable("property"))
             .isSubjectOf(new URI("rdf:type"),"entity")
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs:label"),"labelEntity")       
      .focus("property")
-       .filter.notEqual("rdf:type")
-       .filter.notEqual("rdfs:domain")
-       .filter.notEqual("rdfs:range")
+       .filter.not.strStarts(new Literal("http://www.w3.org/2002/07/owl#"))
+       .filter.not.strStarts(new Literal("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+       .filter.not.strStarts(new Literal("http://www.w3.org/2000/01/rdf-schema#"))
        .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs:label"),"labelProperty");
     }
@@ -51,9 +50,10 @@ export default class StrategyRequestDataDriven extends StrategyRequestAbstract {
              .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .datatype(new URI("rdfs:label"),"labelEntity")       
           .focus("property")
-            .filter.notEqual("rdf:type")
-            .filter.notEqual("rdfs:domain")
-            .filter.notEqual("rdfs:range")
+          .filter.not.strStarts(new Literal("http://www.w3.org/2002/07/owl#"))
+          .filter.not.strStarts(new Literal("http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
+          .filter.not.strStarts(new Literal("http://www.w3.org/2000/01/rdf-schema#"))
+          .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
             .filter.not.strStarts(new Literal("http://www.openlinksw.com/"))
                     .datatype(new URI("rdfs:label"),"labelProperty");
     }

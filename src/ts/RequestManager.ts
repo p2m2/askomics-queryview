@@ -1,7 +1,7 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
 import { LinkType, AskOmicsGenericNode, 
          AskOmicsViewNode, AskOmicsViewLink, NodeType, 
-         ObjectState, AskOmicsViewAttributes, Graph3DJS } from './types'
+         ObjectState, AskOmicsViewAttributes, Graph3DJS, UserConfiguration } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -30,8 +30,6 @@ function getDiscovery(id : number) : any {
 export default class RequestManager {
     static idCounter : number                  = 0 ;
     id               : number                  = RequestManager.idCounter++;
-    config           : any                         ;
-    config_str       : string                  = "" ;
     strategy_str     : string                  = "" ;
     strategy         : StrategyRequestAbstract = new StrategyRequestDataDriven();
     discovery        : any                     = null ;
@@ -47,7 +45,23 @@ export default class RequestManager {
         
     }
     
-    defaultGraph(focus: string)  : any {
+    parse( serializedDiscovery : string ) {
+        
+        if (! serializedDiscovery || serializedDiscovery.length<=0) {
+            throw new Error("Non string to parse !")
+        }
+        
+        if (serializedDiscovery && serializedDiscovery.length>0) {
+            this.setDiscovery(SWDiscovery().setSerializedString(serializedDiscovery))
+        } else {
+            this.clear()
+        }
+
+         /* to manage configuration managing by the current interface */
+         this.setConfiguration(this.getConfiguration())
+    }
+
+    static defaultGraph(focus: string)  : any {
         return {
             nodes : [AskOmicsViewNode.something(ObjectState.CONCRETE,focus)],
             links : []
@@ -56,37 +70,99 @@ export default class RequestManager {
 
 
     serialized() : string {
-        return JSON.stringify([ this.config_str, this.strategy_str, this.getDiscovery().getSerializedString()])
+        return this.getDiscovery().getSerializedString()
     }
 
-    clear() {
-        const n = this.defaultGraph("start").nodes[0]
-       
+    clear() {       
+        const config = this.getConfiguration()
+
         this.setDiscovery(
-            SWDiscovery(this.config)
+            SWDiscovery(SWDiscoveryConfiguration.setConfigString(config.jsonConfigurationSWDiscoveryString()))
             .root()
-            .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
+            .setDecoration("configuration",JSON.stringify(config))
+            .setDecoration("graph",JSON.stringify(RequestManager.defaultGraph("start")))
             .something("start")
-            .setDecoration("id","0")
-            .setDecoration("label","start")
+            .setDecoration("label","Something")
             .setDecoration("attributes",JSON.stringify({}))
             .root())
 
-            
+
         history                     = []
         idx_history                 = -1 
 
+        this.push()
     }
 
-    /**
+    /* get a default Request Manager */
+    static getDefault(config : UserConfiguration, vue : Vue) : RequestManager {
+        
+        //alert(config.jsonConfigurationSWDiscoveryString())
+
+        return new RequestManager(
+            SWDiscovery(SWDiscoveryConfiguration.setConfigString(config.jsonConfigurationSWDiscoveryString()))
+            .root()
+            .setDecoration("configuration",JSON.stringify(config))
+            .setDecoration("graph",JSON.stringify(this.defaultGraph("start")))
+            .something("start")
+            .setDecoration("label","Something")
+            .setDecoration("attributes",JSON.stringify({}))
+            .root()
+            .getSerializedString(),vue)
+    }
+
+    setConfiguration(config : UserConfiguration) {
+        const current_focus =  this.getDiscovery().focus()
+        this.setDiscovery(
+            this.getDiscovery()
+            .setConfig(SWDiscoveryConfiguration.setConfigString(config.jsonConfigurationSWDiscoveryString()))
+            .root()
+            .setDecoration("configuration",JSON.stringify(config))
+            .focus(current_focus)
+            )
+        
+        switch(config.strategy) {
+            case "askomics" : {
+                this.strategy = new StrategyRequestAskOmics() ;
+                break
+            }
+            case "data-driven" : {
+                this.strategy = new StrategyRequestDataDriven() ;
+                break
+            }
+            default : {
+                console.warn("strategy unknown : "+this.strategy_str)
+                this.strategy = new StrategyRequestDataDriven() ;
+            }
+        }
+
+    }
+
+    getConfiguration() : UserConfiguration {
+        return UserConfiguration.build(JSON.parse(this.getDiscovery().root().getDecoration("configuration")))
+    }
+
+     /**
      * History session management with push, forward, back
      * 
      */
-    push() {
+      push() {
         if ( idx_history>0 ) {
             history = history.slice(0,idx_history+1)
         }
-        idx_history = history.push(this.serialized()) -1
+
+        /* remove all suggested stuff t*/
+        const rm = new RequestManager(this.serialized(),this.vue)
+        const g = rm.getGraph()
+        g.nodes = g.nodes
+                   .filter( n => (n.state_n == ObjectState.CONCRETE || n.state_n == ObjectState.SELECTED ) )
+                   .map( n => { n.state_n = ObjectState.CONCRETE ; return n  })
+
+        g.links = g.links
+                   .filter( l => (l.state_n == ObjectState.CONCRETE || l.state_n == ObjectState.SELECTED ) )
+                   .map( l => { l.state_n = ObjectState.CONCRETE ; return l  })
+        
+        rm.setGraph(g)
+        idx_history = history.push(rm.serialized()) -1
     }
 
     static forwardIsActive() {
@@ -95,63 +171,26 @@ export default class RequestManager {
 
     static forward() : String {
         if ( RequestManager.forwardIsActive() ) {
-            const stringify = history[idx_history]
             idx_history = idx_history + 1
-            return stringify
+            return history[idx_history]
         } else {
             throw Error("Can not pop a discovery session.")
         }
     }
 
     static backwardIsActive() {
-        return idx_history >= 0
+        console.log(idx_history)
+        return idx_history > 0
     }
 
 
     static backward() : String {
         
         if ( RequestManager.backwardIsActive() ) {
-            const stringify = history[idx_history]
             idx_history = idx_history - 1
-            return stringify
+            return history[idx_history]
         } else {
             throw Error("Can not pop a discovery session.")
-        }
-
-    }
-
-
-    parse( str : string ) {
-        
-        if (! str || str.length<=0) {
-            throw new Error("Non string to parse !")
-        }
-
-        const r = JSON.parse(str)
-        this.config_str = r[0]
-        this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
-        this.strategy_str = r[1]
-        const serializedDiscovery = r[2]
-        
-        if (serializedDiscovery && serializedDiscovery.length>0) {
-            this.setDiscovery(SWDiscovery(this.config).setSerializedString(serializedDiscovery))
-        } else {
-            this.clear()
-        }
-        
-        switch(this.strategy_str) {
-            case "askomics" : {
-                this.setAskOmicsStrategy()
-                break
-            }
-            case "data-driven" : {
-                this.setDataDrivenStrategy()
-                break
-            }
-            default : {
-                console.warn("strategy unknown : "+this.strategy_str)
-                this.setDataDrivenStrategy()
-            }
         }
 
     }
@@ -184,18 +223,15 @@ export default class RequestManager {
         const snd_node_id = link.source == node.id ? link.source : link.target
         const snd_node : AskOmicsViewNode = this.getGraph().nodes.filter( x => x.id == snd_node_id).pop()!
         const d : any = this.getDiscovery()
-        
+        d.console()
         switch(link.type) { 
             case LinkType.FORWARD_PROPERTY: { 
                 this.setDiscovery(
                     d.isSubjectOf(new URI(link.uri))
-                    .setDecoration("id",node.id)
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
                 
-                /* save session to back old step */
-                this.push()
                 break;
 
             } 
@@ -203,14 +239,10 @@ export default class RequestManager {
                 this.setDiscovery(
                     d
                     .isObjectOf(new URI(link.uri))
-                    .setDecoration("id",node.id)
                     .setDecoration("label",node.label)
                     .setDecoration("attributes",JSON.stringify({}))
                     .isA(new URI(snd_node.uri)))
                
-                /* save session to back old step */
-                this.push()
-
                break; 
             } 
             case LinkType.IS_A: { 
@@ -234,14 +266,10 @@ export default class RequestManager {
 
     /** CONFIGURATION */
     setPageSize(numberOfResults : number) {
-        const re = /("pageSize"\s*:\s*)(\d+)/; 
-        this.config_str = this.config_str.replace(re, "$1"+numberOfResults)
-        console.log(this.config_str)
-        this.config = SWDiscoveryConfiguration.setConfigString(this.config_str)
-        const disco = this.getDiscovery()
-        this.setDiscovery(disco.setConfig(this.config))
+        const config : UserConfiguration = this.getConfiguration()
+        config.pageSize = numberOfResults
+        this.setConfiguration(config)
     }
-
    
     focusIsSelected() : boolean {
         return ( this.getFocus() != this.getDiscovery().root().focus() ) 
@@ -249,14 +277,6 @@ export default class RequestManager {
 
     isFocusStart() : boolean {
         return ( this.getFocus() == "start" ) 
-    }
-
-    setAskOmicsStrategy() {
-        this.strategy = new StrategyRequestAskOmics(this.config) ;
-    }
-
-    setDataDrivenStrategy() {
-        this.strategy = new StrategyRequestDataDriven() ;
     }
 
     getFocus() : string {
@@ -285,19 +305,68 @@ export default class RequestManager {
         return true
     }
 
+    /**
+     * A node is removable if he is connected with only oldest node.
+     * Otherwise user have to remove all newest node before this node
+     */
+    removableNode() : Boolean {
+        
+        if ( !( this.focusIsSelected() && !this.isFocusStart())) 
+            return false 
+
+        const g = this.getGraph()
+        const nodeFocus  = g.nodes.filter( n => n.focus == this.getDiscovery().focus()).pop()!
+        
+        const cond = (l : AskOmicsViewLink ) => 
+        ( (l.source == nodeFocus.id) && ( Number(l.target)<Number(nodeFocus.id)) ) || 
+        ( (l.target == nodeFocus.id) && ( Number(l.source)<Number(nodeFocus.id)) ) 
+        
+
+        return g.links
+                  .filter(l=> l.state_n == ObjectState.CONCRETE)
+                  .filter(l => (l.source == nodeFocus.id)||(l.target == nodeFocus.id) )
+                  .every( cond )
+    }
+
+    remove_node_graph( graph : Graph3DJS, idx_node : string | undefined ) : Graph3DJS {
+
+        if ( !idx_node ) return graph
+
+        const g : Graph3DJS = { nodes : [], links : [] }
+
+        const neighbours = 
+            graph.links.filter(link => (link.source == idx_node)||(link.target == idx_node) )
+                       .filter( link => (link.source != "1")&&(link.target != "1") ) /* tricks to avoid to remove Something node */
+                       .map( link => { 
+                           if ( link.source == idx_node ) { 
+                               return link.target 
+                            } else { 
+                               return link.source
+                            } })
+
+        /* remove links */
+        g.links = graph.links.filter( link => (link.source != idx_node)&&(link.target != idx_node) )
+        /* remove node  */
+        g.nodes = graph.nodes.filter( n => (n.id != idx_node) )
+        
+        /* check if link exist with neighbours. if none remove node ! */
+        const nodesWithExistingLinks = g.links.flatMap( l => [l.source,l.target] )
+        g.nodes = g.nodes.filter( n => ! ( neighbours.includes(n.id)&& (!nodesWithExistingLinks.includes(n.id) ) ))
+        
+        return g
+    }
+
     removeNode(vue : Vue) {
         if ( this.focusIsSelected() ) {
             const focus = this.getDiscovery().focus()
             
             //alert(this.getDiscovery().root().getDecoration("graph"))
             
-            const g = this.getGraph()
-            const id_node_rem = g.nodes.filter( n => n.focus == focus ).map( n => n.id).pop()
-            /* remove node and suggested node */
-            g.nodes = g.nodes.filter( n => (n.focus != focus) && (n.state_n != ObjectState.SUGGESTED) )
-            g.links = g.links.filter( link => (link.source != id_node_rem)&&(link.target != id_node_rem)&&(link.state_n != ObjectState.SUGGESTED) )
+            const id_node_rem = this.getGraph().nodes.filter( n => n.focus == focus ).map( n => n.id).pop()
+            const g = this.remove_node_graph(this.getGraph(),id_node_rem)
             
-            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus())) ;
+            this.setDiscovery(this.getDiscovery().remove(this.getDiscovery().focus()).root()) ;
+
             this.setGraph(g)
             
             this.push()
@@ -309,7 +378,7 @@ export default class RequestManager {
     }
 
     updateAttribute(attribute :AskOmicsViewAttributes) {
-       
+        
         if(!this.getDiscovery().getDecoration("attributes")) {
             alert("Bad definition of decorations : "+this.getDiscovery().getDecoration("attributes"))
         }
@@ -322,10 +391,30 @@ export default class RequestManager {
 
         if ( attribute.visible && attribute.uri != "uri") {
             this.setDiscovery(this.getDiscovery().datatype(attribute.uri,attribute.id))
+        } else {
+            //TODO : remove datatype....
         }
         
+        const focus = this.getDiscovery().focus()
+
+        /*
+        if ( attribute.filterValue.length>0) {
+            
+            let disco = this.getDiscovery().remove(attribute.id+"__")
+            disco = disco.focus(focus)
+            disco = disco.isSubjectOf(attribute.uri,attribute.id+"__")
+
+            switch ( attribute.range ) {
+                case "xsd:string" : {
+                    this.setDiscovery(disco.filter.contains(attribute.filterValue))
+                }
+            }
+        }
+
+        */
         this.setDiscovery(
             this.getDiscovery()
+            .focus(focus)
             .setDecoration("attributes",JSON.stringify(map))
             )
         
@@ -380,7 +469,7 @@ export default class RequestManager {
                                 lUris.push(key)
                             }
  
-                            this.strategy.getDatatypes(this.config_str, lUris)
+                            this.strategy.getDatatypes(this.getConfiguration().jsonConfigurationSWDiscoveryString(), lUris)
                             .then ( (mapPropertyAndRange )=>{
                                 let iCount = 0
                                 lUris.map(
@@ -425,12 +514,12 @@ export default class RequestManager {
 
                 switch(type) { 
                     case NodeType.FORWARD_ENTITY : { 
-                        disco = this.strategy.forwardEntities(this.getDiscovery(),this.config_str,current)
+                        disco = this.strategy.forwardEntities(this.getDiscovery(),this.getConfiguration().jsonConfigurationSWDiscoveryString(),current)
                         typeLink = LinkType.FORWARD_PROPERTY
                         break; 
                     } 
                     case NodeType.BACKWARD_ENTITY : { 
-                        disco = this.strategy.backwardEntities(this.getDiscovery(),this.config_str,current)
+                        disco = this.strategy.backwardEntities(this.getDiscovery(),this.getConfiguration().jsonConfigurationSWDiscoveryString(),current)
                         typeLink = LinkType.BACKWARD_PROPERTY
                         break; 
                     } 
@@ -445,6 +534,7 @@ export default class RequestManager {
                      disco
                         //.console()
                         .select("property","entity","labelEntity","labelProperty")
+                        .limit(20)
                         .distinct()
                         .commit()
                         .progression( (percent : Number) => {

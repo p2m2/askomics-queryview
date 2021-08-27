@@ -2,10 +2,10 @@
 /*
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-      ? '/askomics-queryview/dist'
+      ? '/discovery-queryview/dist'
       : '/'
 }
 */
 module.exports = {
-  publicPath : '/askomics-queryview/'
+  publicPath : '/discovery-queryview/'
 }
