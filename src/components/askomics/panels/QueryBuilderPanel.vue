@@ -47,19 +47,18 @@
 
 import { Options, Vue } from 'vue-class-component'
 import "bootstrap/dist/css/bootstrap.min.css"
-import router from '@/router/index';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll, faTerminal, faSlidersH } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 
 import QueryGraphPanel from './QueryGraphPanel.vue'
 import AttributesPanel from './AttributesPanel.vue'
 import { FilterProperty } from '@/ts/types';
-import RequestManager from '@/ts/RequestManager'
 
-[ faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll, faTerminal, faSlidersH ].map(icon => library.add(icon)) ;
+[ faSpinner ].map(icon => library.add(icon)) ;
+
 
 @Options({
   name: "QueryBuilderPanel",
@@ -81,8 +80,6 @@ import RequestManager from '@/ts/RequestManager'
       requestBusyPercent : "0",
       requestBusyEvent   : "",
       filterProperty     : FilterProperty.TO,
-      forwardActive      : false,
-      backwardActive     : false
     }
   },
    
@@ -117,77 +114,12 @@ import RequestManager from '@/ts/RequestManager'
 
     updateQuery(value : string) {
       this.currentQuery = value
-      this.updateHistoryButton() 
       this.$emit('updateRequestManager',this.currentQuery)
     },
 
     attributeBoxEvent(e: string) {
       console.log("attributeBoxEvent:",e)
     },
-
-    /* https://router.vuejs.org/guide/essentials/navigation.html*/
-
-    getResults() {
-      router.push({ name : 'results' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
-    } ,
-
-    console() {
-      router.push({ name : 'console' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
-    },
-
-    configuration() {
-      router.push({ name : 'configuration' , params: { rm: require('lzbase62').compress(this.currentQuery) }})
-    },
-
-    updateHistoryButton() {
-      this.forwardActive  = RequestManager.forwardIsActive()
-      this.backwardActive = RequestManager.backwardIsActive()
-    },
-
-    back() {
-      this.updateQuery(RequestManager.backward())
-      this.updateHistoryButton() 
-    } ,
-
-    forward() {
-      this.updateQuery(RequestManager.forward())
-      this.updateHistoryButton() 
-    },
-
-    copyPermalinkQueryBuilderToClipBoard() {
-        const compressed = require('lzbase62').compress(this.currentQuery);
-        const url = document.location.origin+process.env.BASE_URL+"query/"+compressed
-        const vue = this
-        navigator.clipboard.writeText(url).then(function() {
-            /* clipboard successfully set */
-            vue.$toast.success("query builder url to clipboard !"); 
-          }, function(e:Event) {
-            /* clipboard write failed */
-            vue.$toast.error("query builder url to clipboard failed !"); 
-             console.error(e)
-          });
-    },
-
-    copyPermalinkResultsToClipBoard() {
-        const compressed = require('lzbase62').compress(this.currentQuery);
-        const url = document.location.origin+process.env.BASE_URL+"results/"+compressed
-        const vue = this
-        navigator.clipboard.writeText(url).then(function() {
-            /* clipboard successfully set */
-            vue.$toast.success("results url to clipboard !"); 
-          }, function(e:Event) {
-            /* clipboard write failed */
-            vue.$toast.error("results url to clipboard failed !"); 
-             console.error(e)
-          });
-    },
-
-    clear() {
-      let r = new RequestManager(this.currentQuery,this)
-      r.clear()
-      this.updateQuery(r.serialized())
-      this.$toast.info("clear session !"); 
-    }
   }
 })
 

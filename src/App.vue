@@ -5,46 +5,88 @@
       <div class="collapse navbar-collapse">
        
           <div class="btn-group" role="group" aria-label="tools graph">
-              <button type="button" class="form-control btn btn-primary" @click="configuration">
+              <button type="button" class="form-control btn btn-primary" 
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="SPARQL Endpoint/RDF Files/ Query Builder Confiuration."
+              @click="configuration">
                  <font-awesome-icon icon="sliders-h" />  
               </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">
+              <button type="button" class="form-control btn btn-primary" 
+              @click="back" 
+              data-toggle="tooltip" 
+              data-placement="bottom"
+              title="Undo last action, go back."
+              v-if="backwardActive">
                 <font-awesome-icon icon="backward" />  
               </button>
-              <button type="button" class="form-control btn btn-primary disabled" v-else disabled>
+              <button type="button" class="form-control btn btn-primary disabled" 
+              data-toggle="tooltip" 
+              data-placement="bottom"
+              title="Undo last action, go back."
+              v-else disabled>
                  <font-awesome-icon icon="backward" />  
               </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="forwardActive">
+              <button type="button" class="form-control btn btn-primary" 
+              @click="forward" 
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Retrieve the canceled action, go forward."
+              v-if="forwardActive">
                  <font-awesome-icon icon="forward" />  
               </button>
-              <button type="button" class="form-control btn btn-primary disabled"  v-else disabled>
+              <button type="button" class="form-control btn btn-primary disabled"  
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Retrieve the canceled action, go forward."
+              v-else disabled>
                  <font-awesome-icon icon="forward" />  
               </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="builder">
+              <button type="button" class="form-control btn btn-primary" 
+              @click="builder"
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Build the query."
+              >
+
                  <font-awesome-icon icon="project-diagram" />  
               </button>
 
-              <button type="button" class="form-control btn btn-primary" @click="getResults">
+              <button type="button" class="form-control btn btn-primary" 
+              @click="getResults"
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Display the query results."
+              >
                 <font-awesome-icon icon="poll" />  
               </button> 
               
-              <button type="button" class="form-control btn btn-info" @click="console">
+              <button type="button" class="form-control btn btn-info" 
+              @click="console"
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Information about the current query (discovery internal state)."
+              >
                 <font-awesome-icon icon="terminal" />
               </button>
 
-              <!--
-              <button type="button" class="form-control btn btn-success" @click="copyPermalinkResultsToClipBoard">
-                <font-awesome-icon icon="clipboard" />
-              </button>
-               -->
-              <button type="button" class="form-control btn btn-success" @click="copyPermalinkQueryBuilderToClipBoard">
+              <button type="button" class="form-control btn btn-success" 
+              @click="copyPermalinkQueryBuilderToClipBoard"
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Copy a permalink to save the current query."
+              >
                 <font-awesome-icon icon="clipboard-list" />
               </button>
 
-              <button type="button" class="form-control btn btn-danger" @click="clear">Clear</button>
+              <button type="button" class="form-control btn btn-danger" @click="clear"
+              data-toggle="tooltip" 
+              data-placement="bottom" 
+              title="Delete the current request and start a new session."
+              >Clear</button>
             </div>
 
          
@@ -168,6 +210,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
       this.$toast.info("forward"); 
     },
 
+     /* https://router.vuejs.org/guide/essentials/navigation.html*/
+     
     builder() {
       router.push({ name : 'builder' , params: { rm: require('lzbase62').compress(this.requestManagerStringify) }})
     },
