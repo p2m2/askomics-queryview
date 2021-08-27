@@ -1,34 +1,38 @@
 <template>
-    <QueryBuilder v-model:query="query" @updateRequestManager="updateQuery" />
+    <QueryBuilderPanel v-model:requestString="requestString" @updateRequestManager="updateRequestString" />
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
+import QueryBuilderPanel from '@/components/askomics/panels/QueryBuilderPanel.vue'
 
 @Options({
-  name: "AskOmics",
+  name: "GraphBuilder",
   
+  props : {
+    rm :  String
+  },
+
   components: {
-    QueryBuilder 
+    QueryBuilderPanel 
   },
 
   emits: ["updateRequestManager"],
  
   computed: {
-    query() {
+    requestString() {
       return require('lzbase62').decompress(this.$route.params.rm)
     }
   },
 
   methods : {
-    updateQuery(requestManagerString : string) {
+    updateRequestString(requestManagerString : string) {
       this.$emit('updateRequestManager',requestManagerString)
     }
   }
 
 })
-export default class AskOmics extends Vue {}
+export default class GraphBuilder extends Vue {}
 </script>
 
 <style>

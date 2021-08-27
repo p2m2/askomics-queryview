@@ -5,81 +5,39 @@
           <!-- waiting div -->
               <br />
               <div class="row">
-                
-              <div class="col col-xs-7">
-                  <QueryGraphPanel 
-                    v-model:requestString="currentQuery"
-                    v-model:filterProperty="filterProperty"
-                    @updateRequestManager="updateQuery"
-                    @requestManagerBusy="requestBusy = JSON.parse($event)"
-                    @requestManagerBusyPercent="requestBusyPercent = JSON.stringify(JSON.parse($event)*100)"
-                    @requestManagerBusyEvent="requestBusyEvent"
-                    :width="750" 
-                    :height="450" />
-              </div>
-              
-              <div class="col col-xs-5">
-                  <AttributesPanel 
-                    v-model:requestString="currentQuery"
-                    @updateRequestManager="updateQuery"
-                    @updateFilterProperty="filterProperty = JSON.parse($event)"
-                    :width="450" 
-                    :height="450"
-                   />
-              </div>
-              
-         </div>
-         <div class="row">
-          <div class="col">
-            <div class="btn-group" role="group" aria-label="tools graph">
-              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="configuration">
-                 <font-awesome-icon icon="sliders-h" />  
-              </button>
-
-              <button type="button" class="form-control btn btn-primary" @click="back" v-if="backwardActive">
-                <font-awesome-icon icon="backward" />  
-              </button>
-              <button type="button" class="form-control btn btn-primary disabled" v-else disabled>
-                 <font-awesome-icon icon="backward" />  
-              </button>
-
-              <button type="button" class="form-control btn btn-primary" @click="forward" v-if="forwardActive">
-                 <font-awesome-icon icon="forward" />  
-              </button>
-              <button type="button" class="form-control btn btn-primary disabled"  v-else disabled>
-                 <font-awesome-icon icon="forward" />  
-              </button>
-
-              <button type="button" class="form-control btn btn-primary" @click="getResults">
-                <font-awesome-icon icon="poll" />  
-              </button> 
-              
-              <button type="button" class="form-control btn btn-info" @click="console">
-                <font-awesome-icon icon="terminal" />
-              </button>
-
-              <!--
-              <button type="button" class="form-control btn btn-success" @click="copyPermalinkResultsToClipBoard">
-                <font-awesome-icon icon="clipboard" />
-              </button>
-               -->
-              <button type="button" class="form-control btn btn-success" @click="copyPermalinkQueryBuilderToClipBoard">
-                <font-awesome-icon icon="clipboard-list" />
-              </button>
-
-              <button type="button" class="form-control btn btn-danger" @click="clear">Clear</button>
-            </div>
-            </div>  
-          <div class="col col-xs-5">
-               <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
-               </div>
-          </div>
-        
-          <div class="progress" v-if="requestBusy">
-                <div class="progress-bar" role="progressbar" :style="'width: '+requestBusyPercent+'%'" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                  {{ requestBusyPercent }} {{ requestBusyEvent }}
+                <div class="col col-xs-7">
+                    <QueryGraphPanel 
+                      v-model:requestString="currentQuery"
+                      v-model:filterProperty="filterProperty"
+                      @updateRequestManager="updateQuery"
+                      @requestManagerBusy="requestBusy = JSON.parse($event)"
+                      @requestManagerBusyPercent="requestBusyPercent = JSON.stringify(JSON.parse($event)*100)"
+                      @requestManagerBusyEvent="requestBusyEvent"
+                      :width="750" 
+                      :height="450" />
                 </div>
-          </div> 
+                
+                <div class="col col-xs-5">
+                    <AttributesPanel 
+                      v-model:requestString="currentQuery"
+                      @updateRequestManager="updateQuery"
+                      @updateFilterProperty="filterProperty = JSON.parse($event)"
+                      :width="450" 
+                      :height="450"
+                    />
+                </div>
+              </div>
+            <div class="row">
+              <div class="col">
+                <font-awesome-icon icon="spinner" size="2x" spin v-if="requestBusy" />
+        
+                <div class="progress" v-if="requestBusy">
+                      <div class="progress-bar" role="progressbar" :style="'width: '+requestBusyPercent+'%'" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                        {{ requestBusyPercent }} {{ requestBusyEvent }}
+                      </div>
+                </div>
+                </div>
+                </div> 
          </div>
      </div>
  
@@ -104,7 +62,7 @@ import RequestManager from '@/ts/RequestManager'
 [ faBackward, faForward, faSpinner, faClipboard, faClipboardList, faPoll, faTerminal, faSlidersH ].map(icon => library.add(icon)) ;
 
 @Options({
-  name: "QueryBuilder",
+  name: "QueryBuilderPanel",
   
   components : {  
       library,FontAwesomeIcon, QueryGraphPanel,AttributesPanel
@@ -113,12 +71,12 @@ import RequestManager from '@/ts/RequestManager'
   emits: ["updateRequestManager"],
   
   props : {
-    query :  String
+    requestString :  String
   },
  
   data () {
     return {
-      currentQuery       : this.query,
+      currentQuery       : this.requestString,
       requestBusy        : false,
       requestBusyPercent : "0",
       requestBusyEvent   : "",
@@ -130,7 +88,13 @@ import RequestManager from '@/ts/RequestManager'
    
   watch : {
     requestBusy : 'prepareRequestBusy',
-    requestBusyPercent : 'prepareRequestBusy'
+    
+    requestBusyPercent : 'prepareRequestBusy',
+
+    requestString() {
+      this.currentQuery = this.requestString
+    }
+
   } ,
 
   created() {
@@ -227,7 +191,7 @@ import RequestManager from '@/ts/RequestManager'
   }
 })
 
-export default class QueryBuilder extends Vue {
+export default class QueryBuilderPanel extends Vue {
 
 }
 
