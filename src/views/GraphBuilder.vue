@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import QueryBuilderPanel from '@/components/askomics/panels/QueryBuilderPanel.vue'
+import QueryBuilderPanel from '@/components/discovery-builder/panels/QueryBuilderPanel.vue'
 
 @Options({
   name: "GraphBuilder",
