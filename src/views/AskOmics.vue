@@ -17,7 +17,7 @@ import QueryBuilder from '@/components/askomics/panels/QueryBuilder.vue'
  
   computed: {
     query() {
-      return require('lzbase62').decompress(this.$route.params.query)
+      return require('lzbase62').decompress(this.$route.params.rm)
     }
   },
 

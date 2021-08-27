@@ -72,7 +72,6 @@
                 </div>
           </div> 
          </div>
-         <pre v-html="innerHTML" />
      </div>
  
 </template>
@@ -116,8 +115,7 @@ import RequestManager from '@/ts/RequestManager'
       requestBusyEvent   : "",
       filterProperty     : FilterProperty.TO,
       forwardActive      : false,
-      backwardActive     : false,
-      innerHTML          : ""
+      backwardActive     : false
     }
   },
    
@@ -148,7 +146,6 @@ import RequestManager from '@/ts/RequestManager'
       this.currentQuery = value
       this.updateHistoryButton() 
       this.$emit('updateQuery',this.currentQuery)
-      this.console_qb()
     },
 
     attributeBoxEvent(e: string) {
@@ -209,27 +206,11 @@ import RequestManager from '@/ts/RequestManager'
       r.clear()
       this.updateQuery(r.serialized())
       this.$toast.info("clear session !"); 
-    },
-
-    console_qb() {
-        var old = console.log;
-        let vue = this ;
-        
-        console.log = function (message) {
-         
-          if (typeof message == 'object') {
-              vue.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
-          } else {
-              vue.innerHTML += message + '<br />';
-          }
-        }
-        new RequestManager(this.currentQuery,this).getDiscovery().console()
-        console.log = old
-      }
+    }
   }
 })
 
-export default class AskOmics extends Vue {
+export default class QueryBuilder extends Vue {
 
 }
 

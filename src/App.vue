@@ -16,10 +16,10 @@
               :to="{ 
                 name : 'askomics' , 
                 params: { 
-                  query: require('lzbase62').compress(requestManagerStringify) 
+                  rm: require('lzbase62').compress(requestManagerStringify) 
                   }
               }"
-            >Query Builder </router-link>
+            >Query Builder</router-link>
           </li>
           
           <li class="nav-item">
@@ -30,7 +30,18 @@
                 params: { 
                   rm: require('lzbase62').compress(requestManagerStringify) 
                 }
-              }">Results </router-link>
+              }">Results</router-link>
+          </li>
+
+           <li class="nav-item">
+            <router-link 
+              class="nav-link" 
+              :to="{ 
+                name : 'console' , 
+                params: { 
+                    rm: require('lzbase62').compress(requestManagerStringify) 
+                  }
+              }">Console</router-link>
           </li>
 
           <li class="nav-item">
@@ -41,8 +52,9 @@
                 params: { 
                   configuration: require('lzbase62').compress(JSON.stringify(configuration)) 
                   }
-              }">Configuration </router-link>
+              }">Configuration</router-link>
           </li>
+
         </ul>
         <!--
         <form class="d-flex">

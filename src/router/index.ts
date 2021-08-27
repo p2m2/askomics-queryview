@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import AskOmics from '../views/AskOmics.vue'
-import AskOmicsTest from '../views/AskOmicsTest.vue'
+import Console from '../views/Console.vue'
 import Results from '../views/Results.vue'
 import Configuration from '../views/Configuration.vue'
 
@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
     component: Configuration // change to worklows -> configuration -> askomics view
   },*/
   {
-    path: '/askomics/:query',
+    path: '/askomics/:rm',
     name: 'askomics',
     component: AskOmics
   },
@@ -24,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/results/:rm',
     name: 'results',
     component: Results
+  },
+  {
+    path: '/console/:rm',
+    name: 'console',
+    component: Console
   },
   {
     path: '/configuration/:configuration',
