@@ -378,7 +378,7 @@ export default class RequestManager {
     }
 
     updateAttribute(attribute :AskOmicsViewAttributes) {
-       
+        
         if(!this.getDiscovery().getDecoration("attributes")) {
             alert("Bad definition of decorations : "+this.getDiscovery().getDecoration("attributes"))
         }
@@ -391,10 +391,30 @@ export default class RequestManager {
 
         if ( attribute.visible && attribute.uri != "uri") {
             this.setDiscovery(this.getDiscovery().datatype(attribute.uri,attribute.id))
+        } else {
+            //TODO : remove datatype....
         }
         
+        const focus = this.getDiscovery().focus()
+
+        /*
+        if ( attribute.filterValue.length>0) {
+            
+            let disco = this.getDiscovery().remove(attribute.id+"__")
+            disco = disco.focus(focus)
+            disco = disco.isSubjectOf(attribute.uri,attribute.id+"__")
+
+            switch ( attribute.range ) {
+                case "xsd:string" : {
+                    this.setDiscovery(disco.filter.contains(attribute.filterValue))
+                }
+            }
+        }
+
+        */
         this.setDiscovery(
             this.getDiscovery()
+            .focus(focus)
             .setDecoration("attributes",JSON.stringify(map))
             )
         

@@ -29,27 +29,54 @@ import { Options, Vue } from 'vue-class-component';
 import { AskOmicsViewAttributes } from 'src/ts/types';
 
 @Options({
-    
-    props: {
-        attribute : Object as () => AskOmicsViewAttributes 
-    },
 
-    methods: {
+    emits: ["updateAttribute"],
+
+    props: {
+        attributeInt : {
+            type : Object as () => AskOmicsViewAttributes ,
+            required: true
+            }
     },
 
     data() { 
         return {
-            typeSearch: 'A',
+            attribute : this.attributeInt,
+            typeSearch: 'contains',
             optionsTypeSearch: [
-                { text: 'Exact', value: 'A' },
-                { text: 'Regex', value: 'B' }
+                { text: 'Contains', value: 'contains' },
+                { text: 'Exact', value: 'equal' },
+                { text: 'Regex', value: 'regex' },
+                { text: 'Starts', value: 'strStarts' },
+                { text: 'Ends', value: 'strEnds' }
             ],
-            typeCompare: 'A',
+            typeCompare: 'false',
             optionsTypeCompare: [
-                { text: '=', value: 'A' },
-                { text: '!=', value: 'B' }
+                { text: '=', value: 'false' },
+                { text: '!=', value: 'true' }
             ],
             filterValue: '',
+        }
+    },
+
+    mounted() {
+        this.attribute = this.attributeInt
+    },
+    
+    methods: {
+        update() {
+            this.attribute.filterValue = this.filterValue
+            this.attribute.typeSearch  = this.typeSearch
+            this.attribute.negative = this.typeCompare == "true"
+        }
+    },
+
+    
+    watch : {
+
+        filterValue() {
+            this.update()
+            this.$emit('updateAttribute',JSON.stringify(this.attribute))
         }
     }
 })

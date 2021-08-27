@@ -32,7 +32,7 @@ import { AskOmicsViewAttributes } from 'src/ts/types'
     name: "URIBox",
     
     props: {
-        attribute : Object as () => AskOmicsViewAttributes 
+        attributeInt : Object as () => AskOmicsViewAttributes 
     },
 
     methods: {

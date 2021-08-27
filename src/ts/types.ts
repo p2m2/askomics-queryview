@@ -1,5 +1,6 @@
 import Utils from "./utils"
 
+
 interface AskOmicsViewAttributesI {
     id: string
     uri: string
@@ -7,7 +8,10 @@ interface AskOmicsViewAttributesI {
     range : string
     visible: boolean    
     negative: boolean   
-    linked: boolean     
+    linked: boolean
+    properties : Object
+    filterValue : string  
+    typeSearch  : string       
 }
 
 export class AskOmicsViewAttributes {
@@ -15,9 +19,12 @@ export class AskOmicsViewAttributes {
       uri: string
       label: string
       range : string
-      visible: boolean    = false
-      negative: boolean   = false
-      linked: boolean     = false
+      visible: boolean      = false
+      negative: boolean     = false
+      linked: boolean       = false
+      filterValue : string  = ""
+      typeSearch  : string  = ""
+
 
       constructor(id: string,uri: string,range: string, label : string="") {
         this.id = id
@@ -34,21 +41,21 @@ export class AskOmicsViewAttributes {
             range: this.range, 
             visible: this.visible , 
             negative: this.negative,
-            linked : this.linked
+            linked : this.linked,
+            filterValue : this.filterValue,
+            typeSearch : this.typeSearch
           }
       }
 
-      static build(n: AskOmicsViewAttributes) {
-          return JSON.stringify(n.getObject())
-      }
-
-
-
+  
       static from(n: AskOmicsViewAttributesI) : AskOmicsViewAttributes {
         const att = new AskOmicsViewAttributes(n.id,n.uri,n.range,n.label)
         att.visible = n.visible
         att.negative = n.negative 
         att.linked = n.linked
+        att.filterValue = n.filterValue,
+        att.typeSearch = n.typeSearch
+        
         return att
 
     }

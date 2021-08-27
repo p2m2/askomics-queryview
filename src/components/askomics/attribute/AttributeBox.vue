@@ -3,8 +3,8 @@
   <div :id="attributeInt.id" class="attribute-box">
     <label class="attr-label">{{ attributeInt.label }}</label>
     <div className="attr-icons">
-        <font-awesome-icon @click="closeLink" :icon="['fas', 'link']" v-if="attributeInt.linked" />
-        <font-awesome-icon @click="openLink" :icon="['fas', 'unlink']" v-else />
+        <!-- <font-awesome-icon @click="closeLink" :icon="['fas', 'link']" v-if="attributeInt.linked" />
+        <font-awesome-icon @click="openLink" :icon="['fas', 'unlink']" v-else /> -->
         <font-awesome-icon @click="closeEye" :icon="['fas', 'eye']" v-if="attributeInt.visible" />
         <font-awesome-icon @click="openEye" :icon="['fas', 'eye-slash']" v-else />
        <!-- <font-awesome-icon :icon="['fas', 'question-circle']" /> -->
@@ -19,12 +19,13 @@
     
     <div v-else-if="attributeInt.range == 'xsd:string'">
         <XsdString
-          v-bind:attribute="attributeInt"
+          v-bind:attributeInt="attributeInt"
+          @updateAttribute="$emit('updateAttribute',$event)"
         ></XsdString>
     </div>
     <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attributeInt.range)">
         <XsdNumeric
-          v-bind:attribute="attributeInt"
+          v-bind:attributeInt="attributeInt"
         ></XsdNumeric>
     </div>
     <div v-else>
@@ -56,7 +57,7 @@ import XsdNumeric from './XsdNumeric.vue';
   emits: ["updateAttribute"],
 
   props: { 
-      attribute : {
+      attributeInt : {
         type : Object as () => AskOmicsViewAttributes, 
         required: true
       }
@@ -90,12 +91,6 @@ import XsdNumeric from './XsdNumeric.vue';
   
   data () {
     return {
-    }
-  },
-
-  computed : {
-    attributeInt() {
-      return this.attribute
     }
   }
 })

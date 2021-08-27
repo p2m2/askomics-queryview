@@ -31,7 +31,7 @@
                 
     <attributeBox
       v-for="item in attributeList" :key="item.id"
-      :attribute="item"
+      :attributeInt="item"
       @updateAttribute="updateAttribute"
       />
   </div>
