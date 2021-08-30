@@ -109,7 +109,7 @@
 
  <div class="card-footer">
      
-     <a href="https://github.com/p2m2/askomics-queryview" target="_blank" >beta-0.0.1</a> 
+     <a href="https://github.com/p2m2/askomics-queryview" target="_blank" >beta-0.0.3</a> 
      <br/>
      <a href="https://p2m2.github.io/discovery/" target="_blank">@p2m2/discovery</a>
  </div>
@@ -149,11 +149,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
   created() {
     /* If user have a permalink -- management */
-    const url_split = window.location.href.split("/query/")
-   
-    if (url_split.length>1) {
+    let uri = window.location.search
+    let params = new URLSearchParams(uri);
+
+    if (params.has("hash")) {
        /* form http://..../query/XXXXXXX */
-      const compress_data = url_split[url_split.length-1]
+      const compress_data = params.get("hash")
       this.requestManagerStringify = require('lzbase62').decompress(compress_data)      
       this.builder()
 
@@ -230,7 +231,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
     copyPermalinkQueryBuilderToClipBoard() {
         const compressed = require('lzbase62').compress(this.requestManagerStringify);
-        const url = document.location.origin+process.env.BASE_URL+"query/"+compressed
+        const url = document.location.origin+process.env.BASE_URL+"?hash="+compressed
         const vue = this
         navigator.clipboard.writeText(url).then(function() {
             /* clipboard successfully set */
@@ -238,20 +239,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
           }, function(e:Event) {
             /* clipboard write failed */
             vue.$toast.error("query builder url to clipboard failed !"); 
-             console.error(e)
-          });
-    },
-
-    copyPermalinkResultsToClipBoard() {
-        const compressed = require('lzbase62').compress(this.requestManagerStringify);
-        const url = document.location.origin+process.env.BASE_URL+"results/"+compressed
-        const vue = this
-        navigator.clipboard.writeText(url).then(function() {
-            /* clipboard successfully set */
-            vue.$toast.success("results url to clipboard !"); 
-          }, function(e:Event) {
-            /* clipboard write failed */
-            vue.$toast.error("results url to clipboard failed !"); 
              console.error(e)
           });
     },

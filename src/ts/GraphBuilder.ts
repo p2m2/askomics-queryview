@@ -25,18 +25,6 @@ export class GraphBuilder {
                         
                         rm.attributeList(rm.getFocus()).then(
                             response => {
-                                const keyUri = "uri"
-                               
-                                /* special attribute box -> URI */
-                                let uriBox 
-                                
-                                if ( decorations[keyUri] ) {
-                                    uriBox = AskOmicsViewAttributes.from(decorations[keyUri]!)
-                                } else {
-                                    uriBox = new AskOmicsViewAttributes(keyUri,"uri","uri","URI")
-                                }
-                              //  alert(uriBox.visible)
-
                                 /* attribute from RDF store */
                                 const listAttributes : Object[] = 
                                 
@@ -50,7 +38,6 @@ export class GraphBuilder {
                                   })
                                   .map( (obj : AskOmicsViewAttributes )  =>  obj.getObject() )
                                   
-                                  listAttributes.unshift(uriBox)
 
                                 successCallback(listAttributes)
                             }
