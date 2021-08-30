@@ -109,7 +109,7 @@
 
  <div class="card-footer">
      
-     <a href="https://github.com/p2m2/askomics-queryview" target="_blank" >beta-0.0.2</a> 
+     <a href="https://github.com/p2m2/askomics-queryview" target="_blank" >beta-0.0.3</a> 
      <br/>
      <a href="https://p2m2.github.io/discovery/" target="_blank">@p2m2/discovery</a>
  </div>
