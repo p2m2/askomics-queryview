@@ -3,21 +3,23 @@
 <table>
 <tr>
     <td>
-        <select v-model="typeSearch">
-            <option v-for="option in optionsTypeSearch" v-bind:key="option.value" v-bind:value="option.value">
-                {{ option.text }}
-            </option>
-        </select>
-    </td>
-    <td>
-        <select v-model="typeCompare">
+        <select v-on:blur="updateFilterValue" v-model="attribute.negative">
             <option v-for="option in optionsTypeCompare" v-bind:key="option.value" v-bind:value="option.value">
                 {{ option.text }}
             </option>
         </select>
     </td>
+
     <td>
-        <input v-model="filterValue" placeholder="edit me">
+        <select v-on:blur="updateFilterValue" v-model="attribute.operator">
+            <option v-for="option in optionsTypeSearch" v-bind:key="option.value" v-bind:value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+    </td>
+   
+    <td>
+        <input v-on:blur="updateFilterValue" v-model="attribute.filterValue" placeholder="edit me">
     </td>
 </tr>
 </table>
@@ -26,59 +28,42 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { AskOmicsViewAttributes } from 'src/ts/types';
+import { AskOmicsViewAttributes, AttributeOperator  } from '@/ts/types';
 
 @Options({
+
+    name: "XsdString",
 
     emits: ["updateAttribute"],
 
     props: {
-        attributeInt : {
+        attribute : {
             type : Object as () => AskOmicsViewAttributes ,
             required: true
             }
     },
-
     data() { 
         return {
-            attribute : this.attributeInt,
-            typeSearch: 'contains',
             optionsTypeSearch: [
-                { text: 'Contains', value: 'contains' },
-                { text: 'Exact', value: 'equal' },
-                { text: 'Regex', value: 'regex' },
-                { text: 'Starts', value: 'strStarts' },
-                { text: 'Ends', value: 'strEnds' }
+                { text: 'Contains', value: AttributeOperator.CONTAINS },
+                { text: 'Exact', value: AttributeOperator.EQUAL },
+           //     { text: 'Regex', value: AttributeOperator.REGEXP },
+                { text: 'Starts', value: AttributeOperator.STRSTARTS },
+                { text: 'Ends', value: AttributeOperator.STRENDS }
             ],
-            typeCompare: 'false',
             optionsTypeCompare: [
-                { text: '=', value: 'false' },
-                { text: '!=', value: 'true' }
+                { text: '', value: false },
+                { text: 'NOT', value: true }
             ],
-            filterValue: '',
         }
     },
 
-    mounted() {
-        this.attribute = this.attributeInt
-    },
-    
     methods: {
-        update() {
-            this.attribute.filterValue = this.filterValue
-            this.attribute.typeSearch  = this.typeSearch
-            this.attribute.negative = this.typeCompare == "true"
+        updateFilterValue() {
+            if (this.attribute.filterValue && this.attribute.filterValue.length>0)
+                this.$emit('updateAttribute',JSON.stringify(this.attribute))
         }
     },
-
-    
-    watch : {
-
-        filterValue() {
-            this.update()
-            this.$emit('updateAttribute',JSON.stringify(this.attribute))
-        }
-    }
 })
 
 export default class XsdString extends Vue {

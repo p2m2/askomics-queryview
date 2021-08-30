@@ -3,6 +3,7 @@ import Utils from "./utils"
 
 interface AskOmicsViewAttributesI {
     id: string
+    order: number,
     uri: string
     label: string
     range : string
@@ -11,11 +12,12 @@ interface AskOmicsViewAttributesI {
     linked: boolean
     properties : Object
     filterValue : string  
-    typeSearch  : string       
+    operator  : AttributeOperator       
 }
 
 export class AskOmicsViewAttributes {
       id: string
+      order: number
       uri: string
       label: string
       range : string
@@ -23,11 +25,12 @@ export class AskOmicsViewAttributes {
       negative: boolean     = false
       linked: boolean       = false
       filterValue : string  = ""
-      typeSearch  : string  = ""
+      operator  : AttributeOperator = AttributeOperator.CONTAINS
 
 
-      constructor(id: string,uri: string,range: string, label : string="") {
+      constructor(id: string,order : number,uri: string,range: string, label : string="") {
         this.id = id
+        this.order = order
         this.uri = uri
         this.label = label == "" ? Utils.splitUrl(uri): label 
         this.range = range.trim().replace("http://www.w3.org/2001/XMLSchema#","xsd:")
@@ -36,6 +39,7 @@ export class AskOmicsViewAttributes {
       getObject() {
         return {
             id: this.id, 
+            order: this.order,
             uri : this.uri, 
             label: this.label, 
             range: this.range, 
@@ -43,18 +47,33 @@ export class AskOmicsViewAttributes {
             negative: this.negative,
             linked : this.linked,
             filterValue : this.filterValue,
-            typeSearch : this.typeSearch
+            operator : this.operator
           }
       }
 
+      clean() : AskOmicsViewAttributes  {
+        this.visible  = false  
+        this.negative = false  
+        this.linked   = false  
+        this.filterValue = "" 
+        this.operator = AttributeOperator.UNDEFINED
+        if ( this.range == "xsd:string" || this.range == "uri" ) this.operator = AttributeOperator.CONTAINS
+        else if ( 
+            this.range == "xsd:numeric" || 
+            this.range == "xsd:integer" || 
+            this.range == "xsd:double" || 
+            this.range == "xsd:float" ) this.operator = AttributeOperator.EQUAL
+
+        return this
+      }
   
       static from(n: AskOmicsViewAttributesI) : AskOmicsViewAttributes {
-        const att = new AskOmicsViewAttributes(n.id,n.uri,n.range,n.label)
+        const att = new AskOmicsViewAttributes(n.id,n.order,n.uri,n.range,n.label)
         att.visible = n.visible
         att.negative = n.negative 
         att.linked = n.linked
         att.filterValue = n.filterValue,
-        att.typeSearch = n.typeSearch
+        att.operator = n.operator
         
         return att
 
@@ -67,6 +86,21 @@ export interface Graph3DJS {
     links : AskOmicsViewLink[] 
 }
 
+
+export enum AttributeOperator {
+    UNDEFINED=0,
+    STREQUAL,
+    CONTAINS,
+   /* REGEXP, wait fix #143 issue - discovery */
+    STRSTARTS,
+    STRENDS,
+    EQUAL,
+    NOTEQUAL,
+    INF,
+    INFEQUAL,
+    SUP,
+    SUPEQUAL
+}
 
 export enum NodeType {
     SOMETHING=0,

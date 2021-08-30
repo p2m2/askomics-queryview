@@ -1,35 +1,39 @@
 <template>
 
-  <div :id="attributeInt.id" class="attribute-box">
-    <label class="attr-label">{{ attributeInt.label }}</label>
+  <div :id="attribute.id" class="attribute-box">
+    <label class="attr-label">{{ attribute.label }}</label>
     <div className="attr-icons">
-        <!-- <font-awesome-icon @click="closeLink" :icon="['fas', 'link']" v-if="attributeInt.linked" />
+        <font-awesome-icon @click="erase" :icon="['fas', 'eraser']" />
+        <!-- <font-awesome-icon @click="closeLink" :icon="['fas', 'link']" v-if="attribute.linked" />
         <font-awesome-icon @click="openLink" :icon="['fas', 'unlink']" v-else /> -->
-        <font-awesome-icon @click="closeEye" :icon="['fas', 'eye']" v-if="attributeInt.visible" />
+
+        <font-awesome-icon @click="closeEye" :icon="['fas', 'eye']" v-if="attribute.visible" />
         <font-awesome-icon @click="openEye" :icon="['fas', 'eye-slash']" v-else />
        <!-- <font-awesome-icon :icon="['fas', 'question-circle']" /> -->
     </div>
     
-    <div v-if="attributeInt.range == 'uri'">
+    <div v-if="attribute.range == 'uri'">
       <URIBox
-        v-bind:attribute="attributeInt"
+        v-bind:attribute="attribute"
+        @updateAttribute="$emit('updateAttribute',$event)"
       >
       </URIBox>
     </div>
     
-    <div v-else-if="attributeInt.range == 'xsd:string'">
+    <div v-else-if="attribute.range == 'xsd:string'">
         <XsdString
-          v-bind:attributeInt="attributeInt"
+          v-model:attribute="attribute"
           @updateAttribute="$emit('updateAttribute',$event)"
         ></XsdString>
     </div>
-    <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attributeInt.range)">
+    <div v-else-if="['xsd:numeric','xsd:double','xsd:float','xsd:integer'].includes(attribute.range)">
         <XsdNumeric
-          v-bind:attributeInt="attributeInt"
+          v-bind:attribute="attribute"
+           @updateAttribute="$emit('updateAttribute',$event)"
         ></XsdNumeric>
     </div>
     <div v-else>
-        {{ attributeInt.range }} is not supported !
+        {{ attribute.range }} is not supported !
     </div>
 </div>
 </template>
@@ -39,14 +43,14 @@ import { Options, Vue } from 'vue-class-component';
 import { AskOmicsViewAttributes } from '@/ts/types';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faEye, faEyeSlash, faLink, faUnlink, faQuestionCircle, faEraser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import URIBox from './URIBox.vue'
 import XsdString from './XsdString.vue';
 import XsdNumeric from './XsdNumeric.vue';
 
-[ faLink, faUnlink, faCircle, faQuestionCircle, faEye, faEyeSlash ].map(icon => library.add(icon)) ;
+[ faLink, faUnlink, faCircle, faQuestionCircle, faEye, faEyeSlash, faEraser ].map(icon => library.add(icon)) ;
 
 
 @Options({
@@ -57,7 +61,7 @@ import XsdNumeric from './XsdNumeric.vue';
   emits: ["updateAttribute"],
 
   props: { 
-      attributeInt : {
+      attribute : {
         type : Object as () => AskOmicsViewAttributes, 
         required: true
       }
@@ -66,24 +70,28 @@ import XsdNumeric from './XsdNumeric.vue';
   methods: {
       toggleLinkAttribute: () => { console.log( "click 1 !") },
       
+      erase() {
+        this.$emit('updateAttribute',JSON.stringify(AskOmicsViewAttributes.from(this.attribute).clean()))
+      },
+
       openEye(){ 
-        this.attributeInt.visible = true
-        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+        this.attribute.visible = true
+        this.$emit('updateAttribute',JSON.stringify(this.attribute))
       },
       
       closeEye() {
-        this.attributeInt.visible = false
-        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+        this.attribute.visible = false
+        this.$emit('updateAttribute',JSON.stringify(this.attribute))
       },
 
       openLink() {
-        this.attributeInt.linked = true
-        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+        this.attribute.linked = true
+        this.$emit('updateAttribute',JSON.stringify(this.attribute))
       },
 
       closeLink() {
-        this.attributeInt.linked = false
-        this.$emit('updateAttribute',JSON.stringify(this.attributeInt))
+        this.attribute.linked = false
+        this.$emit('updateAttribute',JSON.stringify(this.attribute))
       },
 
       toggleOptional: () => { console.log( "click 3 !") }
