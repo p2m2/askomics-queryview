@@ -31,7 +31,7 @@
                 
     <attributeBox
       v-for="item in attributeList" :key="item.id"
-      :attributeInt="item"
+      :attribute="item"
       @updateAttribute="updateAttribute"
       />
   </div>
@@ -146,6 +146,7 @@ import { GraphBuilder } from '@/ts/GraphBuilder'
         GraphBuilder.buildAttributesBox(this.request).then(
           (response : Object[]) => {
             this.attributeList = response
+            this.attributeList.sort((a : any, b:any) => Number(a.order) - Number(b.order));
           })
       } else {
         this.attributeList = [];

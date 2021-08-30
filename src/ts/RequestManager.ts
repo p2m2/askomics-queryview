@@ -1,7 +1,7 @@
 import { SWDiscoveryConfiguration, SWDiscovery, URI, SWTransaction} from '@p2m2/discovery'
 import { LinkType, AskOmicsGenericNode, 
          AskOmicsViewNode, AskOmicsViewLink, NodeType, 
-         ObjectState, AskOmicsViewAttributes, Graph3DJS, UserConfiguration } from './types'
+         ObjectState, AskOmicsViewAttributes, Graph3DJS, UserConfiguration, AttributeOperator } from './types'
 import StrategyRequestAbstract from "./StrategyRequestAbstract"
 import StrategyRequestAskOmics from "./StrategyRequestAskOmics"
 import StrategyRequestDataDriven from "./StrategyRequestDataDriven"
@@ -378,9 +378,10 @@ export default class RequestManager {
     }
 
     updateAttribute(attribute :AskOmicsViewAttributes) {
-        
+
         if(!this.getDiscovery().getDecoration("attributes")) {
             alert("Bad definition of decorations : "+this.getDiscovery().getDecoration("attributes"))
+            return
         }
         
         const map = JSON.parse(this.getDiscovery().getDecoration("attributes"))
@@ -390,39 +391,103 @@ export default class RequestManager {
         /** ON PEUT PAS ENCORE SUPPRIMER UN DATATYPE */
 
         if ( attribute.visible && attribute.uri != "uri") {
+            this.getDiscovery().remove(attribute.id)
             this.setDiscovery(this.getDiscovery().datatype(attribute.uri,attribute.id))
         } else {
-            //TODO : remove datatype....
+            this.getDiscovery().remove(attribute.id)
         }
         
         const focus = this.getDiscovery().focus()
 
-        /*
+    
         if ( attribute.filterValue.length>0) {
-            
-            let disco = this.getDiscovery().remove(attribute.id+"__")
-            disco = disco.focus(focus)
-            disco = disco.isSubjectOf(attribute.uri,attribute.id+"__")
+            let disco = this.getDiscovery()
 
-            switch ( attribute.range ) {
-                case "xsd:string" : {
+            if ( attribute.range != "uri") {
+                /**
+                 * Create a new node for the uri property
+                 */
+                disco = disco.remove(attribute.id+"_node")
+                disco = disco.focus(focus)
+                disco = disco.isSubjectOf(attribute.uri,attribute.id+"_node")
+            } else {
+                /**
+                 * filtering on the current object!!!!
+                 */
+            }
+
+            switch ( attribute.operator ) {
+                case AttributeOperator.CONTAINS : {
                     this.setDiscovery(disco.filter.contains(attribute.filterValue))
+                    break
+                }
+                /*
+                case AttributeTypeSearch.REGEXP : {
+                    this.setDiscovery(disco.filter.regex(attribute.filterValue))
+                    break
+                }*/
+                case AttributeOperator.STREQUAL : {
+                    this.setDiscovery(disco.filter.equal(attribute.filterValue))
+                    break
+                }
+                case AttributeOperator.STRSTARTS : {
+                    this.setDiscovery(disco.filter.strStarts(attribute.filterValue))
+                    break
+                }
+                case AttributeOperator.STRENDS : {
+                    this.setDiscovery(disco.filter.strEnds(attribute.filterValue))
+                    break
+                }
+                
+                case AttributeOperator.EQUAL : {
+                    this.setDiscovery(disco.filter.equal(attribute.filterValue))
+                    break
+                }
+
+                case AttributeOperator.NOTEQUAL : {
+                    this.setDiscovery(disco.filter.notEqual(attribute.filterValue))
+                    break
+                }
+
+                case AttributeOperator.INF : {
+                    this.setDiscovery(disco.filter.inf(attribute.filterValue))
+                    break
+                }
+                case AttributeOperator.INFEQUAL : {
+                    this.setDiscovery(disco.filter.infEqual(attribute.filterValue))
+                    break
+                }
+                case AttributeOperator.SUP : {
+                    this.setDiscovery(disco.filter.sup(attribute.filterValue))
+                    break
+                }
+                case AttributeOperator.SUPEQUAL : {
+                    this.setDiscovery(disco.filter.supEqual(attribute.filterValue))
+                    break
+                }
+                default: {
+                    alert("AttributeTypeSearch does not exist :"+attribute.operator)
                 }
             }
+        } else {
+            if ( attribute.range != "uri")
+                this.setDiscovery(this.getDiscovery().remove(attribute.id+"_node").focus(focus))
         }
 
-        */
         this.setDiscovery(
             this.getDiscovery()
             .focus(focus)
             .setDecoration("attributes",JSON.stringify(map))
             )
-        
+
+      
         this.push()
         this.vue.$emit('updateRequestManager',this.serialized())    
     }
 
     attributeList(focus: string) : Promise<AskOmicsViewAttributes[]> {
+        const currentRm = this ;
+
         return new Promise((successCallback, failureCallback) => {
             if (this.strategy) {
                 this.strategy.attributeList(this.getDiscovery(),focus) 
@@ -462,29 +527,47 @@ export default class RequestManager {
 
                             m.set(uri,label)
                         }
+                        /**
+                         * add current seetings with attributes to have possibility to remove/change filter
+                         * 
+                         */
+                       
+                        const mapFilterAttributes = JSON.parse(this.getDiscovery().getDecoration("attributes"))
+                       
+                        for ( const k of Object.keys(mapFilterAttributes)) {
+                            results.push(mapFilterAttributes[k])
+                        }
                         
+                        if (! Object.keys(mapFilterAttributes).includes("uri")) {
+                            results.unshift(new AskOmicsViewAttributes("uri",0,"uri","uri","URI"))
+                        }
+
                         if ( this.strategy && m.size>0) {
                             const lUris : string[] = []
                             for (const key of m.keys()) {
                                 lUris.push(key)
                             }
- 
+
                             this.strategy.getDatatypes(this.getConfiguration().jsonConfigurationSWDiscoveryString(), lUris)
                             .then ( (mapPropertyAndRange )=>{
                                 let iCount = 0
                                 lUris.map(
                                     uriProperty => {
-                                        let label = m.get(uriProperty)
-                                        let range = mapPropertyAndRange.get(uriProperty)
-                                        
-                                        if (!label) label = uriProperty.split(/\/#/).pop()
-                                        if (!label) label = ""
-                                        if (!range) range = ""
-                                        
-                                        const id : string = focus+"_dt_"+iCount++
-                                        results.push(
-                                            new AskOmicsViewAttributes(id,uriProperty,range,label)
-                                        )
+                                        /* add only if this uri datatype property is not set as a filter */
+                                        if (! Object.keys(mapFilterAttributes).includes(uriProperty)) {
+                                            let label = m.get(uriProperty)
+                                            let range = mapPropertyAndRange.get(uriProperty)
+                                            
+                                            if (!label) label = uriProperty.split(/\/#/).pop()
+                                            if (!label) label = ""
+                                            if (!range) range = ""
+                                            
+                                            const id : string = focus+"_dt_"+iCount++
+                                            results.push(
+                                                new AskOmicsViewAttributes(id,iCount,uriProperty,range,label)
+                                            )
+                                        }
+                                      
                                     })
                                 successCallback(results)
                                 
